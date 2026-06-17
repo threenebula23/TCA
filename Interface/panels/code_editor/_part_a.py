@@ -316,21 +316,28 @@ class FileEditorTabPane(Vertical):
                 self._lang = _LANG_MAP.get(suf, "python")
 
     def compose(self) -> ComposeResult:
+        from Interface.panels.vi_textarea import ViTextArea
         with Horizontal(id="file-tab-toolbar"):
             yield Button("Сохранить", id="file-tab-save", variant="default")
             yield Button("Закрыть вкладку", id="file-tab-close", variant="error")
-        editor = LorneCodeEditor.code_editor(
-            self._initial_text, language=self._lang, id=self._editor_id,
+        vi_ed = ViTextArea(
+            content=self._initial_text,
+            language=self._lang,
+            filepath=str(self._path),
+            id=self._editor_id,
         )
-        editor.show_line_numbers = True
-        yield editor
+        vi_ed.show_line_numbers = True
+        yield vi_ed
 
     def on_mount(self) -> None:
         try:
             from Interface.ui_prefs import load_prefs
             from Interface.themes import SYNTAX_THEME_MAP, ensure_custom_textarea_themes
-            ed = self.query_one(f"#{self._editor_id}", LorneCodeEditor)
-            ensure_custom_textarea_themes(ed)
+            from Interface.panels.vi_textarea import ViTextArea as _ViTA
+            ed = self.query_one(f"#{self._editor_id}", _ViTA)
+            ta = ed._textarea
+            if ta is not None:
+                ensure_custom_textarea_themes(ta)
             ed.theme = SYNTAX_THEME_MAP.get(
                 str(load_prefs().get("syntax_theme", "monokai")), "monokai",
             )
@@ -354,7 +361,8 @@ class FileEditorTabPane(Vertical):
 
     def _save_to_disk(self) -> None:
         try:
-            ed = self.query_one(f"#{self._editor_id}", LorneCodeEditor)
+            from Interface.panels.vi_textarea import ViTextArea
+            ed = self.query_one(f"#{self._editor_id}", ViTextArea)
             text = ed.text
             self._path.write_text(text, encoding="utf-8")
             self.notify(f"Saved: {self._path.name}")

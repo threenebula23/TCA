@@ -11,13 +11,7 @@ from textual.containers import Vertical
 from textual.message import Message
 from textual.widgets import Static, Tree
 
-PURPLE = "#8B5CF6"
-GRAY = "#6B7280"
-GREEN = "#10B981"
-RED = "#EF4444"
-YELLOW = "#F59E0B"
-DIM = "#4B5563"
-ORANGE = "#F97316"
+from Interface.panels._colors import PURPLE, GRAY, GREEN, RED, YELLOW, DIM, ORANGE  # noqa: E402
 
 
 class AgentWorkerSelected(Message):
@@ -124,9 +118,15 @@ class ActiveAgentsPanel(Vertical):
         icon = status_icons.get(status, "○")
         color = status_colors.get(status, GRAY)
 
+        role = str(data.get("role", "")).strip()
+        # Derive display number from worker_id suffix (e.g. "worker_2" → "2")
+        num = "".join(c for c in str(wid) if c.isdigit()) or "1"
         label = Text()
         label.append(f"{icon} ", style="default")
-        label.append(f"{wid}", style=f"bold {color}")
+        if role:
+            label.append(f"{role.capitalize()} - {num}", style=f"bold {color}")
+        else:
+            label.append(f"{wid}", style=f"bold {color}")
         if task:
             label.append(f"  {task}", style="#E5E7EB")
         if model:

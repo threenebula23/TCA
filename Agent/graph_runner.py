@@ -86,9 +86,13 @@ class AgentGraph:
                     invoke_msgs.append(
                         SystemMessage(content="### Анти-петля (только для этого ответа)\n" + _nudge)
                     )
-                raw_response = safe_chat_invoke_with_tool_recovery(
-                    self.llm_with_tools, invoke_msgs,
-                )
+                bridge = get_bridge()
+                if bridge:
+                    raw_response = self._stream_call_model(bridge, invoke_msgs)
+                else:
+                    raw_response = safe_chat_invoke_with_tool_recovery(
+                        self.llm_with_tools, invoke_msgs,
+                    )
                 spinner.stop()
                 last_error = None
                 break
@@ -190,6 +194,38 @@ class AgentGraph:
 
         return {"messages": [AIMessage(content=content, response_metadata=meta)]}
 
+    def _stream_call_model(self, bridge: Any, invoke_msgs: List[Any]) -> Any:
+        """Стриминг токенов от LLM с одновременным накоплением полного ответа.
+
+        Использует LangChain chunk + chunk для корректной сборки инструментальных
+        вызовов (tool_calls). При ошибке стриминга — фолбэк на blocking invoke.
+        """
+        try:
+            accumulated: Any = None
+            for chunk in self.llm_with_tools.stream(invoke_msgs):
+                if accumulated is None:
+                    accumulated = chunk
+                else:
+                    try:
+                        accumulated = accumulated + chunk
+                    except Exception:
+                        pass
+                chunk_content = getattr(chunk, "content", "") or ""
+                if isinstance(chunk_content, list):
+                    chunk_content = "".join(
+                        c.get("text", "") if isinstance(c, dict) else str(c)
+                        for c in chunk_content
+                    )
+                if chunk_content:
+                    bridge.on_stream_token(chunk_content)
+            try:
+                bridge._call(bridge.app.chat.end_streaming)
+            except Exception:
+                pass
+            return accumulated
+        except Exception:
+            return safe_chat_invoke_with_tool_recovery(self.llm_with_tools, invoke_msgs)
+
     def _brain_sync(self, state: MessagesState) -> Dict[str, Any]:
         """After a final assistant message (no tool calls), sync brain RAG from disk.
 
@@ -269,17 +305,18 @@ class AgentGraph:
 
         display_agent_action(idx + 1, tool_name, tool_args)
 
-        if bridge:
-            args_preview = ", ".join(
-                f"{k}={repr(v)[:40]}" for k, v in list(tool_args.items())[:3]
+        if bridge and hasattr(bridge, "on_tool_start"):
+            try:
+                bridge.on_tool_start(idx + 1, tool_name, tool_args)
+            except Exception:
+                pass
+
+        if bridge and tool_name in self._FILE_TOOLS:
+            fpath = tool_args.get(
+                "file_path", tool_args.get("path", tool_args.get("filename", "")),
             )
-            bridge.on_action(tool_name, args_preview)
-            if tool_name in self._FILE_TOOLS:
-                fpath = tool_args.get(
-                    "file_path", tool_args.get("path", tool_args.get("filename", "")),
-                )
-                if fpath:
-                    bridge.on_file_working(str(fpath))
+            if fpath:
+                bridge.on_file_working(str(fpath))
 
         tool = self.tool_map.get(tool_name)
         _t_start = time.time()
@@ -303,24 +340,43 @@ class AgentGraph:
         display_tool_result(idx + 1, tool_name, parsed)
 
         if bridge and tool_name in self._FILE_TOOLS and isinstance(parsed, dict):
-            content = parsed.get("content", "")
             fpath = parsed.get("file_path", parsed.get("path", ""))
-            if content and fpath:
-                lang = "python"
-                ext = str(fpath).rsplit(".", 1)[-1] if "." in str(fpath) else ""
-                lang_map = {
-                    "js": "javascript", "ts": "typescript", "tsx": "typescript",
-                    "json": "json", "md": "markdown", "css": "css",
-                    "html": "html", "sh": "bash", "yaml": "yaml", "yml": "yaml",
-                }
-                lang = lang_map.get(ext, "python")
-                bridge.on_code(str(content)[:3000], lang, str(fpath))
-            if fpath and parsed.get("action") in (
+            _WRITE_ACTIONS = frozenset({
                 "edited", "written", "created", "created_file",
                 "lines_replaced", "lines_inserted", "code_written", "snippet_appended",
                 "appended", "patched", "pdf_created",
-            ):
+            })
+            if fpath and parsed.get("action") in _WRITE_ACTIONS:
+                # Only show code preview for write operations; reads are shown by ToolCardBlock
+                content = parsed.get("content", "")
+                if content:
+                    lang = "python"
+                    ext = str(fpath).rsplit(".", 1)[-1] if "." in str(fpath) else ""
+                    lang_map = {
+                        "js": "javascript", "ts": "typescript", "tsx": "typescript",
+                        "json": "json", "md": "markdown", "css": "css",
+                        "html": "html", "sh": "bash", "yaml": "yaml", "yml": "yaml",
+                    }
+                    lang = lang_map.get(ext, "python")
+                    bridge.on_code(str(content)[:3000], lang, str(fpath))
                 bridge.on_file_changed(str(fpath))
+                # Auto-document: append changelog entry for all write operations
+                try:
+                    import os as _os
+                    from pathlib import Path as _Path
+                    from Agent.project_brain.build import append_changelog_entry
+                    _root = _Path(_os.getcwd())
+                    append_changelog_entry(
+                        root=_root,
+                        entry={
+                            "mode": getattr(self, "_chat_mode", "agent"),
+                            "tool_name": tool_name,
+                            "file_path": str(fpath),
+                            "action": str(parsed.get("action", "")),
+                        },
+                    )
+                except Exception:
+                    pass
 
         content_str = annotate_errors(tool_name, result)
         return ToolMessage(

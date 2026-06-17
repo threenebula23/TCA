@@ -120,6 +120,21 @@ class TUIBridge:
         summary = f"{filepath}: {old_lines} → {new_lines} lines ({sign}{delta})"
         self._call(self.app.chat.add_info, f"📝 {summary}")
 
+    def on_tool_start(self, step: int, tool_name: str, tool_args: Any) -> None:
+        """Показать краткий индикатор начала вызова инструмента (до получения результата)."""
+        _READ_TOOLS = frozenset({"read_file", "read_file_lines", "multi_read"})
+        if tool_name in _READ_TOOLS and isinstance(tool_args, dict):
+            fp = (
+                tool_args.get("filename")
+                or tool_args.get("file_path")
+                or tool_args.get("path")
+                or ""
+            )
+            if fp:
+                from pathlib import Path as _P
+                label = _P(str(fp)).name or str(fp)
+                self._call(self.app.chat.add_info, f"📖 читаю {label}…")
+
     def on_tool_result(self, tool_name: str, result: Any) -> None:
         # Карточки для почти всех тулов; мутации файлов — короткая строка + diff
         # (см. accumulate_tool_result / CodeDiffBlock).
@@ -274,11 +289,24 @@ class TUIBridge:
 
     # ─── Agent working state ─────────────────────────
 
+    def on_thinking_start(self) -> None:
+        """Activate the wave animation bar — model is generating."""
+        self._call(self.app.chat.show_thinking_wave)
+
+    def on_thinking_stop(self) -> None:
+        """Deactivate the wave animation bar."""
+        self._call(self.app.chat.hide_thinking_wave)
+
+    def on_stream_token(self, token: str) -> None:
+        """Append a streamed LLM token to the live streaming widget."""
+        self._call(self.app.chat.append_stream_token, token)
+
     def on_agent_start(self) -> None:
         self._call(self.app.chat.show_stop_button)
 
     def on_agent_done(self) -> None:
         self._call(self.app.chat.hide_stop_button)
+        self._call(self.app.chat.hide_thinking_wave)
 
     # ─── TUI-aware tool interaction ──────────────────
 

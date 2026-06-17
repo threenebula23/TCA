@@ -7,7 +7,7 @@
 | Режим | Env | Вход | UI |
 |--------|-----|------|-----|
 | TUI | `LORNE_MODE` / `TCA_MODE` по умолчанию `tui` | `lorne.py` → `Agent.agent.run_tui_mode()` | Textual: `Interface/tui_app.py` |
-| Classic CLI | `…=classic` или `--classic` | `lorne.py` → `run_coding_agent_loop()` | Rich |
+| ~~Classic CLI~~ | *Удалён в v1.0* | Оставлен как внутренний fallback | — |
 
 `python -m Terminal` и `tca.py` делегируют в `lorne.main`. См. [tutorials/quickstart.md](tutorials/quickstart.md).
 
@@ -43,8 +43,25 @@ lorne.py → Agent.agent (TUI) → Interface.LorneApp + TUIBridge
 | `Interface/panels/workspace_center.py` | Вкладки чат + редактор |
 | `Interface/panels/file_explorer.py` | Дерево, настройки |
 | `Interface/panels/active_agents_panel.py` | Creator-дерево |
+| `Interface/panels/vi_textarea.py` | Vi-like редактор (5 режимов) |
+| `Interface/panels/thinking_block.py` | Виджет мыслей модели |
+| `Interface/panels/keybindings_data.py` | Данные всех клавиш (одна точка истины) |
 
-Стили: `Interface/tui_app.tcss`, темы: `Interface/themes.py`, `Interface/cli_theme.py`.
+Стили: `Interface/tui_app.tcss`, темы: `Interface/themes.py`.
+
+## Новые инструменты v1.0
+
+| Инструмент | Назначение |
+|------------|------------|
+| `structured_memory` | Сессионная KV-память |
+| `ast_analyze` | Структура кода без чтения файла |
+| `multi_read` | Чтение 8 файлов за 1 вызов |
+| `lint_check` | Линтер (ruff/eslint/tsc) |
+| `task_decompose` | Декомпозиция сложной задачи |
+| `env_info` | Окружение: Python, пакеты, команды |
+| `batch_replace` | Пакетная замена в файле |
+| `verify_result` | Проверка результата (синтаксис, строки) |
+| `session_notes` | Свободные заметки сессии |
 
 ## Данные на диске
 

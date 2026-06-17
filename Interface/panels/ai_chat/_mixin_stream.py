@@ -497,8 +497,12 @@ class AIChatPanelStreamMixin:
     def add_thought(self, text: str, *, skip_dedup: bool = False) -> None:
         if not skip_dedup and self._is_duplicate_render(f"thought:{(text or '')[:120]}"):
             return
-        for line in (text or "")[:2000].split("\n")[:40]:
-            self._mount_main(Static(Text(f"· {line}", style=f"italic {DIM}"), classes="stream-line"))
+        try:
+            from Interface.panels.thinking_block import ThinkingBlock
+            self._mount_main(ThinkingBlock(text or ""))
+        except Exception:
+            for line in (text or "")[:2000].split("\n")[:40]:
+                self._mount_main(Static(Text(f"· {line}", style=f"italic {DIM}"), classes="stream-line"))
 
     def add_error(self, text: str) -> None:
         if self._is_duplicate_render(f"error:{text[:120]}"):
@@ -717,6 +721,127 @@ class AIChatPanelStreamMixin:
             self.query_one("#stop-btn", Button).remove_class("visible")
         except Exception:
             pass
+
+    def show_thinking_wave(self) -> None:
+        """Показывает анимированную волну над полем ввода пока модель думает."""
+        try:
+            bar = self.query_one("#thinking-wave-bar", Static)
+            bar.add_class("-active")
+            if not getattr(self, "_wave_timer", None):
+                self._wave_phase = 0
+                self._wave_timer = self.set_interval(0.12, self._tick_wave)
+        except Exception:
+            pass
+
+    def hide_thinking_wave(self) -> None:
+        """Скрывает волну когда модель закончила."""
+        try:
+            if getattr(self, "_wave_timer", None):
+                self._wave_timer.stop()
+                self._wave_timer = None
+            bar = self.query_one("#thinking-wave-bar", Static)
+            bar.remove_class("-active")
+            bar.update("")
+        except Exception:
+            pass
+
+    def _wave_accent_color(self) -> str:
+        try:
+            from Interface.ui_prefs import load_prefs
+            return str(load_prefs().get("accent_color") or "#8B5CF6")
+        except Exception:
+            return "#8B5CF6"
+
+    def _tick_wave(self) -> None:
+        """Один кадр волны: яркий сегмент пингует по полной ширине бара."""
+        try:
+            from rich.text import Text
+            bar = self.query_one("#thinking-wave-bar", Static)
+            if not bar.has_class("-active"):
+                return
+            width = max(20, (bar.size.width or 60) - 2)
+            accent = self._wave_accent_color()
+
+            GLOW = max(6, width // 6)
+            total_steps = (width - GLOW) * 2
+            phase = getattr(self, "_wave_phase", 0) % max(1, total_steps)
+            pos = phase if phase < (width - GLOW) else total_steps - phase
+
+            text = Text()
+            for i in range(width):
+                if pos <= i < pos + GLOW:
+                    rel = i - pos
+                    center = GLOW // 2
+                    if abs(rel - center) <= 1:
+                        text.append("█", style=f"bold {accent}")
+                    else:
+                        text.append("▓", style=accent)
+                else:
+                    text.append("░", style=f"dim {accent}")
+
+            bar.update(text)
+            self._wave_phase = (phase + 1) % max(1, total_steps)
+        except Exception:
+            pass
+
+    def begin_streaming(self) -> None:
+        """Reset the live streaming buffers (widgets are created lazily)."""
+        self._stream_raw = ""
+        self._stream_widget = None
+        self._stream_think_widget = None
+
+    def append_stream_token(self, token: str) -> None:
+        """Append a token to the live stream, splitting thoughts from the answer.
+
+        The raw text is re-parsed on every token with the same reasoning-tag
+        extractor used for the final render, so ``<think>…</think>`` (even while
+        still unclosed mid-generation) streams into a dim "thoughts" widget while
+        the visible answer streams into a separate live widget below it.
+        """
+        try:
+            self._stream_raw = (self._stream_raw or "") + (token or "")
+            try:
+                from Agent.message_utils import extract_thought_segments
+                thoughts, body = extract_thought_segments(self._stream_raw)
+            except Exception:
+                thoughts, body = [], self._stream_raw
+            think_text = "\n\n".join(t.strip() for t in thoughts if (t or "").strip())
+            body = (body or "").strip()
+
+            if think_text:
+                if self._stream_think_widget is None:
+                    self._stream_think_widget = Static(
+                        "", classes="stream-line stream-think-live",
+                    )
+                    self._mount_main(self._stream_think_widget)
+                self._stream_think_widget.update(
+                    Text(f"💭 {think_text}", style=f"italic {DIM}")
+                )
+
+            if body:
+                if self._stream_widget is None:
+                    self._stream_widget = Static("", classes="stream-line stream-live")
+                    self._mount_main(self._stream_widget)
+                self._stream_widget.update(body)
+
+            try:
+                self._main_stream().scroll_end(animate=False)
+            except Exception:
+                pass
+        except Exception:
+            pass
+
+    def end_streaming(self) -> None:
+        """Удаляет live-виджеты стрима — финальные блоки покажут on_thought / on_model_reply."""
+        for attr in ("_stream_widget", "_stream_think_widget"):
+            w = getattr(self, attr, None)
+            if w is not None:
+                try:
+                    w.remove()
+                except Exception:
+                    pass
+            setattr(self, attr, None)
+        self._stream_raw = ""
 
     def start_creator_progress(self, task: str = "", total_workers: int = 0) -> None:
         """Mount the Creator Mode progress strip above the input area.

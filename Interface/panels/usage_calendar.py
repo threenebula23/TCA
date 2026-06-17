@@ -112,13 +112,21 @@ def record_cumulative_usage(total_usd: float) -> Dict[str, float]:
     data = _load_log()
     today = date.today().isoformat()
     meta_key = "__cumulative_total__"
+    is_first_record = meta_key not in data  # True when no snapshot has ever been stored
+
     prev_total = float(data.get(meta_key, 0.0) or 0.0)
-    delta = total - prev_total
-    if delta < 0:
-        # Server reset counters — don't invent a negative day, just re-baseline.
-        delta = 0.0
-    prior_today = float(data.get(today, 0.0) or 0.0)
-    data[today] = prior_today + delta
+    delta = max(0.0, total - prev_total)
+
+    if is_first_record:
+        # We cannot know which historical days the cumulative spend belongs to.
+        # Record it as a baseline so future deltas are correctly attributed.
+        data["__baseline__"] = total
+        # delta intentionally stays 0.0 — do NOT attribute all history to today
+    else:
+        if delta > 0:
+            prior_today = float(data.get(today, 0.0) or 0.0)
+            data[today] = prior_today + delta
+
     data[meta_key] = total
     _save_log(data)
     return data
@@ -262,9 +270,11 @@ class UsageCalendar(Vertical):
         accent = _accent_color()
         data = _load_log()
         total = float(data.get("__cumulative_total__", 0.0) or 0.0)
-        # Sum of daily entries is the number of dollars spent over the window.
+        baseline = float(data.get("__baseline__", 0.0) or 0.0)
+        # Sum of daily entries is the number of dollars spent over the tracked window.
+        _skip_keys = {"__cumulative_total__", "__baseline__"}
         window_sum = sum(
-            float(v) for k, v in data.items() if k != "__cumulative_total__"
+            float(v) for k, v in data.items() if k not in _skip_keys
         )
         usd_total = max(total, window_sum)
 
@@ -272,6 +282,8 @@ class UsageCalendar(Vertical):
         t.append("Использование OpenRouter\n", style=f"{_DIM}")
         t.append(f"${usd_total:,.4f}", style=f"bold {accent}")
         t.append("   всего", style=_DIM)
+        if baseline > 0:
+            t.append(f"\n  (из них ${baseline:,.4f} до начала учёта)", style=_DIM)
         return t
 
     def _render_grid(self) -> Text:

@@ -8,9 +8,9 @@
 from __future__ import annotations
 
 APP_DISPLAY_NAME: str = "Lorne"
-APP_VERSION: str = "0.98"
+APP_VERSION: str = "0.99"
 APP_FULL_VERSION_LABEL: str = f"v{APP_VERSION}"
-APP_CLI_SUBTITLE: str = "Terminal coding assistant"
+APP_CLI_SUBTITLE: str = "Vi-like Terminal IDE"
 
 _STRANGE_ATTRACTOR_LINES: tuple[str, ...] = (
     "    ·   ",

@@ -1,15 +1,19 @@
 """Константы панели чата: цвета, режимы, наборы имён инструментов."""
 from __future__ import annotations
 
-PURPLE = "#8B5CF6"
-PURPLE_LIGHT = "#A78BFA"
-GRAY = "#6B7280"
-GREEN = "#10B981"
-RED = "#EF4444"
-YELLOW = "#F59E0B"
-DIM = "#4B5563"
-BLUE = "#3B82F6"
-CYAN = "#06B6D4"
+from Interface.panels._colors import (
+    PURPLE,
+    PURPLE_LIGHT,
+    GRAY,
+    GREEN,
+    RED,
+    YELLOW,
+    DIM,
+    BLUE,
+    CYAN,
+)
+
+__all__ = ["PURPLE", "PURPLE_LIGHT", "GRAY", "GREEN", "RED", "YELLOW", "DIM", "BLUE", "CYAN"]
 
 MODES = ["Agent", "Ask", "Creator", "Research", "Deep", "Brainer"]
 MARKDOWN_SYNTAX_THEME_MAP = {

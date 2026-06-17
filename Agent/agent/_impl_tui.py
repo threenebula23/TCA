@@ -426,6 +426,9 @@ def run_tui_mode():
                                 if (th or "").strip():
                                     bridge_ref.on_thought(th.strip())
                             content = (content or "").strip()
+                            # Fallback: if model put everything in <think> and body is empty
+                            if not content and segs:
+                                content = segs[-1].strip()
                         if content:
                             bridge_ref.on_model_reply(content, usage_out or None)
                 old_len = len(msgs)
@@ -490,14 +493,15 @@ def run_tui_mode():
             try:
                 set_model(model_id)
                 _init_llm()
-                # Push the freshly-resolved context window to the UI so
-                # the meter shows the real num_ctx of the picked model
-                # immediately — otherwise local Ollama models (which
-                # often don't return usage stats) would keep displaying
-                # the previous model's window until the first assistant
-                # reply arrived.
                 try:
-                    bridge.on_context_update(0, CONTEXT_LIMIT)
+                    import Agent.agent._impl_prepare as _prep
+                    new_ctx = _prep.CONTEXT_LIMIT
+                    new_model = _prep.MODEL_NAME
+                except Exception:
+                    new_ctx = CONTEXT_LIMIT
+                    new_model = MODEL_NAME
+                try:
+                    bridge.on_context_update(0, new_ctx)
                 except Exception:
                     pass
                 try:
@@ -515,7 +519,7 @@ def run_tui_mode():
                         except Exception:
                             pass
 
-                    app.call_from_thread(_after_model_switch, model_id, MODEL_NAME, CONTEXT_LIMIT)
+                    app.call_from_thread(_after_model_switch, model_id, new_model, new_ctx)
                 except Exception:
                     pass
             except Exception as e:

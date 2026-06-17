@@ -32,6 +32,7 @@ from .panels.ai_chat import (
     RollbackRequested, DeepCheckpointAction,
 )
 from .session_picker_screen import SessionPickerScreen
+from .panels.vi_textarea import ViModeChanged
 
 
 class LorneApp(App):
@@ -43,14 +44,15 @@ class LorneApp(App):
 
     BINDINGS = [
         Binding("ctrl+q", "quit", "Exit", show=True, priority=True),
-        Binding("ctrl+s", "save_file", "Save", show=False),
+        Binding("ctrl+s", "save_file", "Save", show=False, priority=True),
+        Binding("f1", "open_keybindings", "Keybindings", show=False, priority=True),
+        Binding("f5", "run_current_file", "Run File", show=False, priority=True),
+        Binding("ctrl+shift+x", "stop_agent", "Stop Agent", show=False, priority=True),
         Binding("ctrl+f", "toggle_find", "Find", show=False),
         Binding("ctrl+g", "goto_line", "Go to Line", show=False),
         Binding("ctrl+w", "close_tab", "Close Tab", show=False),
         Binding("ctrl+b", "toggle_sidebar", "Sidebar", show=False),
         Binding("escape", "focus_chat", "Chat", show=False),
-        Binding("f5", "run_current_file", "Run File", show=False),
-        Binding("ctrl+shift+x", "stop_agent", "Stop Agent", show=False),
         Binding("f6", "resize_left_smaller", "Left -", show=False),
         Binding("f7", "resize_left_larger", "Left +", show=False),
     ]
@@ -149,7 +151,10 @@ class LorneApp(App):
         if self._branch:
             status += f"  ⎇ {self._branch}"
         status += "  │  Esc: чат  M: меню"
-        yield Static(status, id="status-bar")
+        with Horizontal(id="bottom-bar"):
+            yield Static(status, id="status-bar")
+            yield Static("[NORMAL] h/j/k/l · i:вставка · v:выделение · ::команда · Space+w:widget  F1:справка",
+                         id="vi-mode-indicator")
 
     @property
     def file_explorer(self) -> FileExplorerPanel:
@@ -467,6 +472,12 @@ class LorneApp(App):
     def action_close_tab(self) -> None:
         self.workspace.close_active_if_not_chat()
 
+    def action_open_file(self, path: str) -> None:
+        try:
+            self.workspace.open_path(Path(path).expanduser())
+        except Exception as e:
+            self.notify(f"Не удалось открыть: {e}", severity="warning")
+
     def action_run_current_file(self) -> None:
         try:
             tabs = self.workspace._tabs()
@@ -522,5 +533,108 @@ class LorneApp(App):
 
     def _update_status(self) -> None:
         self.update_status(model=self._model_name, branch=self._branch)
+
+    # ─── Vi editor integration ────────────────────────
+
+    def on_vi_mode_changed(self, event: "ViModeChanged") -> None:
+        """Update the vi mode indicator in the status bar."""
+        try:
+            indicator = self.query_one("#vi-mode-indicator", Static)
+            color = event.color
+            label = event.mode.upper()
+            hint = event.hint
+            indicator.update(f"[{label}] {hint}  F1:справка")
+            indicator.styles.color = color
+        except Exception:
+            pass
+
+    def action_open_keybindings(self) -> None:
+        """Open the keybindings reference tab."""
+        try:
+            self.workspace.open_settings_tab(section="keybindings")
+        except Exception:
+            pass
+
+    def action_sidebar_grow(self) -> None:
+        self._left_width = min(50, self._left_width + 2)
+        self._set_width("#col-left", self._left_width)
+
+    def action_sidebar_shrink(self) -> None:
+        self._left_width = max(14, self._left_width - 2)
+        self._set_width("#col-left", self._left_width)
+
+    def action_sidebar_reset(self) -> None:
+        self._left_width = 28
+        self._set_width("#col-left", self._left_width)
+
+    def action_focus_file_explorer(self) -> None:
+        try:
+            self.file_explorer.focus()
+        except Exception:
+            pass
+
+    def action_focus_active_agents(self) -> None:
+        try:
+            self.active_agents.focus()
+        except Exception:
+            pass
+
+    def action_open_settings(self) -> None:
+        try:
+            self.workspace.open_settings_tab()
+        except Exception:
+            pass
+
+    def action_new_terminal(self) -> None:
+        try:
+            self.workspace.open_terminal_tab()
+        except Exception as e:
+            self.notify(f"Терминал недоступен: {e}", severity="warning")
+
+    def _cycle_select(self, select_id: str, step: int = 1) -> None:
+        """Move a Select widget to its next/previous option and fire its handler."""
+        from textual.widgets import Select
+
+        sel = self.query_one(select_id, Select)
+        options = [val for _, val in sel._options if val is not Select.BLANK]
+        if not options:
+            return
+        try:
+            idx = options.index(sel.value)
+        except ValueError:
+            idx = 0
+        sel.value = options[(idx + step) % len(options)]
+
+    def action_cycle_mode(self) -> None:
+        try:
+            self.workspace.focus_chat_tab()
+            self._cycle_select("#mode-select", 1)
+        except Exception:
+            pass
+
+    def action_cycle_model(self) -> None:
+        try:
+            self.workspace.focus_chat_tab()
+            self._cycle_select("#model-select", 1)
+        except Exception:
+            pass
+
+    def action_next_tab(self) -> None:
+        try:
+            self.workspace.action_next_tab()
+        except Exception:
+            pass
+
+    def action_prev_tab(self) -> None:
+        try:
+            self.workspace.action_prev_tab()
+        except Exception:
+            pass
+
+    def action_focus_tab(self, index: int) -> None:
+        try:
+            self.workspace.action_focus_tab(index)
+        except Exception:
+            pass
 
 

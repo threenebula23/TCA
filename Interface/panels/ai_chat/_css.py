@@ -49,6 +49,31 @@ AIChatPanel {
 .attach-chip:hover {
     background: #8B5CF6;
 }
+#thinking-wave-bar {
+    height: 0;
+    min-height: 0;
+    display: none;
+    margin: 0 0 0 0;
+    background: #0D0D0D;
+}
+#thinking-wave-bar.-active {
+    height: 1;
+    min-height: 1;
+    display: block;
+    background: #0D0D0D;
+}
+.stream-live {
+    color: #E5E7EB;
+    text-style: bold;
+}
+.stream-think-live {
+    height: auto;
+    color: #6B7280;
+    text-style: italic;
+    border-left: thick #4B5563;
+    padding: 0 1;
+    margin: 0 0 1 0;
+}
 #deep-status-bar {
     height: 0;
     min-height: 0;
@@ -150,27 +175,25 @@ AIChatPanel {
    per-section CSS — rely on the spacing defined here. */
 .settings-row {
     height: auto;
-    min-height: 4;
-    layout: grid;
-    grid-size: 2 1;
-    grid-columns: 1fr 2fr;
-    grid-gutter: 0 3;
+    min-height: 3;
+    layout: horizontal;
+    align: left middle;
     margin: 0 0 1 0;
     padding: 0 1;
 }
 .settings-row-label {
+    width: 26;
     content-align: left middle;
     color: #E5E7EB;
-    padding: 1 1;
-    min-width: 18;
+    padding: 0 1 0 0;
 }
 .settings-row Input, .settings-row Select {
-    width: 100%;
+    width: 1fr;
     min-width: 14;
     height: 3;
 }
 .settings-row Checkbox {
-    width: 100%;
+    width: 1fr;
     height: 3;
 }
 #sor-balance-display {
@@ -183,12 +206,12 @@ AIChatPanel {
 }
 .settings-section-title {
     text-style: bold;
-    margin: 1 0 1 0;
+    margin: 0 0 1 0;
     padding: 0 1;
 }
 .settings-card {
     height: auto;
-    padding: 1 2;
+    padding: 0 1;
     margin: 0 0 1 0;
     background: #12121A;
     border: round #2D2D3D;
@@ -200,7 +223,7 @@ AIChatPanel {
 }
 .settings-card-subtitle {
     color: #6B7280;
-    margin: 0 0 1 0;
+    margin: 0 0 0 0;
     padding: 0 1;
     text-style: italic;
 }
@@ -212,7 +235,7 @@ AIChatPanel {
 .settings-button-row {
     height: auto;
     layout: horizontal;
-    margin: 1 0 0 0;
+    margin: 0 0 0 0;
     padding: 0 1;
 }
 .settings-button-row Button {
@@ -251,39 +274,6 @@ AIChatPanel {
 }
 .settings-action-btn--error:hover {
     background: #561E1E;
-}
-.param-grid {
-    height: auto;
-    layout: grid;
-    grid-size: 2 4;
-    grid-rows: 7 7 7 7;
-    grid-gutter: 2 3;
-    margin: 1 0 1 0;
-    padding: 0 1;
-}
-.param-cell {
-    height: 7;
-    layout: vertical;
-    padding: 1 2;
-    background: #0D0D12;
-    border: tall #2D2D3D;
-}
-.param-cell-label {
-    text-style: bold;
-    height: 1;
-}
-.param-cell-hint {
-    color: #6B7280;
-    height: 1;
-    text-style: italic;
-}
-.param-cell Input {
-    width: 100%;
-    height: 3;
-    margin: 1 0;
-}
-.param-cell-wide {
-    column-span: 2;
 }
 #sol-status {
     color: #9CA3AF;

@@ -89,6 +89,13 @@ class AIChatPanel(AIChatPanelSetupMixin, AIChatPanelStreamMixin, AIChatPanelEven
         Binding("ctrl+enter", "submit_chat", "Send", show=False),
     ]
 
+    # The settings widgets (``.settings-row``, ``.settings-card`` …) are rendered
+    # into workspace tabs that live OUTSIDE this panel's subtree. With the default
+    # ``SCOPED_CSS = True`` these rules are auto-prefixed with ``AIChatPanel`` and
+    # never reach those tabs, so inputs/scrollbars there appear unstyled. Keep the
+    # stylesheet global so the same look applies wherever the widgets are mounted.
+    SCOPED_CSS = False
+
     DEFAULT_CSS = AI_CHAT_PANEL_CSS
 
 

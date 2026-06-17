@@ -7,7 +7,7 @@ from typing import Dict, Optional
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
-from textual.widgets import Button, Static, TabbedContent, TabPane
+from textual.widgets import Button, Static, TabbedContent, TabPane, Tabs
 
 from .ai_chat import AIChatPanel
 from .code_editor import CloseWorkspaceTab, FileEditorTabPane
@@ -21,6 +21,7 @@ _SETTINGS_SECTION_TITLES = {
     "agents": "⚙ Агенты",
     "openrouter": "⚙ OpenRouter",
     "ollama": "⚙ Ollama",
+    "keybindings": "⌨ Клавиши",
 }
 
 
@@ -34,6 +35,17 @@ class SettingsWorkspacePane(Vertical):
     SettingsWorkspacePane .settings-ws-scroll {
         height: 1fr;
         min-height: 1;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        scrollbar-gutter: stable;
+        scrollbar-size-vertical: 1;
+        scrollbar-color: #8B5CF6;
+        scrollbar-color-hover: #A78BFA;
+        scrollbar-color-active: #C4B5FD;
+        scrollbar-background: #1a1a2e;
+        scrollbar-background-hover: #1a1a2e;
+        scrollbar-background-active: #1a1a2e;
+        padding: 0 1 1 1;
     }
     #settings-ws-toolbar {
         dock: top;
@@ -95,6 +107,7 @@ class WorkspaceCenter(Vertical):
         self._current_model = current_model
         self._path_to_tab: Dict[str, str] = {}
         self._settings_section_to_tab: Dict[str, str] = {}
+        self._terminal_tab_id: Optional[str] = None
         self._tab_counter = 0
 
     def compose(self) -> ComposeResult:
@@ -119,9 +132,58 @@ class WorkspaceCenter(Vertical):
         except Exception:
             pass
 
+    def _tab_bar(self) -> Tabs:
+        """The underlying Tabs strip (holds next/previous tab actions)."""
+        return self._tabs().query_one(Tabs)
+
+    def action_next_tab(self) -> None:
+        try:
+            self._tab_bar().action_next_tab()
+        except Exception:
+            pass
+
+    def action_prev_tab(self) -> None:
+        try:
+            self._tab_bar().action_previous_tab()
+        except Exception:
+            pass
+
+    def action_focus_tab(self, index: int) -> None:
+        """Activate the tab at 1-based ``index`` (Space+1..6 in WIDGET mode)."""
+        try:
+            panes = list(self._tabs().query(TabPane))
+            if 1 <= index <= len(panes):
+                pane_id = panes[index - 1].id
+                if pane_id:
+                    self._tabs().active = pane_id
+        except Exception:
+            pass
+
+    def open_terminal_tab(self) -> None:
+        """Open (or focus) a terminal emulator tab in the workspace."""
+        from .terminal_panel import TerminalPanel
+
+        existing = getattr(self, "_terminal_tab_id", None)
+        if existing:
+            try:
+                self._tabs().active = existing
+                return
+            except Exception:
+                self._terminal_tab_id = None
+
+        self._tab_counter += 1
+        tab_id = f"ws-terminal-{self._tab_counter}"
+        self._terminal_tab_id = tab_id
+        pane = TabPane("⌨ Терминал", TerminalPanel(), id=tab_id)
+        self._tabs().add_pane(pane)
+        try:
+            self._tabs().active = tab_id
+        except Exception:
+            pass
+
     def open_settings_tab(self, section: str) -> None:
         sec = (section or "").strip().lower()
-        if sec not in {"personalization", "agents", "openrouter", "ollama"}:
+        if sec not in {"personalization", "agents", "openrouter", "ollama", "keybindings"}:
             sec = "personalization"
         existing = self._settings_section_to_tab.get(sec)
         if existing:
@@ -208,6 +270,8 @@ class WorkspaceCenter(Vertical):
         for sec, tid in list(self._settings_section_to_tab.items()):
             if tid == tab_id:
                 self._settings_section_to_tab.pop(sec, None)
+        if self._terminal_tab_id == tab_id:
+            self._terminal_tab_id = None
         try:
             tabs.remove_pane(tab_id)
         except Exception:

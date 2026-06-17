@@ -5,7 +5,11 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Dict, List
+
+_ROLES_DIR = Path(__file__).resolve().parent / "roles"
+_role_cache: Dict[str, str] = {}
 
 ORCHESTRATION_MODES = ("parallel", "sequential", "supervisor", "hierarchical")
 
@@ -16,33 +20,35 @@ def normalize_orchestration(value: str) -> str:
 
 
 def worker_roles_for_count(n: int, orchestration: str) -> List[str]:
-    """Короткие роли для промпта воркера (смена «шляп» как в мультиагентных пайплайнах)."""
+    """Return role names for n workers (used for system prompt and tree display)."""
     if n <= 0:
         return []
     if orchestration == "hierarchical":
-        return ["lead"] + [f"specialist_{i}" for i in range(1, n)]
+        return ["lead"] + ["specialist"] * (n - 1)
     pool = ("implementer", "reviewer", "researcher", "integrator", "tester", "documenter")
     return [pool[i % len(pool)] for i in range(n)]
 
 
-_ROLE_HINTS: Dict[str, str] = {
-    "lead": "Ты ведущий воркер: держи цель всей задачи, при необходимости делегируй через spawn_sub_creator.",
-    "specialist_1": "Специалист: сфокусируйся на своей подзадаче, учитывая общую цель.",
-    "implementer": "Реализуй изменения в коде/файлах по подзадаче.",
-    "reviewer": "Проверь согласованность, краевые случаи и качество относительно подзадачи.",
-    "researcher": "Собери факты (документация, web, RAG) релевантные подзадаче.",
-    "integrator": "Сведи части решения в цельный результат по подзадаче.",
-    "tester": "Продумай/запусти проверки (тесты, команды) для подзадачи.",
-    "documenter": "Оформи вывод: README, комментарии, отчёт по подзадаче.",
-}
+def _load_role_md(role: str) -> str:
+    """Load detailed role prompt from Agent/roles/{role}.md (cached per process)."""
+    if role in _role_cache:
+        return _role_cache[role]
+    # Normalise specialist_N to specialist
+    normalised = "specialist" if role.startswith("specialist") else role
+    path = _ROLES_DIR / f"{normalised}.md"
+    if not path.exists():
+        path = _ROLES_DIR / "specialist.md"
+    try:
+        content = path.read_text(encoding="utf-8").strip()
+    except Exception:
+        content = "Выполни свою подзадачу автономно и лаконично."
+    _role_cache[role] = content
+    return content
 
 
 def role_hint(role: str) -> str:
-    if role in _ROLE_HINTS:
-        return _ROLE_HINTS[role]
-    if role.startswith("specialist_"):
-        return _ROLE_HINTS["specialist_1"]
-    return "Выполни свою подзадачу автономно и лаконично."
+    """Return full role prompt markdown (loaded from Agent/roles/)."""
+    return _load_role_md(role)
 
 
 def format_worker_mode_section(worker_id: str, role: str, orchestration: str) -> str:

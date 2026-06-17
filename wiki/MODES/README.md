@@ -11,4 +11,8 @@
 | Deep | [deep.md](deep.md) | Отдельный долгий локальный цикл (не граф чата) |
 | Brainer | [brainer.md](brainer.md) | Project Brain и RAG в приоритете |
 
+**Редактор:** [Vi-like editor](../VI_EDITOR.md) · [Все клавиши](../KEYBINDINGS.md)
+
+**Creator Mode:** роли воркеров с детальными промптами в `Agent/roles/` — Implementer, Reviewer, Researcher, Tester, Documenter, Integrator, Lead, Specialist.
+
 Общий обзор UI: [TUI.md](../TUI.md). Архитектура: [ARCHITECTURE.md](../ARCHITECTURE.md).

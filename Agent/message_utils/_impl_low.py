@@ -420,7 +420,10 @@ def extract_reasoning_from_response(raw: Any) -> List[str]:
 
 # ─── Transient error retry ──────────────────────────────────────────
 
-MAX_LLM_RETRIES = 2
+try:
+    from Agent.config import MAX_LLM_RETRIES
+except ImportError:
+    MAX_LLM_RETRIES = 2
 
 _TRANSIENT_PATTERNS = [
     "provider returned error",

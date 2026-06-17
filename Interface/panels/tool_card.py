@@ -72,15 +72,23 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
     if isinstance(result, dict):
         # read_file / read_file_lines
         if tool_name in ("read_file", "read_file_lines"):
-            fn = str(result.get("filename") or result.get("path") or "?")
+            fn = str(
+                result.get("filename")
+                or result.get("file_path")
+                or result.get("path")
+                or "?"
+            )
             total = result.get("total_lines") or result.get("lines")
-            start = result.get("start_line") or result.get("start")
+            start = result.get("start_line") or result.get("start") or result.get("offset")
             end = result.get("end_line") or result.get("end")
+            showing = result.get("showing") or ""
             headline = f"📖 {Path(fn).name}"
             bits = [fn]
-            if start and end:
+            if showing:
+                bits.append(showing)
+            elif start is not None and end:
                 bits.append(f"строки {start}-{end}")
-            if total:
+            if total and not showing:
                 bits.append(f"всего {total}")
             meta = "  ·  ".join(bits)
             content = result.get("content") or ""

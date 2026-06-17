@@ -21,9 +21,8 @@ from textual.app import ComposeResult
 from textual.containers import Vertical
 from textual.widgets import Static
 
-PURPLE = "#8B5CF6"
+from Interface.panels._colors import PURPLE, GRAY
 DIM = "#2D2D3D"
-GRAY = "#6B7280"
 
 
 # Exposed for tests — stages increasing means a cell grows from empty → full.

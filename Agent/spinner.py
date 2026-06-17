@@ -28,7 +28,7 @@ class LiveSpinner:
         if bridge:
             self._tui_mode = True
             self._start_time = time.time()
-            bridge.on_info(f"⏳ {self._message}…")
+            bridge.on_thinking_start()
             return
 
         self._tui_mode = False
@@ -39,6 +39,10 @@ class LiveSpinner:
 
     def stop(self):
         if self._tui_mode:
+            from Interface.tui_bridge import get_bridge
+            bridge = get_bridge()
+            if bridge:
+                bridge.on_thinking_stop()
             return
 
         self._running = False

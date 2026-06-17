@@ -29,8 +29,11 @@ def _http_user_agent(short: bool = False) -> str:
 
 _search_cache: Dict[str, tuple] = {}
 _fetch_cache: Dict[str, tuple] = {}
-_SEARCH_TTL = 300
-_FETCH_TTL = 600
+try:
+    from Agent.config import WEB_SEARCH_TTL as _SEARCH_TTL, WEB_FETCH_TTL as _FETCH_TTL
+except ImportError:
+    _SEARCH_TTL = 300
+    _FETCH_TTL = 600
 
 
 def _cache_get(cache: dict, key: str, ttl: int) -> Optional[Any]:
@@ -105,11 +108,15 @@ def _html_to_text(raw_html: str, extract_code: bool = True) -> Tuple[str, List[s
     text = re.sub(r"<nav[^>]*>.*?</nav>", "", text, flags=re.DOTALL | re.IGNORECASE)
     text = re.sub(r"<footer[^>]*>.*?</footer>", "", text, flags=re.DOTALL | re.IGNORECASE)
     text = re.sub(r"<header[^>]*>.*?</header>", "", text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r"<aside[^>]*>.*?</aside>", "", text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r"<dialog[^>]*>.*?</dialog>", "", text, flags=re.DOTALL | re.IGNORECASE)
 
     text = re.sub(r"<(br|hr|/p|/div|/li|/tr|/h\d)[^>]*>", "\n", text, flags=re.IGNORECASE)
     text = re.sub(r"<[^>]+>", " ", text)
     text = html_mod.unescape(text)
     text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"^[ \t]+", "", text, flags=re.MULTILINE)   # strip line-leading indent
+    text = re.sub(r"[ \t]+$", "", text, flags=re.MULTILINE)   # strip line-trailing spaces
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip(), code_blocks
 

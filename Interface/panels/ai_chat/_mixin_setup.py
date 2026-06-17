@@ -127,6 +127,9 @@ class AIChatPanelSetupMixin:
         self._lifetime_prompt = 0
         self._lifetime_completion = 0
         self._creator_progress: Optional[Any] = None
+        self._stream_widget: Optional[Any] = None
+        self._stream_think_widget: Optional[Any] = None
+        self._stream_raw: str = ""
 
     def compose(self) -> ComposeResult:
         yield Static("Чат проекта", id="chat-thread-label")
@@ -216,6 +219,8 @@ class AIChatPanelSetupMixin:
         mode_options = [(m, m.lower()) for m in MODES]
 
         area.mount(Vertical(id="creator-progress-slot"))
+        # Wave animation bar — shown while model is generating tokens.
+        area.mount(Static("", id="thinking-wave-bar"))
         # Deep Solver status badge — shows elapsed time / checkpoint count
         # while a Deep run is live. Hidden by default via CSS.
         area.mount(Static("", id="deep-status-bar"))
@@ -247,7 +252,8 @@ class AIChatPanelSetupMixin:
             return PURPLE
 
     def _settings_row(self, content, label: str, widget) -> None:  # type: ignore[override]
-        content.mount(Horizontal(
+        from textual.containers import Container
+        content.mount(Container(
             Label(Text(label, style=f"bold {self._accent()}"), classes="settings-row-label"),
             widget,
             classes="settings-row",
@@ -262,7 +268,7 @@ class AIChatPanelSetupMixin:
     def render_settings_into(self, scroll: VerticalScroll, section: str) -> None:
         """Fill a workspace settings tab (widgets may live outside this panel)."""
         sec = (section or "").strip().lower()
-        if sec not in {"personalization", "agents", "openrouter", "ollama"}:
+        if sec not in {"personalization", "agents", "openrouter", "ollama", "keybindings"}:
             sec = "personalization"
         try:
             scroll.remove_children()
@@ -280,6 +286,8 @@ class AIChatPanelSetupMixin:
             self._render_openrouter_settings(content)
         elif tab == "ollama":
             self._render_ollama_settings(content)
+        elif tab == "keybindings":
+            self._render_keybindings_settings(content)
 
     def _render_personalization_settings(self, content: VerticalScroll) -> None:
         from Interface.ui_prefs import load_prefs
@@ -315,11 +323,6 @@ class AIChatPanelSetupMixin:
         self._settings_row(
             content, "Accent",
             Input(value=accent, id="sp-accent", placeholder="#8B5CF6"),
-        )
-        glyph = str(prefs.get("cli_prompt_glyph", "❯"))
-        self._settings_row(
-            content, "Приглашение CLI",
-            Input(value=glyph, id="sp-cli-glyph", placeholder="❯"),
         )
         content.mount(Horizontal(
             Button("🎨 Применить цвет", id="sp-apply-accent",
@@ -502,19 +505,6 @@ class AIChatPanelSetupMixin:
             if isinstance(m, dict):
                 lines.append(f"- {m.get('name') or m.get('id')} [{m.get('id')}]")
         content.mount(Static("Добавленные модели:\n" + ("\n".join(lines) if lines else "—"), id="sor-model-list"))
-
-    def _param_cell(
-        self,
-        label: str, hint: str, widget_id: str, value: str, placeholder: str,
-        wide: bool = False,
-    ) -> Vertical:
-        classes = "param-cell param-cell-wide" if wide else "param-cell"
-        return Vertical(
-            Label(Text(label, style=f"bold {self._accent()}"), classes="param-cell-label"),
-            Input(value=str(value), id=widget_id, placeholder=placeholder),
-            Label(hint, classes="param-cell-hint"),
-            classes=classes,
-        )
 
     def _render_ollama_settings(self, content: VerticalScroll) -> None:
         from Interface.ui_prefs import load_prefs
@@ -824,3 +814,39 @@ class AIChatPanelSetupMixin:
             ))
             for line in self._worker_logs.get(wid, [])[-200:]:
                 wlog.write(Markdown(line))
+
+    def _render_keybindings_settings(self, content) -> None:
+        """Render the keybindings reference panel with collapsible cards per mode."""
+        from Interface.panels.keybindings_data import KEYBINDINGS
+        from rich.table import Table
+
+        content.mount(Label(
+            "⌨ Справка по клавишам — Lorne Vi-like Editor",
+            classes="settings-section-title",
+        ))
+        content.mount(Label(
+            "Нажмите на раздел, чтобы раскрыть. F1 или ? в режиме WIDGET для быстрого доступа.",
+            classes="settings-card-subtitle",
+        ))
+
+        for mode_name, bindings in KEYBINDINGS.items():
+            table = Table(
+                show_header=True, header_style="bold #8B5CF6",
+                border_style="#2D2D3D", box=None, padding=(0, 1),
+                show_edge=False,
+            )
+            table.add_column("Клавиша", style="#E5E7EB", min_width=22)
+            table.add_column("Действие", style="#9CA3AF")
+            for key, desc in bindings:
+                table.add_row(key, desc)
+
+            # Use a simple Vertical card (Collapsible not available in all Textual versions).
+            # Children MUST be passed to the constructor: mounting into an unmounted
+            # widget raises MountError, which previously left the whole help panel empty.
+            title_label = Label(
+                f"▸ [{mode_name}]",
+                classes="settings-card-title",
+            )
+            body_static = Static(table, classes="settings-card-subtitle")
+            card = Vertical(title_label, body_static, classes="settings-card")
+            content.mount(card)

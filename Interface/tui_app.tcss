@@ -5,6 +5,25 @@ Screen {
     color: #E5E7EB;
 }
 
+/* ─── Keyboard focus visibility ─────────────────────
+   Without a visible focus ring, Tab-navigating from the chat input to the
+   Send/Stop buttons or the model/mode dropdowns gives no feedback, so the
+   controls feel dead. Highlight whatever currently holds focus. */
+Button:focus {
+    border: tall #A78BFA;
+    text-style: bold;
+}
+Select:focus,
+Select:focus-within {
+    border: tall #A78BFA;
+}
+Checkbox:focus {
+    border: tall #A78BFA;
+}
+Input:focus {
+    border: tall #A78BFA;
+}
+
 /* ─── Header / Footer ───────────────────────────── */
 
 Header {
@@ -57,12 +76,27 @@ Header {
     padding: 0 1;
 }
 
+#bottom-bar {
+    background: #1a1a2e;
+    dock: bottom;
+    height: 1;
+    layout: horizontal;
+}
 #status-bar {
     background: #1a1a2e;
     color: #6B7280;
-    dock: bottom;
     height: 1;
+    width: 1fr;
     padding: 0 1;
+}
+#vi-mode-indicator {
+    background: #1a1a2e;
+    color: #8B5CF6;
+    height: 1;
+    width: auto;
+    min-width: 40;
+    padding: 0 1;
+    text-align: right;
 }
 
 /* ─── Main 3-Column Layout ──────────────────────── */

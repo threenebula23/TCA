@@ -40,7 +40,13 @@ def _write_fallback(ctx: Dict[str, Any], out_dir: Path) -> List[Path]:
     return written
 
 
-def _relator_render(tpl_dir: Path, template_name: str, out_path: Path, context: Dict[str, Any]) -> bool:
+def _relator_render(tpl_dir: Path, template_name: str, out_path: Path,
+                    context: Dict[str, Any], save_context: bool = True) -> bool:
+    """Render a Relator template to out_path.
+
+    Uses Relator 1.3 ``save_context=True`` to persist ``*.relator-context.json``
+    alongside the output for incremental rebuilds.
+    """
     try:
         from relator import compile_template
     except ImportError:
@@ -49,17 +55,59 @@ def _relator_render(tpl_dir: Path, template_name: str, out_path: Path, context: 
     if not tpl.is_file():
         return False
     try:
-        compile_template(tpl, context, out_path, assets_dir=tpl_dir)
+        ctx_path = out_path.with_suffix(".relator-context.json") if save_context else False
+        compile_template(tpl, context, out_path, assets_dir=tpl_dir,
+                         save_context=ctx_path if save_context else False)
         return True
     except Exception:
         return False
 
 
+def _load_changelog_entries(root: Path) -> List[Dict[str, Any]]:
+    """Load changelog entries from ``.lorne/brain_changelog.jsonl``."""
+    changelog_path = root / ".lorne" / "brain_changelog.jsonl"
+    entries: List[Dict[str, Any]] = []
+    if not changelog_path.is_file():
+        return entries
+    try:
+        for line in changelog_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line:
+                try:
+                    entries.append(json.loads(line))
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    return entries[-200:]  # Keep last 200 entries
+
+
+def append_changelog_entry(root: Path, entry: Dict[str, Any]) -> None:
+    """Append a single changelog entry to the brain changelog JSONL file."""
+    import datetime
+    changelog_path = root / ".lorne" / "brain_changelog.jsonl"
+    changelog_path.parent.mkdir(parents=True, exist_ok=True)
+    entry.setdefault("timestamp", datetime.datetime.utcnow().isoformat() + "Z")
+    try:
+        with open(changelog_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+
+
 def build_brain_markdown(root: Path, scan: Dict[str, Any]) -> List[Path]:
-    """Render brain tree under ``project_brain/``; return written file paths."""
+    """Render brain tree under ``project_brain/``; return written file paths.
+
+    Uses Relator 1.3 with ``save_context=True`` so each render saves a
+    ``*.relator-context.json`` file for incremental rebuilds.
+    Loads changelog entries from ``.lorne/brain_changelog.jsonl`` and injects
+    them into the context as ``changelog_entries``.
+    """
     from .context_builder import build_project_context
 
     ctx = build_project_context(scan, root)
+    # Inject changelog for Relator changelog.md template
+    ctx["changelog_entries"] = _load_changelog_entries(root)
     tpl_dir = Path(__file__).resolve().parent / "templates"
     out_dir = root / "project_brain"
     modules_dir = out_dir / "modules"
@@ -72,7 +120,7 @@ def build_brain_markdown(root: Path, scan: Dict[str, Any]) -> List[Path]:
     written: List[Path] = []
 
     def _try(name: str, dest: Path) -> None:
-        if _relator_render(tpl_dir, name, dest, ctx):
+        if _relator_render(tpl_dir, name, dest, ctx, save_context=True):
             written.append(dest)
 
     _try("overview.md", out_dir / "overview.md")
@@ -80,6 +128,7 @@ def build_brain_markdown(root: Path, scan: Dict[str, Any]) -> List[Path]:
     _try("glossary.md", out_dir / "glossary.md")
     _try("tools.md", out_dir / "tools.md")
     _try("flows.md", out_dir / "flows.md")
+    _try("changelog.md", out_dir / "changelog.md")
 
     if not (out_dir / "overview.md").is_file():
         written.extend(_write_fallback(ctx, out_dir))

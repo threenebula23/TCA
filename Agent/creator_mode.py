@@ -30,7 +30,7 @@ try:
         synthesize_supervisor_report,
     )
     from .planner import build_creator_plan
-    from .system_promt import SYSTEM_PROMPT
+    from .system_prompt import SYSTEM_PROMPT
 except ImportError:
     from Agent.creator_provider import (
         get_local_llm, get_heavy_llm, classify_task_complexity,
@@ -44,7 +44,7 @@ except ImportError:
         synthesize_supervisor_report,
     )
     from Agent.planner import build_creator_plan
-    from Agent.system_promt import SYSTEM_PROMPT
+    from Agent.system_prompt import SYSTEM_PROMPT
 
 try:
     from .message_utils import (
@@ -247,6 +247,49 @@ def _is_auth_error(exc: Exception) -> bool:
 _MAX_DEPTH = 5
 
 
+def _read_brain_context_for_creator(max_chars: int = 4000) -> str:
+    """Краткое содержимое project_brain для инъекции в системный промпт воркера."""
+    try:
+        try:
+            from Agent.path_utils import get_project_root
+        except ImportError:
+            from pathlib import Path
+            get_project_root = lambda: Path.cwd()
+        root = get_project_root()
+        brain_dir = root / "project_brain"
+        if not brain_dir.is_dir():
+            return ""
+        priority = ["overview.md", "architecture.md", "agent_architecture.md"]
+        files: list = []
+        for name in priority:
+            p = brain_dir / name
+            if p.is_file():
+                files.append(p)
+        for p in sorted(brain_dir.glob("*.md")):
+            if p not in files:
+                files.append(p)
+        parts = []
+        total = 0
+        for fp in files:
+            try:
+                text = fp.read_text(encoding="utf-8", errors="replace").strip()
+                if not text:
+                    continue
+                chunk = f"### {fp.name}\n{text}"
+                if total + len(chunk) > max_chars:
+                    remaining = max_chars - total
+                    if remaining > 150:
+                        parts.append(chunk[:remaining] + "\n…")
+                    break
+                parts.append(chunk)
+                total += len(chunk)
+            except Exception:
+                continue
+        return "\n\n".join(parts)
+    except Exception:
+        return ""
+
+
 def _run_single_worker(
     worker_id: str,
     task: str,
@@ -282,8 +325,12 @@ def _run_single_worker(
         )
 
     orch = normalize_orchestration(orchestration)
+    brain_ctx = _read_brain_context_for_creator()
+    brain_section = (
+        "\n\n### Project Brain\n" + brain_ctx if brain_ctx else ""
+    )
     worker_system = (
-        f"{SYSTEM_PROMPT}\n\n{project_context}\n\n"
+        f"{SYSTEM_PROMPT}\n\n{project_context}{brain_section}\n\n"
         + format_worker_mode_section(worker_id, role, orch)
     )
 
@@ -506,6 +553,7 @@ def _run_single_worker(
 
     result_data = {
         "worker_id": worker_id,
+        "role": role,
         "task": task,
         "status": final_status,
         "result": final_content,
@@ -566,6 +614,7 @@ def _push_full_tree(bridge, task: str, worker_configs: list, results: list) -> N
         else:
             children.append({
                 "worker_id": wid,
+                "role": wc.get("role", ""),
                 "task": wc.get("task", ""),
                 "status": "working",
                 "model_type": wc.get("model_type", ""),

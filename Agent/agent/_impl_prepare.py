@@ -17,9 +17,9 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 from Agent.runtime_paths import env_pref
 
 try:
-    from .system_promt import SYSTEM_PROMPT
+    from .system_prompt import SYSTEM_PROMPT  # noqa: F401 (correct spelling)
 except ImportError:
-    from system_promt import SYSTEM_PROMPT
+    from Agent.system_prompt import SYSTEM_PROMPT  # type: ignore
 
 try:
     from .path_utils import resolve_abs_path, set_project_root

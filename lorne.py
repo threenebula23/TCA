@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Lorne v0.98 — терминальный ассистент для кода.
+Lorne v1.0 — Vi-like Terminal IDE.
 
 Точка входа: этот файл (после ``install.sh`` / ``install.bat`` в PATH — команда ``lorne``).
 
@@ -9,8 +9,6 @@ Lorne v0.98 — терминальный ассистент для кода.
     lorne
     lorne /path/to/project
     lorne env=<OPENROUTER_API_KEY>
-    lorne --classic
-    lorne --tui
 """
 import os
 import sys
@@ -45,16 +43,9 @@ elif _env_root.exists():
 
 
 def main():
-    if not os.environ.get("OPENROUTER_API_KEY"):
-        print("\n  \033[31m✗ OPENROUTER_API_KEY не найден!\033[0m\n")
-        print("  Укажите ключ одним из способов:\n")
-        print("    1. Аргумент запуска:")
-        print("       lorne env=sk-or-v1-ваш_ключ\n")
-        print("    2. Файл Agent/.env:")
-        print("       echo 'OPENROUTER_API_KEY=sk-or-v1-ваш_ключ' > Agent/.env\n")
-        print("    3. Переменная окружения:")
-        print("       export OPENROUTER_API_KEY=sk-or-v1-ваш_ключ\n")
-        sys.exit(1)
+    # Remove legacy --tui flag (now default and only mode)
+    if "--tui" in sys.argv:
+        sys.argv.remove("--tui")
 
     if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
         target = Path(sys.argv[1]).resolve()
@@ -64,23 +55,8 @@ def main():
             print(f"Директория не найдена: {target}")
             sys.exit(1)
 
-    from Agent.runtime_paths import env_pref
-
-    mode = env_pref("MODE", "tui").lower()
-
-    if "--classic" in sys.argv:
-        sys.argv.remove("--classic")
-        mode = "classic"
-    if "--tui" in sys.argv:
-        sys.argv.remove("--tui")
-        mode = "tui"
-
-    if mode == "classic":
-        from Agent.agent import run_coding_agent_loop
-        run_coding_agent_loop()
-    else:
-        from Agent.agent import run_tui_mode
-        run_tui_mode()
+    from Agent.agent import run_tui_mode
+    run_tui_mode()
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 Точка расширения для новых тулов — см. wiki/developer/ADDING_TOOLS.md.
 """
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from langchain_core.tools import BaseTool
 
@@ -90,6 +90,22 @@ __all__ = [
     "plan_tool",
 ]
 
+try:
+    from .tools.memory_tool import structured_memory
+    from .tools.ast_tool import ast_analyze
+    from .tools.multi_read_tool import multi_read
+    from .tools.lint_tool import lint_check
+    from .tools.decompose_tool import task_decompose
+    from .tools.env_tool import env_info
+    from .tools.batch_replace_tool import batch_replace
+    from .tools.verify_tool import verify_result
+    from .tools.notes_tool import session_notes
+    _HAS_NEW_TOOLS = True
+except ImportError as _e:
+    _HAS_NEW_TOOLS = False
+    import sys as _sys
+    print(f"[tool_registry] Could not load new tools: {_e}", file=_sys.stderr)
+
 _base_tools: List[Any] = [
     read_file, read_file_lines, list_files, edit_file, write_file,
     replace_file_lines, insert_file_lines,
@@ -110,6 +126,19 @@ _base_tools: List[Any] = [
     get_rag_tool(),
     project_brain_tool,
 ]
+
+if _HAS_NEW_TOOLS:
+    _base_tools.extend([
+        structured_memory,
+        ast_analyze,
+        multi_read,
+        lint_check,
+        task_decompose,
+        env_info,
+        batch_replace,
+        verify_result,
+        session_notes,
+    ])
 
 if _HAS_GIT_TOOLS:
     _base_tools.append(git_ops)
@@ -154,6 +183,8 @@ _ASK_EXCLUDED_TOOL_NAMES = frozenset({
     "start_background_task", "get_background_result", "run_package_script",
     "create_pdf", "file_versions_tool", "code_interpreter",
     "project_brain_tool",
+    # New tools: write/exec operations excluded from Ask mode
+    "lint_check", "batch_replace", "verify_result", "task_decompose",
 })
 
 
@@ -220,6 +251,19 @@ def get_agent_mode_tools() -> List[Any]:
     return out
 
 
+def _safe_tool(t: Any) -> Optional[Any]:
+    """Validate tool has docstring/description; return None if invalid."""
+    import sys
+    try:
+        # Trigger LangChain's own validation by accessing the description
+        _ = getattr(t, "description", None) or getattr(t, "__doc__", None)
+        return t
+    except Exception as e:
+        name = getattr(t, "name", None) or getattr(t, "__name__", "?")
+        print(f"[tool_registry] Skipping invalid tool '{name}': {e}", file=sys.stderr)
+        return None
+
+
 def build_tool_map(tools: List[Any]) -> Dict[str, BaseTool]:
     tool_map: Dict[str, BaseTool] = {}
     for t in tools:
@@ -239,16 +283,27 @@ def build_tool_map(tools: List[Any]) -> Dict[str, BaseTool]:
 
 def bind_tools_safe(llm_obj: Any, model_name: str, tools: List[Any],
                     force_no_parallel: bool = False) -> Any:
+    import sys
     use_parallel_flag = (
         not force_no_parallel
         and supports_parallel_tool_calls_param(model_name)
     )
+    # Filter out any tools with validation errors (e.g. missing docstring)
+    valid_tools = []
+    for t in tools:
+        try:
+            # accessing description triggers LangChain validation
+            _ = t.description
+            valid_tools.append(t)
+        except Exception as e:
+            name = getattr(t, "name", getattr(t, "__name__", "?"))
+            print(f"[bind_tools_safe] Skipping '{name}': {e}", file=sys.stderr)
     try:
         if use_parallel_flag:
-            return llm_obj.bind_tools(tools, parallel_tool_calls=False)
-        return llm_obj.bind_tools(tools)
+            return llm_obj.bind_tools(valid_tools, parallel_tool_calls=False)
+        return llm_obj.bind_tools(valid_tools)
     except TypeError:
-        return llm_obj.bind_tools(tools)
+        return llm_obj.bind_tools(valid_tools)
 
 
 def reload_tools(current_tools: List[Any]) -> List[Any]:

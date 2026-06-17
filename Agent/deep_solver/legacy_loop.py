@@ -316,21 +316,69 @@ def _build_deep_extra_tools() -> List[BaseTool]:
     from langchain_core.tools import tool
 
     @tool
-    def deep_checkpoint(title: str, summary: str='') -> str:
+    def deep_checkpoint(title: str, summary: str = '') -> str:
+        """Сохранить чекпоинт прогресса с заголовком и кратким описанием."""
         return f'checkpoint_saved: {title}'
 
     @tool
     def spawn_subagent(task: str) -> str:
+        """Делегировать подзадачу субагенту Creator Mode и получить токен для отслеживания."""
         return f'subagent_start: {task[:80]}'
 
     @tool
-    def get_subagent_result(token: str, wait_seconds: int=0) -> str:
+    def get_subagent_result(token: str, wait_seconds: int = 0) -> str:
+        """Получить результат субагента по токену. wait_seconds — сколько ждать (0 — не ждать)."""
         return f'get_subagent: {token[:12]}'
 
     @tool
     def deep_final_done(report: str) -> str:
+        """Завершить сессию Deep Solver и вернуть итоговый отчёт о выполненной работе."""
         return f'deep_done: {report[:120]}'
+
     return [deep_checkpoint, spawn_subagent, get_subagent_result, deep_final_done]
+
+def _read_brain_context(max_chars: int = 6000) -> str:
+    """Читает project_brain/*.md и возвращает сжатый текст для инъекции в промпт."""
+    try:
+        try:
+            from Agent.path_utils import get_project_root
+        except ImportError:
+            from pathlib import Path
+            get_project_root = lambda: Path.cwd()
+        root = get_project_root()
+        brain_dir = root / "project_brain"
+        if not brain_dir.is_dir():
+            return ""
+        priority = ["overview.md", "architecture.md", "agent_architecture.md", "modules.md"]
+        files = []
+        for name in priority:
+            p = brain_dir / name
+            if p.is_file():
+                files.append(p)
+        for p in sorted(brain_dir.glob("*.md")):
+            if p not in files:
+                files.append(p)
+        parts = []
+        total = 0
+        for fp in files:
+            try:
+                text = fp.read_text(encoding="utf-8", errors="replace").strip()
+                if not text:
+                    continue
+                chunk = f"## {fp.name}\n{text}"
+                if total + len(chunk) > max_chars:
+                    remaining = max_chars - total
+                    if remaining > 200:
+                        parts.append(chunk[:remaining] + "\n… (обрезано)")
+                    break
+                parts.append(chunk)
+                total += len(chunk)
+            except Exception:
+                continue
+        return "\n\n".join(parts)
+    except Exception:
+        return ""
+
 
 def run_deep_solver(task: str, tools: List[BaseTool], bridge: Any, project_context: str='', session_id: str='', messages: Optional[List[Any]]=None) -> str:
     resolved = _resolve_deep_local_model()
@@ -380,6 +428,9 @@ def run_deep_solver(task: str, tools: List[BaseTool], bridge: Any, project_conte
     conversation: List[Any] = [SystemMessage(content=system_prompt)]
     if project_context:
         conversation.append(SystemMessage(content='### Контекст проекта\n' + str(project_context)[:4000]))
+    brain_ctx = _read_brain_context()
+    if brain_ctx:
+        conversation.append(SystemMessage(content='### Project Brain (база знаний проекта)\nИспользуй эти знания как основу. Обновляй через `project_brain_tool` action=write_brain.\n\n' + brain_ctx))
     conversation.append(SystemMessage(content=_facts_prompt([])))
     conversation.append(HumanMessage(content=task))
     head_lock = sum((1 for m in conversation if isinstance(m, SystemMessage)))
@@ -441,7 +492,9 @@ def run_deep_solver(task: str, tools: List[BaseTool], bridge: Any, project_conte
                 if not key:
                     continue
                 try:
-                    ctx_limit = max(ctx_limit, int(_gcl(key) or 0))
+                    candidate = int(_gcl(key) or 0)
+                    if 0 < candidate < 128_000:
+                        ctx_limit = max(ctx_limit, candidate)
                 except Exception:
                     continue
     except Exception:

@@ -51,7 +51,7 @@ def show_splash(model_name: str = "", version: str = "") -> None:
     info.append("  Mode:  ", style="#6B7280")
     info.append("Textual TUI\n", style="#10B981")
     info.append("  Hint:  ", style="#6B7280")
-    info.append("@file for autocomplete, /help for commands\n", style="#E5E7EB")
+    info.append("@file: автодополнение · /help: команды · F1: клавиши · Space+w: widget mode\n", style="#E5E7EB")
 
     content = Text()
     content.append_text(logo_text)
@@ -84,5 +84,5 @@ def _show_simple_splash(model_name: str = "", version: str = "0.98") -> None:
 
   {purple}{APP_CLI_SUBTITLE}{reset} {gray}v{version}{reset}
   {gray}Model: {purple}{model_name}{reset}
-  {gray}@file for autocomplete, /help for commands{reset}
+  {gray}@file: автодополнение · /help: команды · F1: клавиши · Space+w: widget mode{reset}
 """)
