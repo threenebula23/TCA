@@ -1,0 +1,3398 @@
+{
+  "project": "TCA",
+  "version": "",
+  "generated_at": "2026-07-01T20:08:43+00:00",
+  "modules_count": 139,
+  "brain_files": [
+    {
+      "path": "architecture.md",
+      "type": "md",
+      "module": "",
+      "hash": "b4f7630314a84eb1"
+    },
+    {
+      "path": "architecture.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "944833cdead6fa71"
+    },
+    {
+      "path": "flows.md",
+      "type": "md",
+      "module": "",
+      "hash": "19d9a5f11213c9b5"
+    },
+    {
+      "path": "flows.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "944833cdead6fa71"
+    },
+    {
+      "path": "glossary.md",
+      "type": "md",
+      "module": "",
+      "hash": "cddc84311839eb96"
+    },
+    {
+      "path": "glossary.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "944833cdead6fa71"
+    },
+    {
+      "path": "machine/Agent.agent._impl_classic.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "7a53dcaf9c798662"
+    },
+    {
+      "path": "machine/Agent.agent._impl_classic.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "08d43bce42d7f552"
+    },
+    {
+      "path": "machine/Agent.agent._impl_prepare.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "bafbfbe8f8a319ae"
+    },
+    {
+      "path": "machine/Agent.agent._impl_prepare.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "14b5c18946a21dc9"
+    },
+    {
+      "path": "machine/Agent.agent._impl_tui.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "d36082b5f99d269a"
+    },
+    {
+      "path": "machine/Agent.agent._impl_tui.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "b62a2751f9def4ab"
+    },
+    {
+      "path": "machine/Agent.agent.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "260154f862b5e048"
+    },
+    {
+      "path": "machine/Agent.agent.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "f37aeaf9a5b6ba6d"
+    },
+    {
+      "path": "machine/Agent.background_agent_runner.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "6c12be0f6ec53716"
+    },
+    {
+      "path": "machine/Agent.background_agent_runner.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "04eef7726e1afc51"
+    },
+    {
+      "path": "machine/Agent.checkpoint.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "aafa7cc95aef3a4d"
+    },
+    {
+      "path": "machine/Agent.checkpoint.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "7e02e008c1017271"
+    },
+    {
+      "path": "machine/Agent.command_router._main.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "7cc62bf3734f20c8"
+    },
+    {
+      "path": "machine/Agent.command_router._main.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "2a1f6fa442d143e2"
+    },
+    {
+      "path": "machine/Agent.command_router._mixin_handlers.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "31e8686a5df8fb89"
+    },
+    {
+      "path": "machine/Agent.command_router._mixin_handlers.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "41ced8d334cac3e9"
+    },
+    {
+      "path": "machine/Agent.command_router.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "c44c54e5fe04f9db"
+    },
+    {
+      "path": "machine/Agent.command_router.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "8d80bd61189cc4df"
+    },
+    {
+      "path": "machine/Agent.config.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "2ba1869f74991699"
+    },
+    {
+      "path": "machine/Agent.config.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "608f8f8fdb212b19"
+    },
+    {
+      "path": "machine/Agent.creator_mode.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "646e400b21d3f0ee"
+    },
+    {
+      "path": "machine/Agent.creator_mode.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "087cbc353621666a"
+    },
+    {
+      "path": "machine/Agent.creator_orchestration.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "85098bc40c5231af"
+    },
+    {
+      "path": "machine/Agent.creator_orchestration.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "afd5488497a54f62"
+    },
+    {
+      "path": "machine/Agent.creator_provider.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "1103c2b06f0f100a"
+    },
+    {
+      "path": "machine/Agent.creator_provider.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "ec11ba81d6e8800e"
+    },
+    {
+      "path": "machine/Agent.creator_summary.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "d96118adde134d85"
+    },
+    {
+      "path": "machine/Agent.creator_summary.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "9cb1af5c9f45b4e5"
+    },
+    {
+      "path": "machine/Agent.deep_solver._impl_a.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "531d42031600f669"
+    },
+    {
+      "path": "machine/Agent.deep_solver._impl_a.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "5f4b6b2490426715"
+    },
+    {
+      "path": "machine/Agent.deep_solver._impl_b.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "232d9f4630d251f1"
+    },
+    {
+      "path": "machine/Agent.deep_solver._impl_b.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "95f8b70546ae81b6"
+    },
+    {
+      "path": "machine/Agent.deep_solver.legacy_loop.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "ba2118aeb070fdfd"
+    },
+    {
+      "path": "machine/Agent.deep_solver.legacy_loop.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "3d326ad2474884d3"
+    },
+    {
+      "path": "machine/Agent.deep_solver.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "f3d73d7414cf818b"
+    },
+    {
+      "path": "machine/Agent.deep_solver.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "e63b76b92055ec20"
+    },
+    {
+      "path": "machine/Agent.file_loading.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "dcea2626d69c545a"
+    },
+    {
+      "path": "machine/Agent.file_loading.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "d965f094ba0d12d2"
+    },
+    {
+      "path": "machine/Agent.git_integration.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "fc0b102eaf4088c5"
+    },
+    {
+      "path": "machine/Agent.git_integration.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "798c1a14eb6c8ca0"
+    },
+    {
+      "path": "machine/Agent.graph_runner.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "332b2505cf4a52ca"
+    },
+    {
+      "path": "machine/Agent.graph_runner.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "6f6b0c99aa254c4a"
+    },
+    {
+      "path": "machine/Agent.llm_provider.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "b32e7c9601c4be30"
+    },
+    {
+      "path": "machine/Agent.llm_provider.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "314485f6cdbceb78"
+    },
+    {
+      "path": "machine/Agent.message_utils._impl_high.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "fd247c41586b3fee"
+    },
+    {
+      "path": "machine/Agent.message_utils._impl_high.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "dc2fb8e1c5ab0a84"
+    },
+    {
+      "path": "machine/Agent.message_utils._impl_low.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "45c9d1fc0f1be09c"
+    },
+    {
+      "path": "machine/Agent.message_utils._impl_low.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "123ccc8482cd47a2"
+    },
+    {
+      "path": "machine/Agent.message_utils.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "c046932e5b943188"
+    },
+    {
+      "path": "machine/Agent.message_utils.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "9633fc8c23d09263"
+    },
+    {
+      "path": "machine/Agent.multiagent.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "0e13b1cc725a95fa"
+    },
+    {
+      "path": "machine/Agent.multiagent.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "a579cb1e7811e3c4"
+    },
+    {
+      "path": "machine/Agent.path_utils.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "a0216785df0fd4aa"
+    },
+    {
+      "path": "machine/Agent.path_utils.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "f1a61632ee82260b"
+    },
+    {
+      "path": "machine/Agent.planner.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "d5a3ab3807f6ba82"
+    },
+    {
+      "path": "machine/Agent.planner.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "185f9df53fd5e00c"
+    },
+    {
+      "path": "machine/Agent.project_brain.agent_architecture.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "fd6434aef7e6de2a"
+    },
+    {
+      "path": "machine/Agent.project_brain.agent_architecture.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "297419a3e2ecd598"
+    },
+    {
+      "path": "machine/Agent.project_brain.build.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "5fdab76f8902f246"
+    },
+    {
+      "path": "machine/Agent.project_brain.build.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "2745b62a50396cc7"
+    },
+    {
+      "path": "machine/Agent.project_brain.context_builder.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "7a04d1acca0de0ea"
+    },
+    {
+      "path": "machine/Agent.project_brain.context_builder.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "7c3b2a971417d381"
+    },
+    {
+      "path": "machine/Agent.project_brain.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "29e0899417b1d8ef"
+    },
+    {
+      "path": "machine/Agent.project_brain.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "a93a322d9ab787e9"
+    },
+    {
+      "path": "machine/Agent.project_brain.scanner.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "829f6afd3bd1c600"
+    },
+    {
+      "path": "machine/Agent.project_brain.scanner.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "2fa42ae6f3bc4e95"
+    },
+    {
+      "path": "machine/Agent.prompts.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "52f3c99bdd9b45ad"
+    },
+    {
+      "path": "machine/Agent.prompts.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "54ba22fce07e6b4f"
+    },
+    {
+      "path": "machine/Agent.prompts.project_brain_rules.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "96260c30b03ab41b"
+    },
+    {
+      "path": "machine/Agent.prompts.project_brain_rules.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "477e311c9ca5b1aa"
+    },
+    {
+      "path": "machine/Agent.rag.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "05a40065c3307ec3"
+    },
+    {
+      "path": "machine/Agent.rag.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "d4aff50b4b30d40e"
+    },
+    {
+      "path": "machine/Agent.runtime_paths.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "e3975733a24298e3"
+    },
+    {
+      "path": "machine/Agent.runtime_paths.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "115a5a50a2453729"
+    },
+    {
+      "path": "machine/Agent.spinner.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "22f0e787c156694d"
+    },
+    {
+      "path": "machine/Agent.spinner.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "8001cee2f656f0a4"
+    },
+    {
+      "path": "machine/Agent.stream_chat_mode.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "0f5ecb356a17d8f2"
+    },
+    {
+      "path": "machine/Agent.stream_chat_mode.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "d1f8e1fb277b371d"
+    },
+    {
+      "path": "machine/Agent.system_prompt.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "28c77e0c1df780b3"
+    },
+    {
+      "path": "machine/Agent.system_prompt.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "1ad162abbe8bf64b"
+    },
+    {
+      "path": "machine/Agent.system_promt.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "52d34349ad5d9cb3"
+    },
+    {
+      "path": "machine/Agent.system_promt.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "f2c90ffb740763a2"
+    },
+    {
+      "path": "machine/Agent.tool_registry.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "19ddf5bb57208fff"
+    },
+    {
+      "path": "machine/Agent.tool_registry.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "9eebde13a5d9c7d5"
+    },
+    {
+      "path": "machine/Agent.tool_schemas.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "8d284d998c20c672"
+    },
+    {
+      "path": "machine/Agent.tool_schemas.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "2642d879bd0e7254"
+    },
+    {
+      "path": "machine/Agent.tools.ast_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "7ff22f3555963ce9"
+    },
+    {
+      "path": "machine/Agent.tools.ast_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "893e9592c9f3dbb2"
+    },
+    {
+      "path": "machine/Agent.tools.batch_replace_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "55d93c8b75ad63be"
+    },
+    {
+      "path": "machine/Agent.tools.batch_replace_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "9d95ebbe90e13039"
+    },
+    {
+      "path": "machine/Agent.tools.browser_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "bc042a0046410cb8"
+    },
+    {
+      "path": "machine/Agent.tools.browser_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "8dffc3c62cceb5c3"
+    },
+    {
+      "path": "machine/Agent.tools.code_gen.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "709d0e25bcabbd6a"
+    },
+    {
+      "path": "machine/Agent.tools.code_gen.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "2e53e708d576f928"
+    },
+    {
+      "path": "machine/Agent.tools.code_interpreter.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "0bb68e065f08091c"
+    },
+    {
+      "path": "machine/Agent.tools.code_interpreter.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "d60b8164431457ad"
+    },
+    {
+      "path": "machine/Agent.tools.compact_tools.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "107ebb119a4c363e"
+    },
+    {
+      "path": "machine/Agent.tools.compact_tools.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "b5abe4410a2965ef"
+    },
+    {
+      "path": "machine/Agent.tools.context7_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "ea2ba3ed6a75ca3a"
+    },
+    {
+      "path": "machine/Agent.tools.context7_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "e9330de40f5819b1"
+    },
+    {
+      "path": "machine/Agent.tools.custom_tools.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "c19c14fb1e747c1d"
+    },
+    {
+      "path": "machine/Agent.tools.custom_tools.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "000be4720c95921e"
+    },
+    {
+      "path": "machine/Agent.tools.decompose_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "eb2948de2d8c72aa"
+    },
+    {
+      "path": "machine/Agent.tools.decompose_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "8e599a1d1fe6971d"
+    },
+    {
+      "path": "machine/Agent.tools.docxedit_tools.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "ebf65f49452ca3b3"
+    },
+    {
+      "path": "machine/Agent.tools.docxedit_tools.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "f04a943c35fee742"
+    },
+    {
+      "path": "machine/Agent.tools.download_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "21a0a11553ce759b"
+    },
+    {
+      "path": "machine/Agent.tools.download_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "6612381dce0bd550"
+    },
+    {
+      "path": "machine/Agent.tools.env_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "a3c44b57ce4aad73"
+    },
+    {
+      "path": "machine/Agent.tools.env_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "1a27660b877f76d6"
+    },
+    {
+      "path": "machine/Agent.tools.file_ops.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "3aab42afbef9ac2f"
+    },
+    {
+      "path": "machine/Agent.tools.file_ops.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "7aaa657e0214bb32"
+    },
+    {
+      "path": "machine/Agent.tools.git_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "4b6c5548e590c048"
+    },
+    {
+      "path": "machine/Agent.tools.git_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "f8c350b8b48ecb0f"
+    },
+    {
+      "path": "machine/Agent.tools.interactive.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "95279814bedca4b0"
+    },
+    {
+      "path": "machine/Agent.tools.interactive.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "3d5d3be2f47fcec1"
+    },
+    {
+      "path": "machine/Agent.tools.lint_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "3288371f91f144c2"
+    },
+    {
+      "path": "machine/Agent.tools.lint_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "093fb2eeaae19a79"
+    },
+    {
+      "path": "machine/Agent.tools.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "75ee766fca526b24"
+    },
+    {
+      "path": "machine/Agent.tools.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "ee2bec506789baca"
+    },
+    {
+      "path": "machine/Agent.tools.memory_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "6fe654a937426730"
+    },
+    {
+      "path": "machine/Agent.tools.memory_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "168e2183e8b76f00"
+    },
+    {
+      "path": "machine/Agent.tools.multi_read_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "cd6e0348db1a5bea"
+    },
+    {
+      "path": "machine/Agent.tools.multi_read_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "b025f568dabff43f"
+    },
+    {
+      "path": "machine/Agent.tools.notes_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "6c38277274d56b9c"
+    },
+    {
+      "path": "machine/Agent.tools.notes_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "0a85e6f820133ff7"
+    },
+    {
+      "path": "machine/Agent.tools.ocr_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "c8aa836c8ae3dc4a"
+    },
+    {
+      "path": "machine/Agent.tools.ocr_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "9579e2188db1c424"
+    },
+    {
+      "path": "machine/Agent.tools.office_document_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "67b2bfee9ec5fcd3"
+    },
+    {
+      "path": "machine/Agent.tools.office_document_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "def32a103a8dc40a"
+    },
+    {
+      "path": "machine/Agent.tools.parallel_helper_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "5cedd0283aaf888f"
+    },
+    {
+      "path": "machine/Agent.tools.parallel_helper_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "13e7953a5916fb49"
+    },
+    {
+      "path": "machine/Agent.tools.pdf_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "7a88c46c10930d18"
+    },
+    {
+      "path": "machine/Agent.tools.pdf_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "e75876dbb275745d"
+    },
+    {
+      "path": "machine/Agent.tools.planning_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "7d2feb6d0ea817b3"
+    },
+    {
+      "path": "machine/Agent.tools.planning_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "a858c53063ed32d4"
+    },
+    {
+      "path": "machine/Agent.tools.playwright_sync_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "9af1a37ea6c9173e"
+    },
+    {
+      "path": "machine/Agent.tools.playwright_sync_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "ca27e1e37b72f069"
+    },
+    {
+      "path": "machine/Agent.tools.qa_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "851cf20adc0a8c6c"
+    },
+    {
+      "path": "machine/Agent.tools.qa_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "58ee55379fb2a83f"
+    },
+    {
+      "path": "machine/Agent.tools.terminal_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "030ec80010abc1ff"
+    },
+    {
+      "path": "machine/Agent.tools.terminal_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "b05f55582ce67b34"
+    },
+    {
+      "path": "machine/Agent.tools.thinking_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "bea23c3333059496"
+    },
+    {
+      "path": "machine/Agent.tools.thinking_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "b75ec3cc4b7d7b79"
+    },
+    {
+      "path": "machine/Agent.tools.verify_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "902d744b87ed2ce7"
+    },
+    {
+      "path": "machine/Agent.tools.verify_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "01e14bee3236acce"
+    },
+    {
+      "path": "machine/Agent.tools.versioning_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "2f75032bfbcbb3de"
+    },
+    {
+      "path": "machine/Agent.tools.versioning_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "f2cdea329193b809"
+    },
+    {
+      "path": "machine/Agent.tools.web_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "9c5422902b628642"
+    },
+    {
+      "path": "machine/Agent.tools.web_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "0deb5a3e2e63240f"
+    },
+    {
+      "path": "machine/Agent.versioning.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "a488c1a0db3458c8"
+    },
+    {
+      "path": "machine/Agent.versioning.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "94b817637956cc0e"
+    },
+    {
+      "path": "machine/Interface.branding.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "ea84b2a57fa5b465"
+    },
+    {
+      "path": "machine/Interface.branding.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "7ba17cd46a87e19e"
+    },
+    {
+      "path": "machine/Interface.cli_theme.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "dc07a9ce61873337"
+    },
+    {
+      "path": "machine/Interface.cli_theme.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "3e6b6bd6932774d6"
+    },
+    {
+      "path": "machine/Interface.graph_display.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "1f42dbf4a2ce098a"
+    },
+    {
+      "path": "machine/Interface.graph_display.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "f0d8c80430166219"
+    },
+    {
+      "path": "machine/Interface.input_widget.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "61e9de82fbdcb5c0"
+    },
+    {
+      "path": "machine/Interface.input_widget.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "bc4a7f30a3257162"
+    },
+    {
+      "path": "machine/Interface.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "074afe0a150d34e4"
+    },
+    {
+      "path": "machine/Interface.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "0332bf550dd97f05"
+    },
+    {
+      "path": "machine/Interface.modal_style.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "aebf2b235148fcd2"
+    },
+    {
+      "path": "machine/Interface.modal_style.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "380d978d87f1d934"
+    },
+    {
+      "path": "machine/Interface.panels._colors.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "c349bf5265032ab3"
+    },
+    {
+      "path": "machine/Interface.panels._colors.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "6a5cb698d76c072c"
+    },
+    {
+      "path": "machine/Interface.panels.active_agents_panel.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "584e31e70d283ccd"
+    },
+    {
+      "path": "machine/Interface.panels.active_agents_panel.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "e6f3c2901b75a8e6"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._accent_dialog.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "6f0e49e8f99fc121"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._accent_dialog.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "c59932e6cc0d633c"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._blocks.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "c1c642115e94edf6"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._blocks.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "09157fafc8280db9"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._constants.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "44e12e038ed32151"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._constants.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "88340ce1678e84bc"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._css.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "870bb4706c9341fe"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._css.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "a868c029faf86e01"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._helpers.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "770c2673a853b073"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._helpers.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "451ff48be01a845e"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._messages.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "647db01f2692b257"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._messages.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "c535c6d641b42ed2"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._mixin_events.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "8c8e25ff2a6bb927"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._mixin_events.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "01a2cda5c4f598ac"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._mixin_setup.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "11e7b3e3f560568b"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._mixin_setup.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "20f50a6aedc7d27d"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._mixin_stream.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "d0946eea3a160390"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat._mixin_stream.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "3aa63af170108e56"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "1439d4f644ac26c4"
+    },
+    {
+      "path": "machine/Interface.panels.ai_chat.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "72fa3ff1b608049e"
+    },
+    {
+      "path": "machine/Interface.panels.code_editor._part_a.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "1260a682d5560657"
+    },
+    {
+      "path": "machine/Interface.panels.code_editor._part_a.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "e7d2247b744c9a18"
+    },
+    {
+      "path": "machine/Interface.panels.code_editor._part_b.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "9eebc1549b4afdde"
+    },
+    {
+      "path": "machine/Interface.panels.code_editor._part_b.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "d1c37da6452e26fb"
+    },
+    {
+      "path": "machine/Interface.panels.code_editor.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "050c1d4b3573e0a0"
+    },
+    {
+      "path": "machine/Interface.panels.code_editor.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "f5236fe1f2af4d1b"
+    },
+    {
+      "path": "machine/Interface.panels.creator_progress.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "238750ae29d29c96"
+    },
+    {
+      "path": "machine/Interface.panels.creator_progress.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "0045d6f9d60dea3d"
+    },
+    {
+      "path": "machine/Interface.panels.deep_checkpoint.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "44b63c6017f824c4"
+    },
+    {
+      "path": "machine/Interface.panels.deep_checkpoint.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "e7aeac94afe0ea76"
+    },
+    {
+      "path": "machine/Interface.panels.diff_block.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "5ec626f1553de08e"
+    },
+    {
+      "path": "machine/Interface.panels.diff_block.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "5fbe773eac3aee4d"
+    },
+    {
+      "path": "machine/Interface.panels.download_block.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "736c995dc049af80"
+    },
+    {
+      "path": "machine/Interface.panels.download_block.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "3a9a234d9f982e31"
+    },
+    {
+      "path": "machine/Interface.panels.file_explorer.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "69a43187ac1736f4"
+    },
+    {
+      "path": "machine/Interface.panels.file_explorer.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "6012dd8c9e0997e7"
+    },
+    {
+      "path": "machine/Interface.panels.image_viewer.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "7a0ae01d817ddf12"
+    },
+    {
+      "path": "machine/Interface.panels.image_viewer.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "703fb4df9f325e98"
+    },
+    {
+      "path": "machine/Interface.panels.keybindings_data.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "5c2edfc25213da41"
+    },
+    {
+      "path": "machine/Interface.panels.keybindings_data.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "34650998909f65e5"
+    },
+    {
+      "path": "machine/Interface.panels.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "6a2659ba747fc1c1"
+    },
+    {
+      "path": "machine/Interface.panels.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "b606390d8b42a1d5"
+    },
+    {
+      "path": "machine/Interface.panels.terminal_panel.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "52af0392e133098a"
+    },
+    {
+      "path": "machine/Interface.panels.terminal_panel.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "3aa17dcbe76682d0"
+    },
+    {
+      "path": "machine/Interface.panels.thinking_block.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "1fef8951ce9cb53f"
+    },
+    {
+      "path": "machine/Interface.panels.thinking_block.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "cf811008d94e63cf"
+    },
+    {
+      "path": "machine/Interface.panels.tool_card.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "89734b84acdc9cbc"
+    },
+    {
+      "path": "machine/Interface.panels.tool_card.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "f9c88441f8ea425c"
+    },
+    {
+      "path": "machine/Interface.panels.usage_calendar.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "aafd00a48fed1488"
+    },
+    {
+      "path": "machine/Interface.panels.usage_calendar.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "ddf78d644d24e9a5"
+    },
+    {
+      "path": "machine/Interface.panels.version_control.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "a0323b028e0c0b99"
+    },
+    {
+      "path": "machine/Interface.panels.version_control.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "1d8dee0f8dd705ee"
+    },
+    {
+      "path": "machine/Interface.panels.vi_textarea.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "cb0ccdfc3d9c63a7"
+    },
+    {
+      "path": "machine/Interface.panels.vi_textarea.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "333db5c0691e223c"
+    },
+    {
+      "path": "machine/Interface.panels.workspace_center.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "1746a25e584ddeee"
+    },
+    {
+      "path": "machine/Interface.panels.workspace_center.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "980a42b7da914e81"
+    },
+    {
+      "path": "machine/Interface.path_loading.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "20e76b87f3a73707"
+    },
+    {
+      "path": "machine/Interface.path_loading.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "30bc9b5e4a05dab7"
+    },
+    {
+      "path": "machine/Interface.session_picker_screen.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "7aae1a24a60c4f48"
+    },
+    {
+      "path": "machine/Interface.session_picker_screen.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "5e3d60069480848c"
+    },
+    {
+      "path": "machine/Interface.splash.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "ca8340c7291bc0e3"
+    },
+    {
+      "path": "machine/Interface.splash.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "4837ba489e182c50"
+    },
+    {
+      "path": "machine/Interface.start_screen.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "1edde06e84e85f57"
+    },
+    {
+      "path": "machine/Interface.start_screen.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "4efa3de8a095da90"
+    },
+    {
+      "path": "machine/Interface.themes.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "e992412956dd9749"
+    },
+    {
+      "path": "machine/Interface.themes.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "9c27e932044c7c01"
+    },
+    {
+      "path": "machine/Interface.tui_app.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "425488cf168fdf35"
+    },
+    {
+      "path": "machine/Interface.tui_app.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "82312861cd913491"
+    },
+    {
+      "path": "machine/Interface.tui_bridge.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "8178ebdaddff2ab9"
+    },
+    {
+      "path": "machine/Interface.tui_bridge.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "41d0945f74ff617a"
+    },
+    {
+      "path": "machine/Interface.ui_prefs.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "e73d29610a80897a"
+    },
+    {
+      "path": "machine/Interface.ui_prefs.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "72c1b8cb92fdc68f"
+    },
+    {
+      "path": "machine/Interface.visualization.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "13562f5211208edf"
+    },
+    {
+      "path": "machine/Interface.visualization.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "aab5e06fb60c29d3"
+    },
+    {
+      "path": "machine/Terminal.__main.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "b01474b3b1cc0310"
+    },
+    {
+      "path": "machine/Terminal.__main.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "14daa288850c72f1"
+    },
+    {
+      "path": "machine/Terminal.cli.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "d03cecead808b62d"
+    },
+    {
+      "path": "machine/Terminal.cli.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "6b4e1d2f8f1cb4f8"
+    },
+    {
+      "path": "machine/Terminal.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "d30e1057d6f653c8"
+    },
+    {
+      "path": "machine/Terminal.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "764bf7b67ba3f011"
+    },
+    {
+      "path": "machine/Terminal.runner.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "1cb426556627d9bf"
+    },
+    {
+      "path": "machine/Terminal.runner.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "d094d28d761e228c"
+    },
+    {
+      "path": "machine/lorne.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "aecf394802cf3e56"
+    },
+    {
+      "path": "machine/lorne.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "ad5fb69e1334e774"
+    },
+    {
+      "path": "machine/tca.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "70d644ce60403333"
+    },
+    {
+      "path": "machine/tca.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "335a515af07410c7"
+    },
+    {
+      "path": "machine/tests.test_branding.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "72cf0763138ecef8"
+    },
+    {
+      "path": "machine/tests.test_branding.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "be62f4e955dcc097"
+    },
+    {
+      "path": "machine/tests.test_checkpoint_rollback.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "2180a7420c685a1e"
+    },
+    {
+      "path": "machine/tests.test_checkpoint_rollback.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "8654ccf5e8f21ab5"
+    },
+    {
+      "path": "machine/tests.test_creator_mode_local_tools.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "d29e76000b283ea7"
+    },
+    {
+      "path": "machine/tests.test_creator_mode_local_tools.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "66d93f6a58073067"
+    },
+    {
+      "path": "machine/tests.test_deep_solver.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "4afabe97b35a70cb"
+    },
+    {
+      "path": "machine/tests.test_deep_solver.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "0f87608847fc0447"
+    },
+    {
+      "path": "machine/tests.test_file_ops.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "60cd2a175029a4e2"
+    },
+    {
+      "path": "machine/tests.test_file_ops.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "77d88926049caf6f"
+    },
+    {
+      "path": "machine/tests.test_latest_fixes.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "dbf457f3d86ef2cf"
+    },
+    {
+      "path": "machine/tests.test_latest_fixes.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "90fd9729d02f34b1"
+    },
+    {
+      "path": "machine/tests.test_message_utils_tools.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "0256bf7310f224c4"
+    },
+    {
+      "path": "machine/tests.test_message_utils_tools.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "b89ada60596fd00c"
+    },
+    {
+      "path": "machine/tests.test_ollama_provider.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "39ff7c4dcb5a6aa0"
+    },
+    {
+      "path": "machine/tests.test_ollama_provider.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "b03ceb9eb4371f36"
+    },
+    {
+      "path": "machine/tests.test_package_imports.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "fb199d0f2d837f39"
+    },
+    {
+      "path": "machine/tests.test_package_imports.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "6b37324de386d25b"
+    },
+    {
+      "path": "machine/tests.test_project_brain_tool.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "4fd7d098c2861a51"
+    },
+    {
+      "path": "machine/tests.test_project_brain_tool.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "9da394653995ba60"
+    },
+    {
+      "path": "machine/tests.test_prompt_budget.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "15200e55cd774080"
+    },
+    {
+      "path": "machine/tests.test_prompt_budget.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "149b54691d4f7441"
+    },
+    {
+      "path": "machine/tests.test_tool_card_list_files.machine.md",
+      "type": "md",
+      "module": "",
+      "hash": "02e5c1b7f8fd0448"
+    },
+    {
+      "path": "machine/tests.test_tool_card_list_files.machine.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "dfcaf0ad70496904"
+    },
+    {
+      "path": "modules/Agent.agent._impl_classic.md",
+      "type": "md",
+      "module": "Agent.agent._impl_classic",
+      "hash": "1978fab625df843d"
+    },
+    {
+      "path": "modules/Agent.agent._impl_classic.relator-context.json",
+      "type": "json",
+      "module": "Agent.agent._impl_classic.relator-context.json",
+      "hash": "08d43bce42d7f552"
+    },
+    {
+      "path": "modules/Agent.agent._impl_prepare.md",
+      "type": "md",
+      "module": "Agent.agent._impl_prepare",
+      "hash": "ede077e268e7711a"
+    },
+    {
+      "path": "modules/Agent.agent._impl_prepare.relator-context.json",
+      "type": "json",
+      "module": "Agent.agent._impl_prepare.relator-context.json",
+      "hash": "14b5c18946a21dc9"
+    },
+    {
+      "path": "modules/Agent.agent._impl_tui.md",
+      "type": "md",
+      "module": "Agent.agent._impl_tui",
+      "hash": "35acefcd4138340d"
+    },
+    {
+      "path": "modules/Agent.agent._impl_tui.relator-context.json",
+      "type": "json",
+      "module": "Agent.agent._impl_tui.relator-context.json",
+      "hash": "b62a2751f9def4ab"
+    },
+    {
+      "path": "modules/Agent.agent.md",
+      "type": "md",
+      "module": "Agent.agent",
+      "hash": "6991cd6e2993706a"
+    },
+    {
+      "path": "modules/Agent.agent.relator-context.json",
+      "type": "json",
+      "module": "Agent.agent.relator-context.json",
+      "hash": "f37aeaf9a5b6ba6d"
+    },
+    {
+      "path": "modules/Agent.background_agent_runner.md",
+      "type": "md",
+      "module": "Agent.background_agent_runner",
+      "hash": "703231d1033e39e2"
+    },
+    {
+      "path": "modules/Agent.background_agent_runner.relator-context.json",
+      "type": "json",
+      "module": "Agent.background_agent_runner.relator-context.json",
+      "hash": "04eef7726e1afc51"
+    },
+    {
+      "path": "modules/Agent.checkpoint.md",
+      "type": "md",
+      "module": "Agent.checkpoint",
+      "hash": "ca3287bb38d55759"
+    },
+    {
+      "path": "modules/Agent.checkpoint.relator-context.json",
+      "type": "json",
+      "module": "Agent.checkpoint.relator-context.json",
+      "hash": "7e02e008c1017271"
+    },
+    {
+      "path": "modules/Agent.command_router._main.md",
+      "type": "md",
+      "module": "Agent.command_router._main",
+      "hash": "9a8262729bcbee61"
+    },
+    {
+      "path": "modules/Agent.command_router._main.relator-context.json",
+      "type": "json",
+      "module": "Agent.command_router._main.relator-context.json",
+      "hash": "2a1f6fa442d143e2"
+    },
+    {
+      "path": "modules/Agent.command_router._mixin_handlers.md",
+      "type": "md",
+      "module": "Agent.command_router._mixin_handlers",
+      "hash": "5d6af6c05808537d"
+    },
+    {
+      "path": "modules/Agent.command_router._mixin_handlers.relator-context.json",
+      "type": "json",
+      "module": "Agent.command_router._mixin_handlers.relator-context.json",
+      "hash": "41ced8d334cac3e9"
+    },
+    {
+      "path": "modules/Agent.command_router.md",
+      "type": "md",
+      "module": "Agent.command_router",
+      "hash": "80d45020fd5bb9cd"
+    },
+    {
+      "path": "modules/Agent.command_router.relator-context.json",
+      "type": "json",
+      "module": "Agent.command_router.relator-context.json",
+      "hash": "8d80bd61189cc4df"
+    },
+    {
+      "path": "modules/Agent.config.md",
+      "type": "md",
+      "module": "Agent.config",
+      "hash": "11118f9d4c049dde"
+    },
+    {
+      "path": "modules/Agent.config.relator-context.json",
+      "type": "json",
+      "module": "Agent.config.relator-context.json",
+      "hash": "608f8f8fdb212b19"
+    },
+    {
+      "path": "modules/Agent.creator_mode.md",
+      "type": "md",
+      "module": "Agent.creator_mode",
+      "hash": "83ebe1916f0673bf"
+    },
+    {
+      "path": "modules/Agent.creator_mode.relator-context.json",
+      "type": "json",
+      "module": "Agent.creator_mode.relator-context.json",
+      "hash": "087cbc353621666a"
+    },
+    {
+      "path": "modules/Agent.creator_orchestration.md",
+      "type": "md",
+      "module": "Agent.creator_orchestration",
+      "hash": "e4afe25c4a7094b1"
+    },
+    {
+      "path": "modules/Agent.creator_orchestration.relator-context.json",
+      "type": "json",
+      "module": "Agent.creator_orchestration.relator-context.json",
+      "hash": "afd5488497a54f62"
+    },
+    {
+      "path": "modules/Agent.creator_provider.md",
+      "type": "md",
+      "module": "Agent.creator_provider",
+      "hash": "9ded11be11c68118"
+    },
+    {
+      "path": "modules/Agent.creator_provider.relator-context.json",
+      "type": "json",
+      "module": "Agent.creator_provider.relator-context.json",
+      "hash": "ec11ba81d6e8800e"
+    },
+    {
+      "path": "modules/Agent.creator_summary.md",
+      "type": "md",
+      "module": "Agent.creator_summary",
+      "hash": "80fdc2ee00182e5b"
+    },
+    {
+      "path": "modules/Agent.creator_summary.relator-context.json",
+      "type": "json",
+      "module": "Agent.creator_summary.relator-context.json",
+      "hash": "9cb1af5c9f45b4e5"
+    },
+    {
+      "path": "modules/Agent.deep_solver._impl_a.md",
+      "type": "md",
+      "module": "Agent.deep_solver._impl_a",
+      "hash": "e242e7ce7d2427af"
+    },
+    {
+      "path": "modules/Agent.deep_solver._impl_a.relator-context.json",
+      "type": "json",
+      "module": "Agent.deep_solver._impl_a.relator-context.json",
+      "hash": "5f4b6b2490426715"
+    },
+    {
+      "path": "modules/Agent.deep_solver._impl_b.md",
+      "type": "md",
+      "module": "Agent.deep_solver._impl_b",
+      "hash": "b0c0469f8687c1ff"
+    },
+    {
+      "path": "modules/Agent.deep_solver._impl_b.relator-context.json",
+      "type": "json",
+      "module": "Agent.deep_solver._impl_b.relator-context.json",
+      "hash": "95f8b70546ae81b6"
+    },
+    {
+      "path": "modules/Agent.deep_solver.legacy_loop.md",
+      "type": "md",
+      "module": "Agent.deep_solver.legacy_loop",
+      "hash": "96d6162b84beb2aa"
+    },
+    {
+      "path": "modules/Agent.deep_solver.legacy_loop.relator-context.json",
+      "type": "json",
+      "module": "Agent.deep_solver.legacy_loop.relator-context.json",
+      "hash": "3d326ad2474884d3"
+    },
+    {
+      "path": "modules/Agent.deep_solver.md",
+      "type": "md",
+      "module": "Agent.deep_solver",
+      "hash": "1914e95db9973d41"
+    },
+    {
+      "path": "modules/Agent.deep_solver.relator-context.json",
+      "type": "json",
+      "module": "Agent.deep_solver.relator-context.json",
+      "hash": "e63b76b92055ec20"
+    },
+    {
+      "path": "modules/Agent.file_loading.md",
+      "type": "md",
+      "module": "Agent.file_loading",
+      "hash": "a139e48e21f2955e"
+    },
+    {
+      "path": "modules/Agent.file_loading.relator-context.json",
+      "type": "json",
+      "module": "Agent.file_loading.relator-context.json",
+      "hash": "d965f094ba0d12d2"
+    },
+    {
+      "path": "modules/Agent.git_integration.md",
+      "type": "md",
+      "module": "Agent.git_integration",
+      "hash": "4db432847baf7efd"
+    },
+    {
+      "path": "modules/Agent.git_integration.relator-context.json",
+      "type": "json",
+      "module": "Agent.git_integration.relator-context.json",
+      "hash": "798c1a14eb6c8ca0"
+    },
+    {
+      "path": "modules/Agent.graph_runner.md",
+      "type": "md",
+      "module": "Agent.graph_runner",
+      "hash": "0f1b3821f8dc3184"
+    },
+    {
+      "path": "modules/Agent.graph_runner.relator-context.json",
+      "type": "json",
+      "module": "Agent.graph_runner.relator-context.json",
+      "hash": "6f6b0c99aa254c4a"
+    },
+    {
+      "path": "modules/Agent.llm_provider.md",
+      "type": "md",
+      "module": "Agent.llm_provider",
+      "hash": "7dd0c9cbdbeb4889"
+    },
+    {
+      "path": "modules/Agent.llm_provider.relator-context.json",
+      "type": "json",
+      "module": "Agent.llm_provider.relator-context.json",
+      "hash": "314485f6cdbceb78"
+    },
+    {
+      "path": "modules/Agent.message_utils._impl_high.md",
+      "type": "md",
+      "module": "Agent.message_utils._impl_high",
+      "hash": "ef0f6052cbc52330"
+    },
+    {
+      "path": "modules/Agent.message_utils._impl_high.relator-context.json",
+      "type": "json",
+      "module": "Agent.message_utils._impl_high.relator-context.json",
+      "hash": "dc2fb8e1c5ab0a84"
+    },
+    {
+      "path": "modules/Agent.message_utils._impl_low.md",
+      "type": "md",
+      "module": "Agent.message_utils._impl_low",
+      "hash": "d8688db7642a598e"
+    },
+    {
+      "path": "modules/Agent.message_utils._impl_low.relator-context.json",
+      "type": "json",
+      "module": "Agent.message_utils._impl_low.relator-context.json",
+      "hash": "123ccc8482cd47a2"
+    },
+    {
+      "path": "modules/Agent.message_utils.md",
+      "type": "md",
+      "module": "Agent.message_utils",
+      "hash": "c2f102b572da227f"
+    },
+    {
+      "path": "modules/Agent.message_utils.relator-context.json",
+      "type": "json",
+      "module": "Agent.message_utils.relator-context.json",
+      "hash": "9633fc8c23d09263"
+    },
+    {
+      "path": "modules/Agent.multiagent.md",
+      "type": "md",
+      "module": "Agent.multiagent",
+      "hash": "46358ea33fb88e78"
+    },
+    {
+      "path": "modules/Agent.multiagent.relator-context.json",
+      "type": "json",
+      "module": "Agent.multiagent.relator-context.json",
+      "hash": "a579cb1e7811e3c4"
+    },
+    {
+      "path": "modules/Agent.path_utils.md",
+      "type": "md",
+      "module": "Agent.path_utils",
+      "hash": "5310b374b2f3266f"
+    },
+    {
+      "path": "modules/Agent.path_utils.relator-context.json",
+      "type": "json",
+      "module": "Agent.path_utils.relator-context.json",
+      "hash": "f1a61632ee82260b"
+    },
+    {
+      "path": "modules/Agent.planner.md",
+      "type": "md",
+      "module": "Agent.planner",
+      "hash": "a5f83d53af2e6aad"
+    },
+    {
+      "path": "modules/Agent.planner.relator-context.json",
+      "type": "json",
+      "module": "Agent.planner.relator-context.json",
+      "hash": "185f9df53fd5e00c"
+    },
+    {
+      "path": "modules/Agent.project_brain.agent_architecture.md",
+      "type": "md",
+      "module": "Agent.project_brain.agent_architecture",
+      "hash": "6c5c489d6df4ddbb"
+    },
+    {
+      "path": "modules/Agent.project_brain.agent_architecture.relator-context.json",
+      "type": "json",
+      "module": "Agent.project_brain.agent_architecture.relator-context.json",
+      "hash": "297419a3e2ecd598"
+    },
+    {
+      "path": "modules/Agent.project_brain.build.md",
+      "type": "md",
+      "module": "Agent.project_brain.build",
+      "hash": "e1592545bd86136c"
+    },
+    {
+      "path": "modules/Agent.project_brain.build.relator-context.json",
+      "type": "json",
+      "module": "Agent.project_brain.build.relator-context.json",
+      "hash": "2745b62a50396cc7"
+    },
+    {
+      "path": "modules/Agent.project_brain.context_builder.md",
+      "type": "md",
+      "module": "Agent.project_brain.context_builder",
+      "hash": "8d8c29058a0d4287"
+    },
+    {
+      "path": "modules/Agent.project_brain.context_builder.relator-context.json",
+      "type": "json",
+      "module": "Agent.project_brain.context_builder.relator-context.json",
+      "hash": "7c3b2a971417d381"
+    },
+    {
+      "path": "modules/Agent.project_brain.md",
+      "type": "md",
+      "module": "Agent.project_brain",
+      "hash": "6300a8ea281988db"
+    },
+    {
+      "path": "modules/Agent.project_brain.relator-context.json",
+      "type": "json",
+      "module": "Agent.project_brain.relator-context.json",
+      "hash": "a93a322d9ab787e9"
+    },
+    {
+      "path": "modules/Agent.project_brain.scanner.md",
+      "type": "md",
+      "module": "Agent.project_brain.scanner",
+      "hash": "0ab3f2fbb0ccc033"
+    },
+    {
+      "path": "modules/Agent.project_brain.scanner.relator-context.json",
+      "type": "json",
+      "module": "Agent.project_brain.scanner.relator-context.json",
+      "hash": "2fa42ae6f3bc4e95"
+    },
+    {
+      "path": "modules/Agent.prompts.md",
+      "type": "md",
+      "module": "Agent.prompts",
+      "hash": "d2ac9e89048bd77f"
+    },
+    {
+      "path": "modules/Agent.prompts.project_brain_rules.md",
+      "type": "md",
+      "module": "Agent.prompts.project_brain_rules",
+      "hash": "a93c919442ce01a2"
+    },
+    {
+      "path": "modules/Agent.prompts.project_brain_rules.relator-context.json",
+      "type": "json",
+      "module": "Agent.prompts.project_brain_rules.relator-context.json",
+      "hash": "477e311c9ca5b1aa"
+    },
+    {
+      "path": "modules/Agent.prompts.relator-context.json",
+      "type": "json",
+      "module": "Agent.prompts.relator-context.json",
+      "hash": "54ba22fce07e6b4f"
+    },
+    {
+      "path": "modules/Agent.rag.md",
+      "type": "md",
+      "module": "Agent.rag",
+      "hash": "be396296840b468f"
+    },
+    {
+      "path": "modules/Agent.rag.relator-context.json",
+      "type": "json",
+      "module": "Agent.rag.relator-context.json",
+      "hash": "d4aff50b4b30d40e"
+    },
+    {
+      "path": "modules/Agent.runtime_paths.md",
+      "type": "md",
+      "module": "Agent.runtime_paths",
+      "hash": "af84608d5d1267a4"
+    },
+    {
+      "path": "modules/Agent.runtime_paths.relator-context.json",
+      "type": "json",
+      "module": "Agent.runtime_paths.relator-context.json",
+      "hash": "115a5a50a2453729"
+    },
+    {
+      "path": "modules/Agent.spinner.md",
+      "type": "md",
+      "module": "Agent.spinner",
+      "hash": "3b50febbf00cdd97"
+    },
+    {
+      "path": "modules/Agent.spinner.relator-context.json",
+      "type": "json",
+      "module": "Agent.spinner.relator-context.json",
+      "hash": "8001cee2f656f0a4"
+    },
+    {
+      "path": "modules/Agent.stream_chat_mode.md",
+      "type": "md",
+      "module": "Agent.stream_chat_mode",
+      "hash": "6b64bdeaa9d551b6"
+    },
+    {
+      "path": "modules/Agent.stream_chat_mode.relator-context.json",
+      "type": "json",
+      "module": "Agent.stream_chat_mode.relator-context.json",
+      "hash": "d1f8e1fb277b371d"
+    },
+    {
+      "path": "modules/Agent.system_prompt.md",
+      "type": "md",
+      "module": "Agent.system_prompt",
+      "hash": "e9488251d923e28d"
+    },
+    {
+      "path": "modules/Agent.system_prompt.relator-context.json",
+      "type": "json",
+      "module": "Agent.system_prompt.relator-context.json",
+      "hash": "1ad162abbe8bf64b"
+    },
+    {
+      "path": "modules/Agent.system_promt.md",
+      "type": "md",
+      "module": "Agent.system_promt",
+      "hash": "8af62a019cbb86e4"
+    },
+    {
+      "path": "modules/Agent.system_promt.relator-context.json",
+      "type": "json",
+      "module": "Agent.system_promt.relator-context.json",
+      "hash": "f2c90ffb740763a2"
+    },
+    {
+      "path": "modules/Agent.tool_registry.md",
+      "type": "md",
+      "module": "Agent.tool_registry",
+      "hash": "6ecf303286da2283"
+    },
+    {
+      "path": "modules/Agent.tool_registry.relator-context.json",
+      "type": "json",
+      "module": "Agent.tool_registry.relator-context.json",
+      "hash": "9eebde13a5d9c7d5"
+    },
+    {
+      "path": "modules/Agent.tool_schemas.md",
+      "type": "md",
+      "module": "Agent.tool_schemas",
+      "hash": "648fae03d5cb6328"
+    },
+    {
+      "path": "modules/Agent.tool_schemas.relator-context.json",
+      "type": "json",
+      "module": "Agent.tool_schemas.relator-context.json",
+      "hash": "2642d879bd0e7254"
+    },
+    {
+      "path": "modules/Agent.tools.ast_tool.md",
+      "type": "md",
+      "module": "Agent.tools.ast_tool",
+      "hash": "55ef364ebe018b4c"
+    },
+    {
+      "path": "modules/Agent.tools.ast_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.ast_tool.relator-context.json",
+      "hash": "893e9592c9f3dbb2"
+    },
+    {
+      "path": "modules/Agent.tools.batch_replace_tool.md",
+      "type": "md",
+      "module": "Agent.tools.batch_replace_tool",
+      "hash": "7d26ad982b1aee8b"
+    },
+    {
+      "path": "modules/Agent.tools.batch_replace_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.batch_replace_tool.relator-context.json",
+      "hash": "9d95ebbe90e13039"
+    },
+    {
+      "path": "modules/Agent.tools.browser_tool.md",
+      "type": "md",
+      "module": "Agent.tools.browser_tool",
+      "hash": "b20618367ff653b4"
+    },
+    {
+      "path": "modules/Agent.tools.browser_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.browser_tool.relator-context.json",
+      "hash": "8dffc3c62cceb5c3"
+    },
+    {
+      "path": "modules/Agent.tools.code_gen.md",
+      "type": "md",
+      "module": "Agent.tools.code_gen",
+      "hash": "4a7b147453974d10"
+    },
+    {
+      "path": "modules/Agent.tools.code_gen.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.code_gen.relator-context.json",
+      "hash": "2e53e708d576f928"
+    },
+    {
+      "path": "modules/Agent.tools.code_interpreter.md",
+      "type": "md",
+      "module": "Agent.tools.code_interpreter",
+      "hash": "ae378fbebaff9d91"
+    },
+    {
+      "path": "modules/Agent.tools.code_interpreter.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.code_interpreter.relator-context.json",
+      "hash": "d60b8164431457ad"
+    },
+    {
+      "path": "modules/Agent.tools.compact_tools.md",
+      "type": "md",
+      "module": "Agent.tools.compact_tools",
+      "hash": "a1d986700e0fabe2"
+    },
+    {
+      "path": "modules/Agent.tools.compact_tools.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.compact_tools.relator-context.json",
+      "hash": "b5abe4410a2965ef"
+    },
+    {
+      "path": "modules/Agent.tools.context7_tool.md",
+      "type": "md",
+      "module": "Agent.tools.context7_tool",
+      "hash": "10c409ba0f3fc22b"
+    },
+    {
+      "path": "modules/Agent.tools.context7_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.context7_tool.relator-context.json",
+      "hash": "e9330de40f5819b1"
+    },
+    {
+      "path": "modules/Agent.tools.custom_tools.md",
+      "type": "md",
+      "module": "Agent.tools.custom_tools",
+      "hash": "0497597b1b5183ff"
+    },
+    {
+      "path": "modules/Agent.tools.custom_tools.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.custom_tools.relator-context.json",
+      "hash": "000be4720c95921e"
+    },
+    {
+      "path": "modules/Agent.tools.decompose_tool.md",
+      "type": "md",
+      "module": "Agent.tools.decompose_tool",
+      "hash": "2dc3c8ac9a59aaa3"
+    },
+    {
+      "path": "modules/Agent.tools.decompose_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.decompose_tool.relator-context.json",
+      "hash": "8e599a1d1fe6971d"
+    },
+    {
+      "path": "modules/Agent.tools.docxedit_tools.md",
+      "type": "md",
+      "module": "Agent.tools.docxedit_tools",
+      "hash": "5df4746f03cc5ea2"
+    },
+    {
+      "path": "modules/Agent.tools.docxedit_tools.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.docxedit_tools.relator-context.json",
+      "hash": "f04a943c35fee742"
+    },
+    {
+      "path": "modules/Agent.tools.download_tool.md",
+      "type": "md",
+      "module": "Agent.tools.download_tool",
+      "hash": "7becc90f41ef65e5"
+    },
+    {
+      "path": "modules/Agent.tools.download_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.download_tool.relator-context.json",
+      "hash": "6612381dce0bd550"
+    },
+    {
+      "path": "modules/Agent.tools.env_tool.md",
+      "type": "md",
+      "module": "Agent.tools.env_tool",
+      "hash": "5f14c9aa905702fb"
+    },
+    {
+      "path": "modules/Agent.tools.env_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.env_tool.relator-context.json",
+      "hash": "1a27660b877f76d6"
+    },
+    {
+      "path": "modules/Agent.tools.file_ops.md",
+      "type": "md",
+      "module": "Agent.tools.file_ops",
+      "hash": "57ebfdc04d771232"
+    },
+    {
+      "path": "modules/Agent.tools.file_ops.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.file_ops.relator-context.json",
+      "hash": "7aaa657e0214bb32"
+    },
+    {
+      "path": "modules/Agent.tools.git_tool.md",
+      "type": "md",
+      "module": "Agent.tools.git_tool",
+      "hash": "bd7153ad2b3a9d92"
+    },
+    {
+      "path": "modules/Agent.tools.git_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.git_tool.relator-context.json",
+      "hash": "f8c350b8b48ecb0f"
+    },
+    {
+      "path": "modules/Agent.tools.interactive.md",
+      "type": "md",
+      "module": "Agent.tools.interactive",
+      "hash": "cd694776c6f40d0d"
+    },
+    {
+      "path": "modules/Agent.tools.interactive.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.interactive.relator-context.json",
+      "hash": "3d5d3be2f47fcec1"
+    },
+    {
+      "path": "modules/Agent.tools.lint_tool.md",
+      "type": "md",
+      "module": "Agent.tools.lint_tool",
+      "hash": "d543237bd666dc94"
+    },
+    {
+      "path": "modules/Agent.tools.lint_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.lint_tool.relator-context.json",
+      "hash": "093fb2eeaae19a79"
+    },
+    {
+      "path": "modules/Agent.tools.md",
+      "type": "md",
+      "module": "Agent.tools",
+      "hash": "551138ffcb5ddfa6"
+    },
+    {
+      "path": "modules/Agent.tools.memory_tool.md",
+      "type": "md",
+      "module": "Agent.tools.memory_tool",
+      "hash": "cda796d6ea25e60f"
+    },
+    {
+      "path": "modules/Agent.tools.memory_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.memory_tool.relator-context.json",
+      "hash": "168e2183e8b76f00"
+    },
+    {
+      "path": "modules/Agent.tools.multi_read_tool.md",
+      "type": "md",
+      "module": "Agent.tools.multi_read_tool",
+      "hash": "201b471a5d60afc8"
+    },
+    {
+      "path": "modules/Agent.tools.multi_read_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.multi_read_tool.relator-context.json",
+      "hash": "b025f568dabff43f"
+    },
+    {
+      "path": "modules/Agent.tools.notes_tool.md",
+      "type": "md",
+      "module": "Agent.tools.notes_tool",
+      "hash": "29c8e89ac6e8805e"
+    },
+    {
+      "path": "modules/Agent.tools.notes_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.notes_tool.relator-context.json",
+      "hash": "0a85e6f820133ff7"
+    },
+    {
+      "path": "modules/Agent.tools.ocr_tool.md",
+      "type": "md",
+      "module": "Agent.tools.ocr_tool",
+      "hash": "9924f7ea53b08d0b"
+    },
+    {
+      "path": "modules/Agent.tools.ocr_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.ocr_tool.relator-context.json",
+      "hash": "9579e2188db1c424"
+    },
+    {
+      "path": "modules/Agent.tools.office_document_tool.md",
+      "type": "md",
+      "module": "Agent.tools.office_document_tool",
+      "hash": "bd2ac002e67bd954"
+    },
+    {
+      "path": "modules/Agent.tools.office_document_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.office_document_tool.relator-context.json",
+      "hash": "def32a103a8dc40a"
+    },
+    {
+      "path": "modules/Agent.tools.parallel_helper_tool.md",
+      "type": "md",
+      "module": "Agent.tools.parallel_helper_tool",
+      "hash": "a40db97b07ca5b1e"
+    },
+    {
+      "path": "modules/Agent.tools.parallel_helper_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.parallel_helper_tool.relator-context.json",
+      "hash": "13e7953a5916fb49"
+    },
+    {
+      "path": "modules/Agent.tools.pdf_tool.md",
+      "type": "md",
+      "module": "Agent.tools.pdf_tool",
+      "hash": "964bbcfbda4d61ac"
+    },
+    {
+      "path": "modules/Agent.tools.pdf_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.pdf_tool.relator-context.json",
+      "hash": "e75876dbb275745d"
+    },
+    {
+      "path": "modules/Agent.tools.planning_tool.md",
+      "type": "md",
+      "module": "Agent.tools.planning_tool",
+      "hash": "b28a0e7130c14388"
+    },
+    {
+      "path": "modules/Agent.tools.planning_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.planning_tool.relator-context.json",
+      "hash": "a858c53063ed32d4"
+    },
+    {
+      "path": "modules/Agent.tools.playwright_sync_tool.md",
+      "type": "md",
+      "module": "Agent.tools.playwright_sync_tool",
+      "hash": "759d98789a5aea72"
+    },
+    {
+      "path": "modules/Agent.tools.playwright_sync_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.playwright_sync_tool.relator-context.json",
+      "hash": "ca27e1e37b72f069"
+    },
+    {
+      "path": "modules/Agent.tools.qa_tool.md",
+      "type": "md",
+      "module": "Agent.tools.qa_tool",
+      "hash": "4bf78c63173a39e9"
+    },
+    {
+      "path": "modules/Agent.tools.qa_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.qa_tool.relator-context.json",
+      "hash": "58ee55379fb2a83f"
+    },
+    {
+      "path": "modules/Agent.tools.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.relator-context.json",
+      "hash": "ee2bec506789baca"
+    },
+    {
+      "path": "modules/Agent.tools.terminal_tool.md",
+      "type": "md",
+      "module": "Agent.tools.terminal_tool",
+      "hash": "9962f4d501cde951"
+    },
+    {
+      "path": "modules/Agent.tools.terminal_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.terminal_tool.relator-context.json",
+      "hash": "b05f55582ce67b34"
+    },
+    {
+      "path": "modules/Agent.tools.thinking_tool.md",
+      "type": "md",
+      "module": "Agent.tools.thinking_tool",
+      "hash": "29a1f4224dd73070"
+    },
+    {
+      "path": "modules/Agent.tools.thinking_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.thinking_tool.relator-context.json",
+      "hash": "b75ec3cc4b7d7b79"
+    },
+    {
+      "path": "modules/Agent.tools.verify_tool.md",
+      "type": "md",
+      "module": "Agent.tools.verify_tool",
+      "hash": "00e166a151408a7b"
+    },
+    {
+      "path": "modules/Agent.tools.verify_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.verify_tool.relator-context.json",
+      "hash": "01e14bee3236acce"
+    },
+    {
+      "path": "modules/Agent.tools.versioning_tool.md",
+      "type": "md",
+      "module": "Agent.tools.versioning_tool",
+      "hash": "cc7503c42da976ca"
+    },
+    {
+      "path": "modules/Agent.tools.versioning_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.versioning_tool.relator-context.json",
+      "hash": "f2cdea329193b809"
+    },
+    {
+      "path": "modules/Agent.tools.web_tool.md",
+      "type": "md",
+      "module": "Agent.tools.web_tool",
+      "hash": "27670e9e69057d10"
+    },
+    {
+      "path": "modules/Agent.tools.web_tool.relator-context.json",
+      "type": "json",
+      "module": "Agent.tools.web_tool.relator-context.json",
+      "hash": "0deb5a3e2e63240f"
+    },
+    {
+      "path": "modules/Agent.versioning.md",
+      "type": "md",
+      "module": "Agent.versioning",
+      "hash": "8b9bf675d1c2cbd0"
+    },
+    {
+      "path": "modules/Agent.versioning.relator-context.json",
+      "type": "json",
+      "module": "Agent.versioning.relator-context.json",
+      "hash": "94b817637956cc0e"
+    },
+    {
+      "path": "modules/Interface.branding.md",
+      "type": "md",
+      "module": "Interface.branding",
+      "hash": "ad185c214614e296"
+    },
+    {
+      "path": "modules/Interface.branding.relator-context.json",
+      "type": "json",
+      "module": "Interface.branding.relator-context.json",
+      "hash": "7ba17cd46a87e19e"
+    },
+    {
+      "path": "modules/Interface.cli_theme.md",
+      "type": "md",
+      "module": "Interface.cli_theme",
+      "hash": "cbb6136ace564dda"
+    },
+    {
+      "path": "modules/Interface.cli_theme.relator-context.json",
+      "type": "json",
+      "module": "Interface.cli_theme.relator-context.json",
+      "hash": "3e6b6bd6932774d6"
+    },
+    {
+      "path": "modules/Interface.graph_display.md",
+      "type": "md",
+      "module": "Interface.graph_display",
+      "hash": "59b4e9eee8d48beb"
+    },
+    {
+      "path": "modules/Interface.graph_display.relator-context.json",
+      "type": "json",
+      "module": "Interface.graph_display.relator-context.json",
+      "hash": "f0d8c80430166219"
+    },
+    {
+      "path": "modules/Interface.input_widget.md",
+      "type": "md",
+      "module": "Interface.input_widget",
+      "hash": "e935dbbe65fdd54d"
+    },
+    {
+      "path": "modules/Interface.input_widget.relator-context.json",
+      "type": "json",
+      "module": "Interface.input_widget.relator-context.json",
+      "hash": "bc4a7f30a3257162"
+    },
+    {
+      "path": "modules/Interface.md",
+      "type": "md",
+      "module": "Interface",
+      "hash": "68fac6b99b871886"
+    },
+    {
+      "path": "modules/Interface.modal_style.md",
+      "type": "md",
+      "module": "Interface.modal_style",
+      "hash": "00340187a4166f29"
+    },
+    {
+      "path": "modules/Interface.modal_style.relator-context.json",
+      "type": "json",
+      "module": "Interface.modal_style.relator-context.json",
+      "hash": "380d978d87f1d934"
+    },
+    {
+      "path": "modules/Interface.panels._colors.md",
+      "type": "md",
+      "module": "Interface.panels._colors",
+      "hash": "61c87c5c321ffcca"
+    },
+    {
+      "path": "modules/Interface.panels._colors.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels._colors.relator-context.json",
+      "hash": "6a5cb698d76c072c"
+    },
+    {
+      "path": "modules/Interface.panels.active_agents_panel.md",
+      "type": "md",
+      "module": "Interface.panels.active_agents_panel",
+      "hash": "fc7b0cb493c95886"
+    },
+    {
+      "path": "modules/Interface.panels.active_agents_panel.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.active_agents_panel.relator-context.json",
+      "hash": "e6f3c2901b75a8e6"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._accent_dialog.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat._accent_dialog",
+      "hash": "2383d7f6cbc83084"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._accent_dialog.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat._accent_dialog.relator-context.json",
+      "hash": "c59932e6cc0d633c"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._blocks.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat._blocks",
+      "hash": "933243fffaeb35bb"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._blocks.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat._blocks.relator-context.json",
+      "hash": "09157fafc8280db9"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._constants.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat._constants",
+      "hash": "c6b6e269bbee7cf1"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._constants.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat._constants.relator-context.json",
+      "hash": "88340ce1678e84bc"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._css.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat._css",
+      "hash": "38e5c471a74981d1"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._css.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat._css.relator-context.json",
+      "hash": "a868c029faf86e01"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._helpers.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat._helpers",
+      "hash": "11ea5954d4408bd3"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._helpers.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat._helpers.relator-context.json",
+      "hash": "451ff48be01a845e"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._messages.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat._messages",
+      "hash": "a6429a04bc253816"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._messages.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat._messages.relator-context.json",
+      "hash": "c535c6d641b42ed2"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._mixin_events.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat._mixin_events",
+      "hash": "5672ba4c68d225ad"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._mixin_events.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat._mixin_events.relator-context.json",
+      "hash": "01a2cda5c4f598ac"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._mixin_setup.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat._mixin_setup",
+      "hash": "86c4f0d29fba4bea"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._mixin_setup.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat._mixin_setup.relator-context.json",
+      "hash": "20f50a6aedc7d27d"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._mixin_stream.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat._mixin_stream",
+      "hash": "198a3aa4e362dd9c"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat._mixin_stream.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat._mixin_stream.relator-context.json",
+      "hash": "3aa63af170108e56"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat.md",
+      "type": "md",
+      "module": "Interface.panels.ai_chat",
+      "hash": "8fbb507a16bb84f6"
+    },
+    {
+      "path": "modules/Interface.panels.ai_chat.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.ai_chat.relator-context.json",
+      "hash": "72fa3ff1b608049e"
+    },
+    {
+      "path": "modules/Interface.panels.code_editor._part_a.md",
+      "type": "md",
+      "module": "Interface.panels.code_editor._part_a",
+      "hash": "a34170fc31267d9e"
+    },
+    {
+      "path": "modules/Interface.panels.code_editor._part_a.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.code_editor._part_a.relator-context.json",
+      "hash": "e7d2247b744c9a18"
+    },
+    {
+      "path": "modules/Interface.panels.code_editor._part_b.md",
+      "type": "md",
+      "module": "Interface.panels.code_editor._part_b",
+      "hash": "7a2cd7abdb9a385c"
+    },
+    {
+      "path": "modules/Interface.panels.code_editor._part_b.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.code_editor._part_b.relator-context.json",
+      "hash": "d1c37da6452e26fb"
+    },
+    {
+      "path": "modules/Interface.panels.code_editor.md",
+      "type": "md",
+      "module": "Interface.panels.code_editor",
+      "hash": "aadb58eaf5bb45bd"
+    },
+    {
+      "path": "modules/Interface.panels.code_editor.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.code_editor.relator-context.json",
+      "hash": "f5236fe1f2af4d1b"
+    },
+    {
+      "path": "modules/Interface.panels.creator_progress.md",
+      "type": "md",
+      "module": "Interface.panels.creator_progress",
+      "hash": "fb1c06e25ef55d2a"
+    },
+    {
+      "path": "modules/Interface.panels.creator_progress.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.creator_progress.relator-context.json",
+      "hash": "0045d6f9d60dea3d"
+    },
+    {
+      "path": "modules/Interface.panels.deep_checkpoint.md",
+      "type": "md",
+      "module": "Interface.panels.deep_checkpoint",
+      "hash": "964abbbddeada9ce"
+    },
+    {
+      "path": "modules/Interface.panels.deep_checkpoint.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.deep_checkpoint.relator-context.json",
+      "hash": "e7aeac94afe0ea76"
+    },
+    {
+      "path": "modules/Interface.panels.diff_block.md",
+      "type": "md",
+      "module": "Interface.panels.diff_block",
+      "hash": "02702b920ee6c494"
+    },
+    {
+      "path": "modules/Interface.panels.diff_block.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.diff_block.relator-context.json",
+      "hash": "5fbe773eac3aee4d"
+    },
+    {
+      "path": "modules/Interface.panels.download_block.md",
+      "type": "md",
+      "module": "Interface.panels.download_block",
+      "hash": "658c4fda29170362"
+    },
+    {
+      "path": "modules/Interface.panels.download_block.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.download_block.relator-context.json",
+      "hash": "3a9a234d9f982e31"
+    },
+    {
+      "path": "modules/Interface.panels.file_explorer.md",
+      "type": "md",
+      "module": "Interface.panels.file_explorer",
+      "hash": "ca609844ae32984e"
+    },
+    {
+      "path": "modules/Interface.panels.file_explorer.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.file_explorer.relator-context.json",
+      "hash": "6012dd8c9e0997e7"
+    },
+    {
+      "path": "modules/Interface.panels.image_viewer.md",
+      "type": "md",
+      "module": "Interface.panels.image_viewer",
+      "hash": "54e3662522c50070"
+    },
+    {
+      "path": "modules/Interface.panels.image_viewer.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.image_viewer.relator-context.json",
+      "hash": "703fb4df9f325e98"
+    },
+    {
+      "path": "modules/Interface.panels.keybindings_data.md",
+      "type": "md",
+      "module": "Interface.panels.keybindings_data",
+      "hash": "0907e7bd90a68da2"
+    },
+    {
+      "path": "modules/Interface.panels.keybindings_data.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.keybindings_data.relator-context.json",
+      "hash": "34650998909f65e5"
+    },
+    {
+      "path": "modules/Interface.panels.md",
+      "type": "md",
+      "module": "Interface.panels",
+      "hash": "6980a6a6a45e78c2"
+    },
+    {
+      "path": "modules/Interface.panels.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.relator-context.json",
+      "hash": "b606390d8b42a1d5"
+    },
+    {
+      "path": "modules/Interface.panels.terminal_panel.md",
+      "type": "md",
+      "module": "Interface.panels.terminal_panel",
+      "hash": "079673c846e798ea"
+    },
+    {
+      "path": "modules/Interface.panels.terminal_panel.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.terminal_panel.relator-context.json",
+      "hash": "3aa17dcbe76682d0"
+    },
+    {
+      "path": "modules/Interface.panels.thinking_block.md",
+      "type": "md",
+      "module": "Interface.panels.thinking_block",
+      "hash": "96f8a84a1e8a8187"
+    },
+    {
+      "path": "modules/Interface.panels.thinking_block.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.thinking_block.relator-context.json",
+      "hash": "cf811008d94e63cf"
+    },
+    {
+      "path": "modules/Interface.panels.tool_card.md",
+      "type": "md",
+      "module": "Interface.panels.tool_card",
+      "hash": "cc9727a22b910ae8"
+    },
+    {
+      "path": "modules/Interface.panels.tool_card.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.tool_card.relator-context.json",
+      "hash": "f9c88441f8ea425c"
+    },
+    {
+      "path": "modules/Interface.panels.usage_calendar.md",
+      "type": "md",
+      "module": "Interface.panels.usage_calendar",
+      "hash": "c3bc610aac778808"
+    },
+    {
+      "path": "modules/Interface.panels.usage_calendar.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.usage_calendar.relator-context.json",
+      "hash": "ddf78d644d24e9a5"
+    },
+    {
+      "path": "modules/Interface.panels.version_control.md",
+      "type": "md",
+      "module": "Interface.panels.version_control",
+      "hash": "8e1ae4dad7f592fc"
+    },
+    {
+      "path": "modules/Interface.panels.version_control.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.version_control.relator-context.json",
+      "hash": "1d8dee0f8dd705ee"
+    },
+    {
+      "path": "modules/Interface.panels.vi_textarea.md",
+      "type": "md",
+      "module": "Interface.panels.vi_textarea",
+      "hash": "73846e10abfc4f0e"
+    },
+    {
+      "path": "modules/Interface.panels.vi_textarea.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.vi_textarea.relator-context.json",
+      "hash": "333db5c0691e223c"
+    },
+    {
+      "path": "modules/Interface.panels.workspace_center.md",
+      "type": "md",
+      "module": "Interface.panels.workspace_center",
+      "hash": "afd430457aca04f6"
+    },
+    {
+      "path": "modules/Interface.panels.workspace_center.relator-context.json",
+      "type": "json",
+      "module": "Interface.panels.workspace_center.relator-context.json",
+      "hash": "980a42b7da914e81"
+    },
+    {
+      "path": "modules/Interface.path_loading.md",
+      "type": "md",
+      "module": "Interface.path_loading",
+      "hash": "feadc378bef52404"
+    },
+    {
+      "path": "modules/Interface.path_loading.relator-context.json",
+      "type": "json",
+      "module": "Interface.path_loading.relator-context.json",
+      "hash": "30bc9b5e4a05dab7"
+    },
+    {
+      "path": "modules/Interface.relator-context.json",
+      "type": "json",
+      "module": "Interface.relator-context.json",
+      "hash": "0332bf550dd97f05"
+    },
+    {
+      "path": "modules/Interface.session_picker_screen.md",
+      "type": "md",
+      "module": "Interface.session_picker_screen",
+      "hash": "b815593ac34f410c"
+    },
+    {
+      "path": "modules/Interface.session_picker_screen.relator-context.json",
+      "type": "json",
+      "module": "Interface.session_picker_screen.relator-context.json",
+      "hash": "5e3d60069480848c"
+    },
+    {
+      "path": "modules/Interface.splash.md",
+      "type": "md",
+      "module": "Interface.splash",
+      "hash": "b6cc7d87cd84f102"
+    },
+    {
+      "path": "modules/Interface.splash.relator-context.json",
+      "type": "json",
+      "module": "Interface.splash.relator-context.json",
+      "hash": "4837ba489e182c50"
+    },
+    {
+      "path": "modules/Interface.start_screen.md",
+      "type": "md",
+      "module": "Interface.start_screen",
+      "hash": "bb86889eba185445"
+    },
+    {
+      "path": "modules/Interface.start_screen.relator-context.json",
+      "type": "json",
+      "module": "Interface.start_screen.relator-context.json",
+      "hash": "4efa3de8a095da90"
+    },
+    {
+      "path": "modules/Interface.themes.md",
+      "type": "md",
+      "module": "Interface.themes",
+      "hash": "19d4283b05b6f5a5"
+    },
+    {
+      "path": "modules/Interface.themes.relator-context.json",
+      "type": "json",
+      "module": "Interface.themes.relator-context.json",
+      "hash": "9c27e932044c7c01"
+    },
+    {
+      "path": "modules/Interface.tui_app.md",
+      "type": "md",
+      "module": "Interface.tui_app",
+      "hash": "dd774090635e93a3"
+    },
+    {
+      "path": "modules/Interface.tui_app.relator-context.json",
+      "type": "json",
+      "module": "Interface.tui_app.relator-context.json",
+      "hash": "82312861cd913491"
+    },
+    {
+      "path": "modules/Interface.tui_bridge.md",
+      "type": "md",
+      "module": "Interface.tui_bridge",
+      "hash": "06515bb65eedd35d"
+    },
+    {
+      "path": "modules/Interface.tui_bridge.relator-context.json",
+      "type": "json",
+      "module": "Interface.tui_bridge.relator-context.json",
+      "hash": "41d0945f74ff617a"
+    },
+    {
+      "path": "modules/Interface.ui_prefs.md",
+      "type": "md",
+      "module": "Interface.ui_prefs",
+      "hash": "365c8d0fc44261da"
+    },
+    {
+      "path": "modules/Interface.ui_prefs.relator-context.json",
+      "type": "json",
+      "module": "Interface.ui_prefs.relator-context.json",
+      "hash": "72c1b8cb92fdc68f"
+    },
+    {
+      "path": "modules/Interface.visualization.md",
+      "type": "md",
+      "module": "Interface.visualization",
+      "hash": "ae26c03d906c72ec"
+    },
+    {
+      "path": "modules/Interface.visualization.relator-context.json",
+      "type": "json",
+      "module": "Interface.visualization.relator-context.json",
+      "hash": "aab5e06fb60c29d3"
+    },
+    {
+      "path": "modules/Terminal.__main.md",
+      "type": "md",
+      "module": "Terminal.__main",
+      "hash": "740bd863ea208f21"
+    },
+    {
+      "path": "modules/Terminal.__main.relator-context.json",
+      "type": "json",
+      "module": "Terminal.__main.relator-context.json",
+      "hash": "14daa288850c72f1"
+    },
+    {
+      "path": "modules/Terminal.cli.md",
+      "type": "md",
+      "module": "Terminal.cli",
+      "hash": "1b7e5ef313766fdd"
+    },
+    {
+      "path": "modules/Terminal.cli.relator-context.json",
+      "type": "json",
+      "module": "Terminal.cli.relator-context.json",
+      "hash": "6b4e1d2f8f1cb4f8"
+    },
+    {
+      "path": "modules/Terminal.md",
+      "type": "md",
+      "module": "Terminal",
+      "hash": "c2ae5dda1e2cad55"
+    },
+    {
+      "path": "modules/Terminal.relator-context.json",
+      "type": "json",
+      "module": "Terminal.relator-context.json",
+      "hash": "764bf7b67ba3f011"
+    },
+    {
+      "path": "modules/Terminal.runner.md",
+      "type": "md",
+      "module": "Terminal.runner",
+      "hash": "4d7528a502d99fc5"
+    },
+    {
+      "path": "modules/Terminal.runner.relator-context.json",
+      "type": "json",
+      "module": "Terminal.runner.relator-context.json",
+      "hash": "d094d28d761e228c"
+    },
+    {
+      "path": "modules/lorne.md",
+      "type": "md",
+      "module": "lorne",
+      "hash": "9b1162c37bbad3dc"
+    },
+    {
+      "path": "modules/lorne.relator-context.json",
+      "type": "json",
+      "module": "lorne.relator-context.json",
+      "hash": "ad5fb69e1334e774"
+    },
+    {
+      "path": "modules/tca.md",
+      "type": "md",
+      "module": "tca",
+      "hash": "9b40cbb105015cf1"
+    },
+    {
+      "path": "modules/tca.relator-context.json",
+      "type": "json",
+      "module": "tca.relator-context.json",
+      "hash": "335a515af07410c7"
+    },
+    {
+      "path": "modules/tests.test_branding.md",
+      "type": "md",
+      "module": "tests.test_branding",
+      "hash": "4a488a8574fbf403"
+    },
+    {
+      "path": "modules/tests.test_branding.relator-context.json",
+      "type": "json",
+      "module": "tests.test_branding.relator-context.json",
+      "hash": "be62f4e955dcc097"
+    },
+    {
+      "path": "modules/tests.test_checkpoint_rollback.md",
+      "type": "md",
+      "module": "tests.test_checkpoint_rollback",
+      "hash": "1f730fe285d87092"
+    },
+    {
+      "path": "modules/tests.test_checkpoint_rollback.relator-context.json",
+      "type": "json",
+      "module": "tests.test_checkpoint_rollback.relator-context.json",
+      "hash": "8654ccf5e8f21ab5"
+    },
+    {
+      "path": "modules/tests.test_creator_mode_local_tools.md",
+      "type": "md",
+      "module": "tests.test_creator_mode_local_tools",
+      "hash": "770e00996b2f23fd"
+    },
+    {
+      "path": "modules/tests.test_creator_mode_local_tools.relator-context.json",
+      "type": "json",
+      "module": "tests.test_creator_mode_local_tools.relator-context.json",
+      "hash": "66d93f6a58073067"
+    },
+    {
+      "path": "modules/tests.test_deep_solver.md",
+      "type": "md",
+      "module": "tests.test_deep_solver",
+      "hash": "d20474098c30e721"
+    },
+    {
+      "path": "modules/tests.test_deep_solver.relator-context.json",
+      "type": "json",
+      "module": "tests.test_deep_solver.relator-context.json",
+      "hash": "0f87608847fc0447"
+    },
+    {
+      "path": "modules/tests.test_file_ops.md",
+      "type": "md",
+      "module": "tests.test_file_ops",
+      "hash": "6e892749905322e6"
+    },
+    {
+      "path": "modules/tests.test_file_ops.relator-context.json",
+      "type": "json",
+      "module": "tests.test_file_ops.relator-context.json",
+      "hash": "77d88926049caf6f"
+    },
+    {
+      "path": "modules/tests.test_latest_fixes.md",
+      "type": "md",
+      "module": "tests.test_latest_fixes",
+      "hash": "0ad66a50ddbb3519"
+    },
+    {
+      "path": "modules/tests.test_latest_fixes.relator-context.json",
+      "type": "json",
+      "module": "tests.test_latest_fixes.relator-context.json",
+      "hash": "90fd9729d02f34b1"
+    },
+    {
+      "path": "modules/tests.test_message_utils_tools.md",
+      "type": "md",
+      "module": "tests.test_message_utils_tools",
+      "hash": "8a17656c398432a2"
+    },
+    {
+      "path": "modules/tests.test_message_utils_tools.relator-context.json",
+      "type": "json",
+      "module": "tests.test_message_utils_tools.relator-context.json",
+      "hash": "b89ada60596fd00c"
+    },
+    {
+      "path": "modules/tests.test_ollama_provider.md",
+      "type": "md",
+      "module": "tests.test_ollama_provider",
+      "hash": "c4a4561e1fb1e3d5"
+    },
+    {
+      "path": "modules/tests.test_ollama_provider.relator-context.json",
+      "type": "json",
+      "module": "tests.test_ollama_provider.relator-context.json",
+      "hash": "b03ceb9eb4371f36"
+    },
+    {
+      "path": "modules/tests.test_package_imports.md",
+      "type": "md",
+      "module": "tests.test_package_imports",
+      "hash": "d2cc9904076aaf04"
+    },
+    {
+      "path": "modules/tests.test_package_imports.relator-context.json",
+      "type": "json",
+      "module": "tests.test_package_imports.relator-context.json",
+      "hash": "6b37324de386d25b"
+    },
+    {
+      "path": "modules/tests.test_project_brain_tool.md",
+      "type": "md",
+      "module": "tests.test_project_brain_tool",
+      "hash": "f1c1148e99dbdc8c"
+    },
+    {
+      "path": "modules/tests.test_project_brain_tool.relator-context.json",
+      "type": "json",
+      "module": "tests.test_project_brain_tool.relator-context.json",
+      "hash": "9da394653995ba60"
+    },
+    {
+      "path": "modules/tests.test_prompt_budget.md",
+      "type": "md",
+      "module": "tests.test_prompt_budget",
+      "hash": "81bdf57ac189bf8a"
+    },
+    {
+      "path": "modules/tests.test_prompt_budget.relator-context.json",
+      "type": "json",
+      "module": "tests.test_prompt_budget.relator-context.json",
+      "hash": "149b54691d4f7441"
+    },
+    {
+      "path": "modules/tests.test_tool_card_list_files.md",
+      "type": "md",
+      "module": "tests.test_tool_card_list_files",
+      "hash": "ac8bf37c929abad5"
+    },
+    {
+      "path": "modules/tests.test_tool_card_list_files.relator-context.json",
+      "type": "json",
+      "module": "tests.test_tool_card_list_files.relator-context.json",
+      "hash": "dfcaf0ad70496904"
+    },
+    {
+      "path": "overview.md",
+      "type": "md",
+      "module": "",
+      "hash": "0812c76728f0da42"
+    },
+    {
+      "path": "tools.md",
+      "type": "md",
+      "module": "",
+      "hash": "e25448e6dd6b33af"
+    },
+    {
+      "path": "tools.relator-context.json",
+      "type": "json",
+      "module": "",
+      "hash": "944833cdead6fa71"
+    }
+  ]
+}

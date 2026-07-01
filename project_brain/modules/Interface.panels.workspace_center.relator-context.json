@@ -1,0 +1,35 @@
+{
+  "module_name": "Interface.panels.workspace_center",
+  "module_purpose": "Центральная рабочая область: вкладка чата и закрываемые вкладки файлов и изображений.",
+  "responsibilities": [
+    "Центральная рабочая область: вкладка чата и закрываемые вкладки файлов и изображений."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "__future__",
+    "ai_chat",
+    "code_editor",
+    "image_viewer",
+    "pathlib",
+    "terminal_panel",
+    "textual",
+    "textual.app",
+    "textual.containers",
+    "textual.widgets",
+    "typing"
+  ],
+  "used_by": [
+    "Interface/panels/file_explorer.py",
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/panels/workspace_center.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

@@ -17,6 +17,7 @@
 | `playwright_python_enabled` | bool `false` | Python Playwright в режиме Agent |
 | `browser_tools_enabled` | bool `true` | Node headless browser в Agent |
 | `custom_tools_enabled` | bool `true` | RAG, plan, reasoning, interpreter, library, versions, brain |
+| `extended_tools_enabled` | bool `false` | Опциональный тир мега-тулов (`code_intel_tool`, `net_tool`, `viz_tool`, …) — выключен по умолчанию ради бюджета контекста |
 | `openrouter_custom_models` | list | Пользовательские модели OpenRouter |
 | `ollama_custom_models` | list | Пользовательские модели Ollama |
 | `ollama_base_url` | URL | База Ollama API |
@@ -37,6 +38,6 @@
 
 ## Влияние на туловый набор
 
-`Agent/agent/_impl_prepare.py` — **`_sync_tui_tool_bundle(mode)`** читает prefs и вызывает `set_tool_session_prefs` + `build_tools` с флагами `ask_mode`, `agent_mode`, `playwright_python`, `browser_tools`, `custom_tools`.
+`Agent/agent/_impl_prepare.py` — **`_sync_tui_tool_bundle(mode)`** (и `_sync_classic_tool_bundle` в `_impl_classic.py`) читает prefs и вызывает `set_tool_session_prefs` + `build_tools` с флагами `ask_mode`, `agent_mode`, `playwright_python`, `browser_tools`, `custom_tools`, `extended`. После сборки `_ensure_forced_brain_tools` может доложить `rag_search`/`project_brain_tool`, если режим их требует (`Agent/project_brain/policy.py`), а `custom_tools_enabled` был выключен.
 
 Связка режимов TUI и тулов: [../MODES/README.md](../MODES/README.md).

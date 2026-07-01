@@ -139,7 +139,7 @@ class VersionControlPanel(Vertical):
                     placeholder="Commit message…",
                     id="commit-input",
                 ))
-                container.mount(Button("📦 Commit Selected", id="commit-btn"))
+                container.mount(Button("◇ Commit Selected", id="commit-btn"))
 
     def _list_branches(self) -> List[str]:
         if not self._gm or not self._gm.repo:

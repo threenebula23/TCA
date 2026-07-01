@@ -21,6 +21,7 @@ _SETTINGS_SECTION_TITLES = {
     "agents": "⚙ Агенты",
     "openrouter": "⚙ OpenRouter",
     "ollama": "⚙ Ollama",
+    "lmstudio": "⚙ LM Studio",
     "keybindings": "⌨ Клавиши",
 }
 
@@ -112,7 +113,7 @@ class WorkspaceCenter(Vertical):
 
     def compose(self) -> ComposeResult:
         with TabbedContent(initial=CHAT_TAB_ID):
-            with TabPane("💬 Чат", id=CHAT_TAB_ID):
+            with TabPane("» Чат", id=CHAT_TAB_ID):
                 yield AIChatPanel(
                     models=self._models,
                     current_model=self._current_model,
@@ -183,7 +184,7 @@ class WorkspaceCenter(Vertical):
 
     def open_settings_tab(self, section: str) -> None:
         sec = (section or "").strip().lower()
-        if sec not in {"personalization", "agents", "openrouter", "ollama", "keybindings"}:
+        if sec not in {"personalization", "agents", "openrouter", "ollama", "lmstudio", "keybindings"}:
             sec = "personalization"
         existing = self._settings_section_to_tab.get(sec)
         if existing:

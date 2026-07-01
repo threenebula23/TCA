@@ -190,10 +190,12 @@ def _sync_tui_tool_bundle(mode_lower: str) -> None:
     pw = False
     bw = True
     ct = True
+    ext = False
     try:
         from Interface.ui_prefs import load_prefs
         prefs = load_prefs()
         ct = bool(prefs.get("custom_tools_enabled", True))
+        ext = bool(prefs.get("extended_tools_enabled", False))
         if agent_extras:
             pw = bool(prefs.get("playwright_python_enabled", False))
             bw = bool(prefs.get("browser_tools_enabled", True))
@@ -207,6 +209,7 @@ def _sync_tui_tool_bundle(mode_lower: str) -> None:
             playwright_python=pw,
             browser_tools=bw,
             custom_tools=ct,
+            extended=ext,
         )
         fresh, _cust = build_tools(
             agent_mode=agent_extras,
@@ -214,12 +217,47 @@ def _sync_tui_tool_bundle(mode_lower: str) -> None:
             playwright_python=pw,
             browser_tools=bw,
             custom_tools=ct,
+            extended=ext,
         )
+        fresh = _ensure_forced_brain_tools(ml, fresh, custom_tools_off=not ct)
         tools.clear()
         tools.extend(fresh)
         _refresh_runtime_tools()
     except Exception:
         pass
+
+
+def _ensure_forced_brain_tools(mode_lower: str, tool_list: list, *, custom_tools_off: bool) -> list:
+    """Brainer must keep ``rag_search`` / ``project_brain_tool`` even with custom
+    tools disabled in prefs (A4) — otherwise it degrades to "a prompt without
+    tools" as noted in the plan's diagnosis. Only re-adds what's missing.
+    """
+    if not custom_tools_off:
+        return tool_list
+    try:
+        from Agent.project_brain.policy import forced_tool_names
+
+        forced = forced_tool_names(mode_lower)
+    except Exception:
+        forced = ()
+    if not forced:
+        return tool_list
+    present = {getattr(t, "name", "") for t in tool_list}
+    missing = [n for n in forced if n not in present]
+    if not missing:
+        return tool_list
+    try:
+        from Agent.tool_registry import build_tools
+
+        full, _ = build_tools(custom_tools=True)
+        by_name = {getattr(t, "name", ""): t for t in full}
+        for n in missing:
+            t = by_name.get(n)
+            if t is not None:
+                tool_list.append(t)
+    except Exception:
+        pass
+    return tool_list
 
 # ─── Project analysis ──────────────────────────────────────────────
 _SKIP_DIRS = {
@@ -341,6 +379,18 @@ def _build_session_system_prompt(
         from Agent.prompts.project_brain_rules import PROJECT_BRAIN_SYSTEM_SECTION
 
         sections.append(PROJECT_BRAIN_SYSTEM_SECTION.strip())
+    except Exception:
+        pass
+    # Give the regular agent the same small head-start Deep Solver/Creator
+    # workers already get: a short excerpt of project_brain/*.md baked into
+    # the session prompt, so basic architecture facts don't depend on the
+    # model remembering to call rag_search/read_file before it can use them.
+    try:
+        from Agent.project_brain import read_brain_context_summary
+
+        brain_excerpt = read_brain_context_summary(max_chars=1800)
+        if brain_excerpt:
+            sections.append("=== PROJECT BRAIN (краткая выжимка) ===\n" + brain_excerpt)
     except Exception:
         pass
     return "\n\n".join(sections) + "\n"

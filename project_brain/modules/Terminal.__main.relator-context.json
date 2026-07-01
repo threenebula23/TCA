@@ -1,0 +1,23 @@
+{
+  "module_name": "Terminal.__main__",
+  "module_purpose": "Python module `Terminal.__main__`.",
+  "responsibilities": [
+    "Python module `Terminal.__main__`."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "cli"
+  ],
+  "used_by": [],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Terminal/__main__.py"
+  ],
+  "entrypoints": [
+    "Terminal/__main__.py"
+  ],
+  "api_hints": []
+}

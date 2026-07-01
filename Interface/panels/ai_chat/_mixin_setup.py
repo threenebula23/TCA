@@ -69,6 +69,7 @@ from rich.text import Text
 
 from ._constants import (
     MODES,
+    MODE_ICONS,
     PURPLE,
     PURPLE_LIGHT,
     GRAY,
@@ -130,9 +131,20 @@ class AIChatPanelSetupMixin:
         self._stream_widget: Optional[Any] = None
         self._stream_think_widget: Optional[Any] = None
         self._stream_raw: str = ""
+        self._tool_progress: Dict[str, Any] = {}
+        self._agent_activity_phase: str = ""
+        self._agent_activity_tool: str = ""
+        self._agent_activity_elapsed: float = 0.0
+        self._agent_activity_started: float = 0.0
+        self._agent_activity_timer: Optional[Any] = None
+        self._brain_sync_phase: str = ""
+        self._brain_sync_ok: bool = True
+        self._brain_sync_detail: str = ""
+        self._brain_sync_chunks: Optional[int] = None
+        self._brain_sync_hide_timer: Optional[Any] = None
 
     def compose(self) -> ComposeResult:
-        yield Static("Чат проекта", id="chat-thread-label")
+        yield Static("» Чат проекта", id="chat-thread-label")
         with Vertical(id="chat-log-region"):
             yield VerticalScroll(id="main-chat-stream")
             yield RichLog(id="chat-messages-worker", wrap=True, markup=False)
@@ -155,6 +167,10 @@ class AIChatPanelSetupMixin:
                 os.environ.setdefault("OLLAMA_BASE_URL", str(prefs.get("ollama_base_url")))
             if prefs.get("ollama_api_key"):
                 os.environ.setdefault("OLLAMA_API_KEY", str(prefs.get("ollama_api_key")))
+            if prefs.get("lmstudio_base_url"):
+                os.environ.setdefault("LMSTUDIO_BASE_URL", str(prefs.get("lmstudio_base_url")))
+            if prefs.get("lmstudio_api_key"):
+                os.environ.setdefault("LMSTUDIO_API_KEY", str(prefs.get("lmstudio_api_key")))
             ta = self.query_one("#chat-input", TextArea)
             ensure_custom_textarea_themes(ta)
             ta.theme = SYNTAX_THEME_MAP.get(
@@ -187,13 +203,29 @@ class AIChatPanelSetupMixin:
         except Exception:
             return {"accent": PURPLE, "accent2": PURPLE_LIGHT, "fg": "#E5E7EB", "fg2": GRAY}
 
+    def _is_stream_at_bottom(self, tolerance: int = 2) -> bool:
+        """True if the chat scroll area is already at (or near) the bottom.
+
+        Used to implement "sticky scroll": auto-follow new content only while
+        the user hasn't scrolled up to read history, instead of forcing
+        `scroll_end` unconditionally on every mount/token.
+        """
+        try:
+            stream = self._main_stream()
+            max_y = stream.max_scroll_y
+            return (max_y - stream.scroll_y) <= tolerance
+        except Exception:
+            return True
+
     def _mount_main(self, widget: Vertical | Static | AssistantMessageBlock | UserMessageBlock) -> None:
         stream = self._main_stream()
+        was_at_bottom = self._is_stream_at_bottom()
         stream.mount(widget)
-        try:
-            stream.scroll_end(animate=False)
-        except Exception:
-            pass
+        if was_at_bottom:
+            try:
+                stream.scroll_end(animate=False)
+            except Exception:
+                pass
 
     def _build_input_area(self) -> None:
         area = self.query_one("#chat-input-area", Vertical)
@@ -216,7 +248,9 @@ class AIChatPanelSetupMixin:
         if sel_value not in _opt_ids:
             sel_value = model_options[0][1]
 
-        mode_options = [(m, m.lower()) for m in MODES]
+        mode_options = [
+            (f"{MODE_ICONS.get(m.lower(), '•')} {m}", m.lower()) for m in MODES
+        ]
 
         area.mount(Vertical(id="creator-progress-slot"))
         # Wave animation bar — shown while model is generating tokens.
@@ -224,6 +258,9 @@ class AIChatPanelSetupMixin:
         # Deep Solver status badge — shows elapsed time / checkpoint count
         # while a Deep run is live. Hidden by default via CSS.
         area.mount(Static("", id="deep-status-bar"))
+        # Agent activity + brain sync badges (generalized deep-status pattern).
+        area.mount(Static("", id="agent-activity-bar"))
+        area.mount(Static("", id="brain-sync-bar"))
         area.mount(TextArea(
             "",
             id="chat-input",
@@ -268,7 +305,7 @@ class AIChatPanelSetupMixin:
     def render_settings_into(self, scroll: VerticalScroll, section: str) -> None:
         """Fill a workspace settings tab (widgets may live outside this panel)."""
         sec = (section or "").strip().lower()
-        if sec not in {"personalization", "agents", "openrouter", "ollama", "keybindings"}:
+        if sec not in {"personalization", "agents", "openrouter", "ollama", "lmstudio", "keybindings"}:
             sec = "personalization"
         try:
             scroll.remove_children()
@@ -286,6 +323,8 @@ class AIChatPanelSetupMixin:
             self._render_openrouter_settings(content)
         elif tab == "ollama":
             self._render_ollama_settings(content)
+        elif tab == "lmstudio":
+            self._render_lmstudio_settings(content)
         elif tab == "keybindings":
             self._render_keybindings_settings(content)
 
@@ -294,7 +333,7 @@ class AIChatPanelSetupMixin:
         from Interface.themes import DARK_THEMES, LIGHT_THEMES
 
         prefs = load_prefs()
-        theme_options = [(f"🌙 {t}", t) for t in DARK_THEMES] + [(f"☀️ {t}", t) for t in LIGHT_THEMES]
+        theme_options = [(f"☾ {t}", t) for t in DARK_THEMES] + [(f"☼ {t}", t) for t in LIGHT_THEMES]
         theme = str(prefs.get("theme", "Purple Dark"))
         available_theme_ids = {t[1] for t in theme_options}
         if theme not in available_theme_ids and theme_options:
@@ -325,10 +364,10 @@ class AIChatPanelSetupMixin:
             Input(value=accent, id="sp-accent", placeholder="#8B5CF6"),
         )
         content.mount(Horizontal(
-            Button("🎨 Применить цвет", id="sp-apply-accent",
+            Button("◐ Применить цвет", id="sp-apply-accent",
                    classes="settings-action-btn settings-action-btn--primary",
                    variant="primary"),
-            Button("🎲 Открыть палитру", id="sp-open-palette",
+            Button("◇ Открыть палитру", id="sp-open-palette",
                    classes="settings-action-btn", variant="default"),
             classes="settings-button-row",
         ))
@@ -462,7 +501,7 @@ class AIChatPanelSetupMixin:
             Input(value=masked, password=True, id="sor-api-key", placeholder="sk-or-..."),
         )
         content.mount(Horizontal(
-            Button("💾 Сохранить API key", id="sor-save-key",
+            Button("▣ Сохранить API key", id="sor-save-key",
                    classes="settings-action-btn settings-action-btn--primary",
                    variant="primary"),
             classes="settings-button-row",
@@ -481,7 +520,7 @@ class AIChatPanelSetupMixin:
             ),
         )
         content.mount(Horizontal(
-            Button("🔍 Проверить баланс", id="sor-check-balance",
+            Button("◎ Проверить баланс", id="sor-check-balance",
                    classes="settings-action-btn", variant="default"),
             classes="settings-button-row",
         ))
@@ -546,10 +585,10 @@ class AIChatPanelSetupMixin:
             Input(value=api_key, id="sol-api-key", password=True, placeholder="опционально"),
         )
         conn_card.mount(Horizontal(
-            Button("💾 Сохранить подключение", id="sol-save-conn",
+            Button("▣ Сохранить подключение", id="sol-save-conn",
                    classes="settings-action-btn settings-action-btn--primary",
                    variant="primary"),
-            Button("🔄 Обновить список моделей", id="sol-refresh",
+            Button("↻ Обновить список моделей", id="sol-refresh",
                    classes="settings-action-btn", variant="default"),
             classes="settings-button-row",
         ))
@@ -628,7 +667,7 @@ class AIChatPanelSetupMixin:
                   id="sol-param-stop", placeholder="<|im_end|>, END"),
         )
         params_card.mount(Horizontal(
-            Button("💾 Сохранить пресет", id="sol-save-preset",
+            Button("▣ Сохранить пресет", id="sol-save-preset",
                    classes="settings-action-btn", variant="default"),
             Button("✓ Применить к модели", id="sol-apply-model-settings",
                    classes="settings-action-btn settings-action-btn--primary",
@@ -655,6 +694,78 @@ class AIChatPanelSetupMixin:
         list_card.mount(Static(
             "\n".join(lines) if lines else "  Пока нет добавленных моделей.",
             id="sol-model-list",
+        ))
+
+    def _render_lmstudio_settings(self, content: VerticalScroll) -> None:
+        from Interface.ui_prefs import load_prefs
+
+        prefs = load_prefs()
+        base_url = str(prefs.get("lmstudio_base_url", "http://localhost:1234/v1"))
+        api_key = str(prefs.get("lmstudio_api_key", ""))
+
+        # ── Card 1: connection ──────────────────────────────────────────
+        conn_card = Vertical(classes="settings-card", id="slm-conn-card")
+        content.mount(conn_card)
+        conn_card.mount(self._settings_title("Подключение к LM Studio"))
+        conn_card.mount(Label(
+            "Локальный сервер LM Studio (Developer → Start Server, обычно порт 1234). "
+            "Используется только OpenAI-совместимый /v1, нативного API нет.",
+            classes="settings-card-subtitle",
+        ))
+        self._settings_row(
+            conn_card, "Base URL",
+            Input(value=base_url, id="slm-base-url", placeholder="http://localhost:1234/v1"),
+        )
+        self._settings_row(
+            conn_card, "API key",
+            Input(value=api_key, id="slm-api-key", password=True, placeholder="опционально"),
+        )
+        conn_card.mount(Horizontal(
+            Button("▣ Сохранить подключение", id="slm-save-conn",
+                   classes="settings-action-btn settings-action-btn--primary",
+                   variant="primary"),
+            Button("↻ Обновить список моделей", id="slm-refresh",
+                   classes="settings-action-btn", variant="default"),
+            classes="settings-button-row",
+        ))
+
+        # ── Card 2: model selection ──────────────────────────────────────
+        model_card = Vertical(classes="settings-card", id="slm-model-card")
+        content.mount(model_card)
+        model_card.mount(self._settings_title("Модель"))
+        model_card.mount(Label(
+            "Список подтягивается с запущенного сервера LM Studio "
+            "(модель должна быть загружена там же).",
+            classes="settings-card-subtitle",
+        ))
+        self._settings_row(
+            model_card, "Модель",
+            Select(
+                [("— сначала нажмите «Обновить» —", "")],
+                id="slm-model-select", allow_blank=False,
+            ),
+        )
+        model_card.mount(Horizontal(
+            Button("✓ Применить модель", id="slm-apply-model",
+                   classes="settings-action-btn settings-action-btn--primary",
+                   variant="primary"),
+            classes="settings-button-row",
+        ))
+        model_card.mount(Static("", id="slm-status"))
+
+        # ── Card 3: added models list ────────────────────────────────────
+        list_card = Vertical(classes="settings-card", id="slm-list-card")
+        content.mount(list_card)
+        list_card.mount(self._settings_title("Добавленные LM Studio модели"))
+        lines: List[str] = []
+        for m in (prefs.get("lmstudio_custom_models") or []):
+            if isinstance(m, dict):
+                label = m.get("label") or m.get("name") or "—"
+                name = m.get("name") or ""
+                lines.append(f"  • {label}  [{name}]")
+        list_card.mount(Static(
+            "\n".join(lines) if lines else "  Пока нет добавленных моделей.",
+            id="slm-model-list",
         ))
 
     def _update_env_file(self, key: str, value: str) -> None:
@@ -699,6 +810,19 @@ class AIChatPanelSetupMixin:
                     ctx=int(m.get("ctx") or 32_768),
                     tier="local",
                     source="ollama",
+                    activate=False,
+                )
+        for m in (prefs.get("lmstudio_custom_models") or []):
+            if isinstance(m, dict):
+                nm = str(m.get("name") or "")
+                if not nm:
+                    continue
+                self.add_external_model(
+                    f"lmstudio/{nm}",
+                    name=str(m.get("label") or f"LM Studio · {nm}"),
+                    ctx=int(m.get("ctx") or 32_768),
+                    tier="local",
+                    source="lmstudio",
                     activate=False,
                 )
 
@@ -768,10 +892,21 @@ class AIChatPanelSetupMixin:
     def _add_welcome(self) -> None:
         colors = self._ui_colors()
         from Interface.branding import APP_DISPLAY_NAME
-        self._mount_main(Static(Text(APP_DISPLAY_NAME, style=f"bold {colors['accent']}")))
-        self._mount_main(Static(Text(
+        card = Vertical(classes="settings-card chat-welcome-card")
+        self._mount_main(card)
+        card.mount(Static(
+            Text(APP_DISPLAY_NAME, style=f"bold {colors['accent']}"),
+            classes="settings-card-title",
+        ))
+        card.mount(Static(Text(
             "Ответы в Markdown. Маленькие правки — replace_file_lines / insert_file_lines.",
             style=colors["fg2"],
+        )))
+        card.mount(Static(Text.assemble(
+            ("F2", f"bold {colors['accent']}"), (" — режим   ", "dim"),
+            ("F3", f"bold {colors['accent']}"), (" — модель   ", "dim"),
+            ("@", f"bold {colors['accent']}"), (" — файл в контекст   ", "dim"),
+            ("/help", f"bold {colors['accent']}"), (" — все команды", "dim"),
         )))
 
     def set_view_worker(self, worker_id: Optional[str]) -> None:
@@ -803,7 +938,7 @@ class AIChatPanelSetupMixin:
         if not wid:
             stream.display = True
             wlog.display = False
-            label.update("Чат проекта")
+            label.update("» Чат проекта")
         else:
             stream.display = False
             wlog.display = True

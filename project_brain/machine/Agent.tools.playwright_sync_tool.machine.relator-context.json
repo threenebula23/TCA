@@ -1,0 +1,52 @@
+{
+  "module_name": "Agent.tools.playwright_sync_tool",
+  "module_purpose": "Интерактивная автоматизация сайтов через Playwright Python API (sync).",
+  "responsibilities": [
+    "Интерактивная автоматизация сайтов через Playwright Python API (sync)."
+  ],
+  "public_api": [
+    {
+      "name": "playwright_sync_page_text",
+      "description": "Открыть URL и вернуть text_content выбранного элемента (Chromium headless)."
+    },
+    {
+      "name": "playwright_sync_click",
+      "description": "Перейти на URL, кликнуть по selector, подождать, вернуть URL страницы и заголовок."
+    },
+    {
+      "name": "playwright_sync_fill_and_optional_click",
+      "description": "Заполнить поле ввода и опционально нажать кнопку (отправка формы)."
+    },
+    {
+      "name": "playwright_sync_screenshot",
+      "description": "Скриншот страницы (viewport или full_page)."
+    }
+  ],
+  "dependencies": [
+    "Agent.path_utils",
+    "__future__",
+    "json",
+    "langchain_core.tools",
+    "path_utils",
+    "pathlib",
+    "playwright.sync_api",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "Agent/tools/compact_tools.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/playwright_sync_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

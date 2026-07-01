@@ -93,6 +93,9 @@ def run_tui_mode():
 
     try:
         set_project_root(Path.cwd())
+        from Agent.project_brain import bootstrap_project_brain
+
+        bootstrap_project_brain(Path.cwd())
         index_documents(str(Path.cwd()), pattern="*.py")
     except Exception:
         pass
@@ -464,6 +467,23 @@ def run_tui_mode():
                 pass
             bridge_ref.on_agent_done()
 
+        # J7 (context budget): auto-compact once usage crosses ~85% of the
+        # context window instead of only ever compacting on an explicit
+        # `/compact` — long Brainer/Research sessions in particular used to
+        # just keep growing until the next LLM call failed or got truncated.
+        try:
+            if CONTEXT_LIMIT and last_usage.get("total_tokens"):
+                ratio = last_usage["total_tokens"] / float(CONTEXT_LIMIT)
+                if ratio >= 0.85:
+                    compacted = compact_conversation(msgs, keep_last=6)
+                    if len(compacted) < len(msgs):
+                        msgs[:] = compacted
+                        bridge_ref.on_info(
+                            f"Контекст {int(ratio * 100)}% — история сжата (/compact авто)."
+                        )
+        except Exception:
+            pass
+
         try:
             save_state(msgs, session_id=session_id)
             if not title_flag[0]:
@@ -543,9 +563,23 @@ def run_tui_mode():
             from langchain_core.messages import SystemMessage
             from Agent.prompts import mode_prompt_addon
 
+            # Each mode switch used to *append* a new addon SystemMessage
+            # without removing the previous one, so toggling modes a few
+            # times during a session left several (sometimes contradictory)
+            # mode instructions stacked in history. Tag our addons and drop
+            # any earlier ones before adding the new mode's addon.
+            _MODE_ADDON_TAG = "### MODE_ADDON ###"
+            messages[:] = [
+                m for m in messages
+                if not (
+                    getattr(m, "type", "") == "system"
+                    and isinstance(getattr(m, "content", None), str)
+                    and m.content.startswith(_MODE_ADDON_TAG)
+                )
+            ]
             frag = mode_prompt_addon(mode_lower)
             if frag:
-                messages.append(SystemMessage(content=frag))
+                messages.append(SystemMessage(content=f"{_MODE_ADDON_TAG}\n{frag}"))
         except Exception:
             pass
 

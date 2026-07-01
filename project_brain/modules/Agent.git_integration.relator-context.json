@@ -1,0 +1,36 @@
+{
+  "module_name": "Agent.git_integration",
+  "module_purpose": "Git integration for Lorne — automatic snapshots and rollback.",
+  "responsibilities": [
+    "Git integration for Lorne — automatic snapshots and rollback."
+  ],
+  "public_api": [
+    {
+      "name": "get_git_manager",
+      "description": "Get or create the singleton GitManager."
+    }
+  ],
+  "dependencies": [
+    "__future__",
+    "git",
+    "pathlib",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_tui.py",
+    "Agent/command_router/_mixin_handlers.py",
+    "Agent/tools/file_ops.py",
+    "Agent/tools/git_tool.py",
+    "Interface/panels/version_control.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/git_integration.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

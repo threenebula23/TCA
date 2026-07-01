@@ -1,0 +1,37 @@
+MODULE: Agent.graph_runner
+
+PURPOSE:
+LangGraph agent graph: call_model / execute_tools / brain_sync / workflow compilation.
+
+PUBLIC_API:
+
+
+DEPENDENCIES:
+- Agent.path_utils
+- Agent.project_brain
+- Agent.project_brain.agent_architecture
+- Agent.project_brain.build
+- Agent.stream_chat_mode
+- Agent.tool_schemas
+- Interface.tui_bridge
+- Interface.visualization
+- concurrent.futures
+- langchain_core.messages
+- langgraph.graph
+- message_utils
+- os
+- pathlib
+- spinner
+- time
+- tool_schemas
+- typing
+
+SIDE_EFFECTS:
+- Import-time side effects unknown
+
+USED_BY:
+- Agent/agent/_impl_prepare.py
+- tests/test_ollama_provider.py
+- tests/test_project_brain_tool.py
+
+RISKS:

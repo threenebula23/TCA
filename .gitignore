@@ -1,0 +1,26 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Agent runtime data (contains API keys, session state)
+Agent/.env
+.tca/
+.lorne/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.RPCErrors/
+
+# IDE / editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -21,6 +21,6 @@ flowchart LR
 
 ## Инструменты
 
-Полный набор `_base_tools` плюс браузерные при включённых настройках. См. [TOOLS.md](../TOOLS.md).
+Полный набор `_base_tools` плюс браузерные при включённых настройках, плюс расширенный тир (`extended_tools.py`), если включён тумблер **Extended tools**. См. [TOOLS.md](../TOOLS.md).
 
 Переключатель **Custom tools** отключает группу: `rag_search`, `plan_tool`, `reasoning_tool`, `code_interpreter`, `library_context`, `file_versions_tool`, `project_brain_tool` (`_CUSTOM_TOOL_NAMES` в `Agent/tool_registry.py`).

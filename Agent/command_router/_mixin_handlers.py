@@ -374,7 +374,7 @@ class CommandRouterMixin:
                         row[k] = float(v)
                     except Exception:
                         continue
-                elif k in ("top_k", "num_ctx", "num_predict"):
+                elif k in ("top_k", "num_ctx", "num_predict", "repeat_last_n"):
                     try:
                         row[k] = int(v)
                     except Exception:
@@ -388,6 +388,96 @@ class CommandRouterMixin:
 
         print_warning(
             "Использование: /ollama [pick|status|list|…]  |  выбор модели: /ollama pick  или  /model ollama"
+        )
+        return True
+
+    def _handle_lmstudio(self, user_input: str) -> bool:
+        parts = user_input.split(maxsplit=3)
+        sub = parts[1].strip().lower() if len(parts) > 1 else "help"
+        try:
+            from Interface.ui_prefs import load_prefs, save_prefs
+            from Agent.llm_provider import fetch_lmstudio_models, check_lmstudio_server
+        except Exception as e:
+            print_error(f"/lmstudio unavailable: {e}")
+            return True
+
+        prefs = load_prefs()
+        base_url = str(prefs.get("lmstudio_base_url") or os.getenv("LMSTUDIO_BASE_URL") or "http://localhost:1234/v1")
+        api_key = str(prefs.get("lmstudio_api_key") or os.getenv("LMSTUDIO_API_KEY") or "")
+
+        if sub in ("help", "menu"):
+            print_info_block(
+                [
+                    "  /lmstudio pick          — выбрать загруженную модель (то же, что /model lmstudio)",
+                    "  /lmstudio status | list",
+                    "  /lmstudio set-url <url> | /lmstudio set-key <key>",
+                    "  /lmstudio add-model <name> | /lmstudio remove-model <name>",
+                ],
+                title="LM Studio команды",
+                accent="accent",
+            )
+            return True
+
+        if sub == "status":
+            ok = check_lmstudio_server(base_url=base_url)
+            print_info(f"LM Studio URL: {base_url}")
+            print_info(f"Сервер доступен: {'да' if ok else 'нет'}")
+            return True
+
+        if sub == "list":
+            rows = fetch_lmstudio_models(base_url=base_url, api_key=api_key)
+            if not rows:
+                print_warning("LM Studio модели не найдены (сервер не запущен или ничего не загружено)")
+                return True
+            for m in rows[:50]:
+                print_info(f"  - {m.get('name')}")
+            return True
+
+        if sub == "set-url":
+            val = parts[2].strip() if len(parts) > 2 else ""
+            if not val:
+                print_warning("Использование: /lmstudio set-url <url>")
+                return True
+            os.environ["LMSTUDIO_BASE_URL"] = val
+            save_prefs(lmstudio_base_url=val)
+            print_success(f"LMSTUDIO_BASE_URL = {val}")
+            return True
+
+        if sub == "set-key":
+            val = parts[2].strip() if len(parts) > 2 else ""
+            os.environ["LMSTUDIO_API_KEY"] = val
+            save_prefs(lmstudio_api_key=val)
+            print_success("LMSTUDIO_API_KEY обновлен")
+            return True
+
+        if sub in ("pick", "select", "use", "choose"):
+            return self._lmstudio_pick_interactive()
+
+        if sub == "add-model":
+            name = parts[2].strip() if len(parts) > 2 else ""
+            if not name:
+                print_warning("Использование: /lmstudio add-model <name>")
+                return True
+            cur = [m for m in (prefs.get("lmstudio_custom_models") or []) if isinstance(m, dict)]
+            cur = [m for m in cur if str(m.get("name") or "") != name]
+            cur.append({"name": name, "label": f"LM Studio · {name}", "ctx": 32768})
+            save_prefs(lmstudio_custom_models=cur)
+            print_success(f"Добавлена LM Studio модель: {name}")
+            return True
+
+        if sub == "remove-model":
+            name = parts[2].strip() if len(parts) > 2 else ""
+            if not name:
+                print_warning("Использование: /lmstudio remove-model <name>")
+                return True
+            cur = [m for m in (prefs.get("lmstudio_custom_models") or []) if isinstance(m, dict)]
+            cur = [m for m in cur if str(m.get("name") or "") != name]
+            save_prefs(lmstudio_custom_models=cur)
+            print_success(f"Удалена LM Studio модель: {name}")
+            return True
+
+        print_warning(
+            "Использование: /lmstudio [pick|status|list|…]  |  выбор модели: /lmstudio pick  или  /model lmstudio"
         )
         return True
 

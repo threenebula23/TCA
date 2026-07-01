@@ -257,6 +257,9 @@ class CommandRouter(CommandRouterMixin):
         if cmd == "/ollama":
             return self._handle_ollama(user_input)
 
+        if cmd == "/lmstudio":
+            return self._handle_lmstudio(user_input)
+
         if cmd == "/stop":
             return self._handle_stop()
 
@@ -474,6 +477,8 @@ class CommandRouter(CommandRouterMixin):
             custom_model = parts[1].strip()
             if custom_model.lower() in ("ollama", "ollama-menu", "local"):
                 return self._ollama_pick_interactive()
+            if custom_model.lower() in ("lmstudio", "lm-studio", "lm_studio"):
+                return self._lmstudio_pick_interactive()
             try:
                 set_model_fn(custom_model)
             except ValueError as e:
@@ -490,6 +495,8 @@ class CommandRouter(CommandRouterMixin):
         print_info("Или: /model <id>   (например: /model openai/gpt-5-mini)")
         print_info("Ollama: /model ollama — список моделей с сервера и выбор по номеру или тегу")
         print_info("        или сразу: /model ollama/llama3.2:latest")
+        print_info("LM Studio: /model lmstudio — список моделей с локального сервера (порт 1234)")
+        print_info("        или сразу: /model lmstudio/<id-модели>")
 
         # С Rich-таблицей несовместимо второе меню (simple_term_menu): оно срабатывало
         # до ввода номера и оставляло странное состояние ввода. Меню — только без Rich.
@@ -668,6 +675,73 @@ class CommandRouter(CommandRouterMixin):
         cur = [m for m in cur if str(m.get("name") or "") != wire_name]
         cur.append({"name": wire_name, "label": f"Ollama · {wire_name}", "ctx": ctx_val})
         save_prefs(ollama_custom_models=cur)
+
+        _sync_router_model_ctx(self.ctx)
+        print_success(f"Текущая модель: {self.ctx['model_name']}")
+        print_info("Добавлено в список моделей; дальше можно переключаться номером в /model")
+        return True
+
+    def _lmstudio_pick_interactive(self) -> bool:
+        """Показать модели, загруженные в LM Studio, и установить текущую (lmstudio/<id>)."""
+        try:
+            from Interface.ui_prefs import load_prefs, save_prefs
+            from Agent.llm_provider import fetch_lmstudio_models
+        except Exception as e:
+            print_error(f"LM Studio: {e}")
+            return True
+
+        prefs = load_prefs()
+        base_url = str(prefs.get("lmstudio_base_url") or os.getenv("LMSTUDIO_BASE_URL") or "http://localhost:1234/v1")
+        api_key = str(prefs.get("lmstudio_api_key") or os.getenv("LMSTUDIO_API_KEY") or "")
+        rows = fetch_lmstudio_models(base_url=base_url, api_key=api_key)
+        rows = sorted(rows, key=lambda r: str((r or {}).get("name") or "").lower())
+        if not rows:
+            print_warning("LM Studio: сервер недоступен или модели не загружены.")
+            print_info("Запусти локальный сервер LM Studio (обычно порт 1234) и загрузи модель.")
+            print_info("Сменить URL: /lmstudio set-url http://127.0.0.1:1234/v1")
+            return True
+
+        show = rows[:50]
+        print_info("── Модели LM Studio ──")
+        for i, m in enumerate(show, 1):
+            print_info(f"  {i:>2}. {m.get('name')}")
+        print_info("Введи номер строки или полный id модели. Пустой ввод — отмена.")
+        line = read_cli_line("❯ ")
+        if not line:
+            print_info("Отменено.")
+            return True
+
+        wire_name = ""
+        if line.isdigit():
+            idx = int(line) - 1
+            if 0 <= idx < len(show):
+                wire_name = str(show[idx].get("name") or "").strip()
+            else:
+                print_error(f"Номер от 1 до {len(show)}")
+                return True
+        else:
+            wire_name = line.strip()
+            if wire_name.lower().startswith("lmstudio/"):
+                wire_name = wire_name.split("/", 1)[1]
+
+        if not wire_name:
+            print_error("Не удалось определить имя модели")
+            return True
+
+        model_id = f"lmstudio/{wire_name}"
+        set_model_fn = self.ctx["set_model"]
+        init_llm = self.ctx["init_llm"]
+        try:
+            set_model_fn(model_id)
+        except ValueError as e:
+            print_error(str(e))
+            return True
+        init_llm()
+
+        cur = [m for m in (prefs.get("lmstudio_custom_models") or []) if isinstance(m, dict)]
+        cur = [m for m in cur if str(m.get("name") or "") != wire_name]
+        cur.append({"name": wire_name, "label": f"LM Studio · {wire_name}", "ctx": 32768})
+        save_prefs(lmstudio_custom_models=cur)
 
         _sync_router_model_ctx(self.ctx)
         print_success(f"Текущая модель: {self.ctx['model_name']}")

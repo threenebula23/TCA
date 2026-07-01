@@ -8,7 +8,8 @@
    - `ai_chat/` — лента сообщений, ввод, режим, модель;
    - `workspace_center.py` — вкладки;
    - `file_explorer.py` — дерево проекта и **вкладки настроек**;
-   - `active_agents_panel.py` — Creator;
+   - `active_agents_panel.py` — дерево агентов: Creator-воркеры **и** фоновые суб-агенты (`spawn_subagent`) из любого режима, кликом на узел — переключение на вывод конкретного воркера;
+   - `rich_message.py` + `blocks/chart_block.py` + `blocks/diagram_block.py` — рендер графиков/диаграмм из ответа модели (fenced-блоки ` ```lorne-chart `/` ```mermaid `);
    - `code_editor/`, `image_viewer.py`, и др.
 
 ## Поток сообщения чата

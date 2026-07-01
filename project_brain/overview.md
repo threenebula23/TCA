@@ -1,0 +1,86 @@
+# TCA
+
+# Lorne v0.99 — Vi-like Terminal IDE
+
+## Modules (summary)
+
+- **Agent.agent** (Agent): Агент Lorne — пакет (раньше один модуль ``agent.py``, дубль удалён).
+- **Agent.agent._impl_classic** (Agent): Classic CLI agent loop.
+- **Agent.agent._impl_prepare** (Agent): Агент Lorne: основной цикл (TUI и classic), LangGraph, сессии, откаты, режимы.
+- **Agent.agent._impl_tui** (Agent): Точка входа TUI для агента Lorne.
+- **Agent.background_agent_runner** (Agent): Short-lived background agent: LLM + tools in a worker thread (testing while main blocks).
+- **Agent.checkpoint** (Agent): Python module `Agent.checkpoint`.
+- **Agent.command_router** (Agent): Slash-команды — пакет (раньше один ``command_router.py``).
+- **Agent.command_router._main** (Agent): Маршрутизатор slash-команд (classic CLI и воркер TUI). Возврат: обработано / не команда / exit.
+- **Agent.command_router._mixin_handlers** (Agent): Маршрутизатор slash-команд (classic CLI и воркер TUI). Возврат: обработано / не команда / exit.
+- **Agent.config** (Agent): Центральные настройки Lorne v0.99.
+- **Agent.creator_mode** (Agent): Creator Mode — оркестратор параллельных агентов для Lorne.
+- **Agent.creator_orchestration** (Agent): Режимы оркестрации Creator Mode (мультиагентность: параллель, конвейер, супервайзер, иерархия).
+- **Agent.creator_provider** (Agent): Creator Provider — маршрутизация между локальной и тяжёлой моделью.
+- **Agent.creator_summary** (Agent): Единый текст итога Creator Mode для TUI, classic CLI и истории сообщений.
+- **Agent.deep_solver** (Agent): Deep Solver — пакет (раньше один модуль ``deep_solver.py``).
+- **Agent.deep_solver._impl_a** (Agent): Deep Solver — long-running, local-only autonomous coding agent.
+- **Agent.deep_solver._impl_b** (Agent): Вторая часть Deep Solver: основной цикл в :mod:`Agent.deep_solver.legacy_loop`.
+- **Agent.deep_solver.legacy_loop** (Agent): Python module `Agent.deep_solver.legacy_loop`.
+- **Agent.file_loading** (Agent): Python module `Agent.file_loading`.
+- **Agent.git_integration** (Agent): Git integration for Lorne — automatic snapshots and rollback.
+- **Agent.graph_runner** (Agent): LangGraph agent graph: call_model / execute_tools / brain_sync / workflow compilation.
+- **Agent.llm_provider** (Agent): Провайдер LLM для Lorne: профили, сохранение конфигурации, OpenRouter.
+- **Agent.message_utils** (Agent): Утилиты сообщений LLM: нормализация вызовов инструментов, компактность, восстановление JSON.
+- **Agent.message_utils._impl_high** (Agent): Вторая половина утилит сообщений (после :func:`~Agent.message_utils._impl_low.normalize_tool_call`).
+- **Agent.message_utils._impl_low** (Agent): Message sanitization, compaction, and tool result processing utilities.
+- **Agent.multiagent** (Agent): Простая реализация multiagent: логические "под-агенты" (чаты) поверх одной модели.
+- **Agent.path_utils** (Agent): Общая утилита разрешения путей для агента и модуля загрузки Path.
+- **Agent.planner** (Agent): Task planner for Lorne — generates structured plans for complex tasks.
+- **Agent.project_brain** (Agent): Project Brain: static scan + Markdown output for RAG (optional Relator).
+- **Agent.project_brain.agent_architecture** (Agent): Model-authored Markdown under ``project_brain/`` (RAG-indexed, mostly not touched by refresh).
+- **Agent.project_brain.build** (Agent): Generate ``project_brain/`` via Relator templates (or Markdown fallback).
+- **Agent.project_brain.context_builder** (Agent): Normalize ``scan_project`` output into a Relator-ready context (flat lists + nested dicts).
+- **Agent.project_brain.scanner** (Agent): Static project scan (AST, imports, paths) — no LLM. Output feeds ``build_project_context``.
+- **Agent.prompts** (Agent): Per-mode system prompt fragments for Lorne v1.0.
+- **Agent.prompts.project_brain_rules** (Agent): Project Brain + RAG rules (workspace brain, not the IDE package).
+- **Agent.rag** (Agent): RAG (Retrieval-Augmented Generation) for Lorne.
+- **Agent.runtime_paths** (Agent): Каталоги данных и env: префикс ``LORNE_*`` / ``.lorne`` с откатом на ``TCA_*`` / ``.tca``.
+- **Agent.spinner** (Agent): Animated spinner for long LLM operations.
+- **Agent.stream_chat_mode** (Agent): Thread-local slug режима чата на время ``agent_graph.stream`` (TUI / classic).
+- **Agent.system_prompt** (Agent): Системный промпт агента Lorne: правила + явная дисциплина использования инструментов.
+- **Agent.system_promt** (Agent): Python module `Agent.system_promt`.
+- **Agent.tool_registry** (Agent): Реестр инструментов Lorne: сборка списка тулов для LLM и карты dispatch.
+- **Agent.tool_schemas** (Agent): Pydantic-схемы аргументов инструментов: валидация, сжатие лишних полей, подсказки модели.
+- **Agent.tools** (Agent): Python module `Agent.tools`.
+- **Agent.tools.ast_tool** (Agent): AST-based code structure analysis tool.
+- **Agent.tools.batch_replace_tool** (Agent): Apply multiple find-and-replace operations to a file in one call.
+- **Agent.tools.browser_tool** (Agent): Browser automation tool using Playwright CLI for agent mode.
+- **Agent.tools.code_gen** (Agent): Инструменты генерации кода: запись в файл с правильным расширением.
+- **Agent.tools.code_interpreter** (Agent): Code Interpreter tool for Lorne agent.
+- **Agent.tools.compact_tools** (Agent): Компактные мульти-тулы: одна схема вместо нескольких — меньше токенов на bind_tools.
+- **Agent.tools.context7_tool** (Agent): Инструмент Context7 — прямой вызов REST API.
+- **Agent.tools.custom_tools** (Agent): Custom Tools — загрузка, управление и регистрация пользовательских инструментов.
+- **Agent.tools.decompose_tool** (Agent): Heuristic task decomposition tool for weak models.
+- **Agent.tools.docxedit_tools** (Agent): Инструменты правки .docx с сохранением форматирования (docxedit + python-docx).
+- **Agent.tools.download_tool** (Agent): `download_file` — pull an image / archive / dataset from an HTTP(S) URL.
+- **Agent.tools.env_tool** (Agent): Environment information tool.
+- **Agent.tools.file_ops** (Agent): Инструменты работы с файлами: чтение, листинг, поиск в подпапках, редактирование.
+- **Agent.tools.git_tool** (Agent): Git tools for the Lorne agent — log, diff, rollback via LangChain @tool.
+- **Agent.tools.interactive** (Agent): Интерактивные инструменты: запрос ввода у пользователя в терминале.
+- **Agent.tools.lint_tool** (Agent): Run linters and return structured error reports.
+- **Agent.tools.memory_tool** (Agent): Persistent in-session key-value memory for the agent.
+- **Agent.tools.multi_read_tool** (Agent): Read multiple files in a single tool call.
+- **Agent.tools.notes_tool** (Agent): Free-form session notes and hypotheses scratch pad.
+- **Agent.tools.ocr_tool** (Agent): Трёхуровневое извлечение текста: файлы (мягко), изображения/скриншоты (средне), фото (жёсткий OCR).
+- **Agent.tools.office_document_tool** (Agent): Чтение и запись Office/PDF: DOCX со стилями Word, простой PDF с типографикой ReportLab, .doc через antiword (если есть).
+- **Agent.tools.parallel_helper_tool** (Agent): Background helper: тот же пул тулов + отдельный LLM-цикл в потоке (тест, пока основной run_command ждёт).
+- **Agent.tools.pdf_tool** (Agent): Инструмент создания PDF-документа.
+- **Agent.tools.planning_tool** (Agent): Инструменты плана: модель может создать план, обновлять статусы и продолжать выполнение.
+- **Agent.tools.playwright_sync_tool** (Agent): Интерактивная автоматизация сайтов через Playwright Python API (sync).
+- **Agent.tools.qa_tool** (Agent): One-shot QA scripts (npm/pnpm) to catch build and framework errors before shipping.
+- **Agent.tools.terminal_tool** (Agent): Инструмент выполнения команд в терминале (Windows/Unix).
+- **Agent.tools.thinking_tool** (Agent): Thinking and analysis tools for the Lorne agent.
+- **Agent.tools.verify_tool** (Agent): Post-edit result verification tool.
+- **Agent.tools.versioning_tool** (Agent): Инструменты отката/версий файлов для агента.
+- **Agent.tools.web_tool** (Agent): Инструменты web_search / web_fetch для агента Lorne.
+- **Agent.versioning** (Agent): Версионирование файлов для отката правок (SQLite).
+- **Interface** (Interface): Python module `Interface`.
+- **Interface.branding** (Interface): Константы продукта Lorne: имя, версия, вспомогательные строки для UI и HTTP.
+- **Interface.cli_theme** (Interface): Самостоятельные пресеты цветов для классического CLI (Rich + ANSI).
+- **Interface.graph_display** (Interface): Graph Display — Rich-визуализация работы параллельных агентов Creator Mode.

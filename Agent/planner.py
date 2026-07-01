@@ -5,14 +5,61 @@ Only creates detailed plans for non-trivial tasks that benefit from planning.
 from __future__ import annotations
 
 import json
-from typing import List
+from typing import List, Optional
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from pydantic import BaseModel, ValidationError
 
 try:
     from .llm_provider import get_llm
 except ImportError:
     from Agent.llm_provider import get_llm
+
+
+class _PlanSteps(BaseModel):
+    """Schema for a planner response: a non-empty list of step strings."""
+    steps: List[str]
+
+
+def _extract_json_array(raw: str) -> Optional[list]:
+    """Pull a JSON array out of raw LLM text, tolerating markdown fences."""
+    text = (raw or "").strip()
+    if not text:
+        return None
+    try:
+        data = json.loads(text)
+        if isinstance(data, list):
+            return data
+    except Exception:
+        pass
+    start = text.find("[")
+    end = text.rfind("]")
+    if start >= 0 and end > start:
+        try:
+            data = json.loads(text[start:end + 1])
+            if isinstance(data, list):
+                return data
+        except Exception:
+            pass
+    return None
+
+
+def _validate_plan_steps(raw: str, max_steps: int) -> Optional[List[str]]:
+    """Parse + validate a planner response against ``_PlanSteps``.
+
+    Returns ``None`` (rather than a silently-degraded guess) when the model's
+    output isn't a usable JSON array of strings, so the caller can retry once
+    before falling back to a generic plan.
+    """
+    arr = _extract_json_array(raw)
+    if arr is None:
+        return None
+    try:
+        validated = _PlanSteps(steps=[str(x) for x in arr])
+    except ValidationError:
+        return None
+    steps = [s.strip() for s in validated.steps if s.strip()]
+    return steps[:max_steps] if steps else None
 
 
 PLANNER_SYSTEM_PROMPT = """You are a task planner for a coding assistant.
@@ -45,47 +92,45 @@ Example:
 """
 
 
+_RETRY_FORMAT_NUDGE = (
+    "Your previous response was not a valid JSON array of strings. "
+    "Reply again with ONLY a JSON array of strings, no markdown fences, no extra text."
+)
+
+
 def build_plan(user_task: str) -> List[str]:
-    """Call the LLM in planning mode and return a list of steps."""
+    """Call the LLM in planning mode and return a list of steps.
+
+    Validates the response against a strict JSON-array-of-strings schema and
+    retries once with a corrective nudge before falling back to a naive
+    line-split (and finally a generic hardcoded plan) — this avoids silently
+    accepting whatever the model wrote when it ignores the format.
+    """
     if not user_task.strip():
         return []
 
     llm, _, _ = get_llm("fast")
 
-    messages = [
+    messages: List[object] = [
         SystemMessage(content=PLANNER_SYSTEM_PROMPT),
         HumanMessage(content=user_task),
     ]
 
-    try:
-        resp = llm.invoke(messages)
-    except Exception:
-        return _fallback_plan(user_task)
+    raw = ""
+    for attempt in range(2):
+        try:
+            resp = llm.invoke(messages)
+        except Exception:
+            return _fallback_plan(user_task)
+        raw = (resp.content or "").strip()
+        steps = _validate_plan_steps(raw, max_steps=12)
+        if steps:
+            return steps
+        if attempt == 0:
+            messages.append(AIMessage(content=raw))
+            messages.append(HumanMessage(content=_RETRY_FORMAT_NUDGE))
 
-    raw = (resp.content or "").strip()
-
-    # Try parsing as JSON array
-    try:
-        data = json.loads(raw)
-        if isinstance(data, list):
-            steps = [str(x).strip() for x in data if str(x).strip()]
-            return steps[:12]
-    except Exception:
-        pass
-
-    # Try extracting JSON from text (model might wrap it in markdown)
-    try:
-        start = raw.find("[")
-        end = raw.rfind("]")
-        if start >= 0 and end > start:
-            data = json.loads(raw[start:end + 1])
-            if isinstance(data, list):
-                steps = [str(x).strip() for x in data if str(x).strip()]
-                return steps[:12]
-    except Exception:
-        pass
-
-    # Fallback: split by lines/bullets
+    # Last resort: naive line-split, then the generic hardcoded plan.
     lines = [ln.strip("-•* ").strip() for ln in raw.splitlines()]
     steps = [ln for ln in lines if ln and len(ln) > 5]
     if steps:
@@ -95,38 +140,31 @@ def build_plan(user_task: str) -> List[str]:
 
 
 def build_creator_plan(user_task: str) -> List[str]:
-    """Planner tuned for Creator: fewer, larger parallelizable subtasks."""
+    """Planner tuned for Creator: fewer, larger parallelizable subtasks.
+
+    Same validate-then-retry-once strategy as ``build_plan`` (see there).
+    """
     if not user_task.strip():
         return []
 
     llm, _, _ = get_llm("fast")
-    messages = [
+    messages: List[object] = [
         SystemMessage(content=CREATOR_PLANNER_SYSTEM_PROMPT),
         HumanMessage(content=user_task),
     ]
-    try:
-        resp = llm.invoke(messages)
-    except Exception:
-        return _fallback_creator_plan(user_task)
+    for attempt in range(2):
+        try:
+            resp = llm.invoke(messages)
+        except Exception:
+            return _fallback_creator_plan(user_task)
+        raw = (resp.content or "").strip()
+        steps = _validate_plan_steps(raw, max_steps=8)
+        if steps:
+            return steps
+        if attempt == 0:
+            messages.append(AIMessage(content=raw))
+            messages.append(HumanMessage(content=_RETRY_FORMAT_NUDGE))
 
-    raw = (resp.content or "").strip()
-    try:
-        data = json.loads(raw)
-        if isinstance(data, list):
-            steps = [str(x).strip() for x in data if str(x).strip()]
-            return steps[:8]
-    except Exception:
-        pass
-    try:
-        start = raw.find("[")
-        end = raw.rfind("]")
-        if start >= 0 and end > start:
-            data = json.loads(raw[start : end + 1])
-            if isinstance(data, list):
-                steps = [str(x).strip() for x in data if str(x).strip()]
-                return steps[:8]
-    except Exception:
-        pass
     return _fallback_creator_plan(user_task)
 
 

@@ -35,6 +35,11 @@ class TUIBridge:
         self._confirm_result: bool = False
         self._input_event: Optional[threading.Event] = None
         self._input_result: str = ""
+        # Sub-agent tree for non-Creator modes (Agent/Brainer/Research/Deep) —
+        # Creator already pushes its own `on_creator_tree`; this fills the same
+        # ActiveAgentsPanel with `main agent -> spawned sub-agents` so the
+        # panel isn't just a static mode label while a spawn_subagent job runs.
+        self._subagent_children: Dict[str, Dict[str, Any]] = {}
 
     def _call(self, fn, *args, **kwargs):
         if not self._active:
@@ -118,10 +123,11 @@ class TUIBridge:
         delta = new_lines - old_lines
         sign = "+" if delta >= 0 else ""
         summary = f"{filepath}: {old_lines} → {new_lines} lines ({sign}{delta})"
-        self._call(self.app.chat.add_info, f"📝 {summary}")
+        self._call(self.app.chat.add_info, f"✎ {summary}")
 
     def on_tool_start(self, step: int, tool_name: str, tool_args: Any) -> None:
         """Показать краткий индикатор начала вызова инструмента (до получения результата)."""
+        self._call(self.app.chat.show_tool_in_progress, tool_name, step, tool_args)
         _READ_TOOLS = frozenset({"read_file", "read_file_lines", "multi_read"})
         if tool_name in _READ_TOOLS and isinstance(tool_args, dict):
             fp = (
@@ -133,9 +139,32 @@ class TUIBridge:
             if fp:
                 from pathlib import Path as _P
                 label = _P(str(fp)).name or str(fp)
-                self._call(self.app.chat.add_info, f"📖 читаю {label}…")
+                self._call(self.app.chat.add_info, f"▤ читаю {label}…")
+
+    def on_agent_activity(
+        self, phase: str, tool_name: str = "", elapsed_sec: float = 0.0,
+    ) -> None:
+        """Refresh the activity badge above chat input (phase / tool / elapsed)."""
+        self._call(
+            self.app.chat.set_agent_activity,
+            phase, tool_name, float(elapsed_sec or 0.0),
+        )
+
+    def on_brain_sync(
+        self,
+        phase: str,
+        ok: bool = True,
+        detail: str = "",
+        chunks: Optional[int] = None,
+    ) -> None:
+        """Show brain sync / RAG reindex status above the chat input."""
+        self._call(
+            self.app.chat.set_brain_sync_indicator,
+            phase, bool(ok), str(detail or ""), chunks,
+        )
 
     def on_tool_result(self, tool_name: str, result: Any) -> None:
+        self._call(self.app.chat.finish_tool_in_progress, tool_name)
         # Карточки для почти всех тулов; мутации файлов — короткая строка + diff
         # (см. accumulate_tool_result / CodeDiffBlock).
         try:
@@ -194,7 +223,7 @@ class TUIBridge:
     # ─── Plan (displayed in chat) ────────────────────
 
     def on_plan_set(self, steps: list) -> None:
-        self._call(self.app.chat.add_info, f"📋 Plan: {len(steps)} steps")
+        self._call(self.app.chat.add_info, f"▤ Plan: {len(steps)} steps")
         for i, s in enumerate(steps):
             text = s.get("step", s) if isinstance(s, dict) else str(s)
             self._call(self.app.chat.add_info, f"  {i+1}. {text}")
@@ -302,11 +331,68 @@ class TUIBridge:
         self._call(self.app.chat.append_stream_token, token)
 
     def on_agent_start(self) -> None:
+        self._subagent_children.clear()
         self._call(self.app.chat.show_stop_button)
 
     def on_agent_done(self) -> None:
         self._call(self.app.chat.hide_stop_button)
         self._call(self.app.chat.hide_thinking_wave)
+        self._call(self.app.chat.hide_agent_activity_bar)
+
+    # ─── Sub-agents ──────────────────────────────────
+
+    def on_subagent_spawn(
+        self, *, token: str = "", task: str = "", mode: str = "",
+        parent_id: str = "",
+    ) -> None:
+        """Sub-agent job started (background worker acquired a slot)."""
+        label = f"[{token}]" if token else ""
+        mode_bit = f" ({mode})" if mode else ""
+        self._call(self.app.chat.add_info, f"🧩 Sub-agent{label}{mode_bit}: {task[:120]}")
+        if token:
+            self._subagent_children[token] = {
+                "worker_id": token,
+                "role": mode or "subagent",
+                "task": task,
+                "status": "working",
+                "parent_id": parent_id,
+            }
+            self._push_subagent_tree(parent_id)
+
+    def on_subagent_done(
+        self, *, token: str = "", status: str = "", result: Any = None,
+        error: str = "",
+    ) -> None:
+        """Sub-agent job finished or failed."""
+        if status == "done":
+            self._call(self.app.chat.add_success, f"Sub-agent [{token}] завершён")
+        elif status == "error":
+            self._call(self.app.chat.add_error, f"Sub-agent [{token}]: {error or 'error'}")
+        node = self._subagent_children.get(token)
+        if node is not None:
+            node["status"] = "done" if status == "done" else "error"
+            self._push_subagent_tree(node.get("parent_id", ""))
+
+    def _push_subagent_tree(self, parent_id: str = "") -> None:
+        """Render ``main agent -> [sub-agents]`` into the same ActiveAgentsPanel
+        tree Creator uses, so spawn_subagent from Agent/Brainer/Research/Deep
+        is visible instead of only surfacing as chat text (F3 / subagent-ui-tree).
+        """
+        try:
+            from Agent.stream_chat_mode import get_stream_chat_mode
+            mode = get_stream_chat_mode() or "agent"
+        except Exception:
+            mode = "agent"
+        if mode == "creator":
+            return  # Creator drives its own tree via on_creator_tree.
+        tree = {
+            "worker_id": parent_id or mode,
+            "role": mode,
+            "task": "",
+            "status": "working",
+            "children": list(self._subagent_children.values()),
+        }
+        self._call(self.app.active_agents.update_creator_tree, tree)
 
     # ─── TUI-aware tool interaction ──────────────────
 

@@ -201,7 +201,12 @@ class AgentGraph:
         вызовов (tool_calls). При ошибке стриминга — фолбэк на blocking invoke.
         """
         try:
+            bridge._call(bridge.app.chat.begin_streaming)
+        except Exception:
+            pass
+        try:
             accumulated: Any = None
+            first_token_seen = False
             for chunk in self.llm_with_tools.stream(invoke_msgs):
                 if accumulated is None:
                     accumulated = chunk
@@ -217,46 +222,158 @@ class AgentGraph:
                         for c in chunk_content
                     )
                 if chunk_content:
+                    if not first_token_seen:
+                        # Hide the "thinking" wave as soon as visible text
+                        # starts streaming instead of leaving it running
+                        # (overlapping the live answer) until the whole
+                        # response has finished generating.
+                        first_token_seen = True
+                        try:
+                            bridge.on_thinking_stop()
+                        except Exception:
+                            pass
                     bridge.on_stream_token(chunk_content)
+            return accumulated
+        except Exception:
+            return safe_chat_invoke_with_tool_recovery(self.llm_with_tools, invoke_msgs)
+        finally:
+            # Always tear down live stream widgets, even if generation raised
+            # or the loop above bailed out partway through — otherwise stale
+            # `_stream_raw`/widgets bleed into the next turn's stream.
             try:
                 bridge._call(bridge.app.chat.end_streaming)
             except Exception:
                 pass
-            return accumulated
-        except Exception:
-            return safe_chat_invoke_with_tool_recovery(self.llm_with_tools, invoke_msgs)
 
     def _brain_sync(self, state: MessagesState) -> Dict[str, Any]:
         """After a final assistant message (no tool calls), sync brain RAG from disk.
 
         In **brainer** mode also runs a full ``refresh_project_brain`` scan so
         scanner-owned Markdown matches the repo before reindex (RAG stays aligned
-        with code without relying on the model to call ``refresh``).
+        with code without relying on the model to call ``refresh``) — debounced
+        (B1) so a full AST scan doesn't run after every single turn when nothing
+        changed. Failures used to be swallowed silently (``except: pass``); they
+        are now surfaced to the UI (A2) so a broken brain sync isn't invisible.
+        Also refreshes the brain excerpt injected into the session's system
+        prompt (P0-4) via a stable message id, since a late refresh previously
+        never updated the excerpt baked in at session start.
         """
+        import os
+
+        from Agent.path_utils import get_project_root
+        from Agent.stream_chat_mode import get_stream_chat_mode
+
+        flag = os.environ.get("LORNE_SKIP_BRAIN_SYNC", "").strip().lower()
+        if flag in ("1", "true", "yes", "on"):
+            return {}
         try:
-            import os
-
-            from Agent.path_utils import get_project_root
-            from Agent.stream_chat_mode import get_stream_chat_mode
-
-            flag = os.environ.get("LORNE_SKIP_BRAIN_SYNC", "").strip().lower()
-            if flag in ("1", "true", "yes", "on"):
-                return {}
             root = get_project_root()
             mode = get_stream_chat_mode()
+            did_full_refresh = False
+            if mode == "research":
+                self._export_research_notes(root)
             if mode == "brainer":
                 from Agent.project_brain import refresh_project_brain
                 from Agent.project_brain.agent_architecture import reindex_brain_rag
+                from Agent.project_brain.policy import mark_full_refresh_done, should_full_refresh
 
-                refresh_project_brain(root)
+                if should_full_refresh(root):
+                    refresh_project_brain(root)
+                    mark_full_refresh_done(root)
+                    did_full_refresh = True
                 reindex_brain_rag(root)
             else:
                 from Agent.project_brain.agent_architecture import run_brain_sync_if_enabled
 
                 run_brain_sync_if_enabled(root)
+        except Exception as e:
+            self._notify_brain_sync_error(e)
+            return {}
+
+        out: Dict[str, Any] = {}
+        if mode == "brainer" and did_full_refresh:
+            try:
+                from Agent.project_brain import read_brain_context
+
+                excerpt = read_brain_context(root, max_chars=1800)
+                if excerpt:
+                    out["messages"] = [
+                        SystemMessage(
+                            content="=== PROJECT BRAIN (краткая выжимка, обновлено) ===\n" + excerpt,
+                            id="lorne_brain_excerpt",
+                        )
+                    ]
+            except Exception:
+                pass
+        return out
+
+    @staticmethod
+    def _export_research_notes(root: Any) -> None:
+        """Flush ``session_notes`` tagged ``research`` into ``agent/research_notes.md``.
+
+        Research findings used to live only in ``.lorne/session_notes.md``
+        (in-memory/session scratch, per the plan's diagnosis) and never made
+        it into ``project_brain/`` — a new session starting from scratch
+        couldn't see them. Tracks which entries were already exported via a
+        small state file so re-running this every tool round doesn't
+        duplicate content on each sync.
+        """
+        import hashlib
+        import json as _json
+        from pathlib import Path
+
+        notes_path = Path(root) / ".lorne" / "session_notes.md"
+        if not notes_path.is_file():
+            return
+        try:
+            text = notes_path.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            return
+        entries = [f"## {e}" for e in text.split("\n## ")[1:]]
+        research_entries = [e for e in entries if "`[research]`" in e]
+        if not research_entries:
+            return
+
+        state_path = Path(root) / ".lorne" / "research_export_state.json"
+        try:
+            exported = set(_json.loads(state_path.read_text(encoding="utf-8")).get("hashes") or [])
+        except Exception:
+            exported = set()
+
+        new_entries = []
+        new_hashes = set(exported)
+        for e in research_entries:
+            h = hashlib.sha256(e.encode("utf-8")).hexdigest()[:16]
+            if h not in exported:
+                new_entries.append(e)
+                new_hashes.add(h)
+        if not new_entries:
+            return
+
+        try:
+            from Agent.project_brain.agent_architecture import write_brain_markdown, reindex_brain_rag
+
+            write_brain_markdown(root, "agent/research_notes.md", "\n\n".join(new_entries))
+            reindex_brain_rag(root)
+            state_path.parent.mkdir(parents=True, exist_ok=True)
+            state_path.write_text(_json.dumps({"hashes": sorted(new_hashes)}), encoding="utf-8")
         except Exception:
             pass
-        return {}
+
+    @staticmethod
+    def _notify_brain_sync_error(exc: Exception) -> None:
+        msg = f"Brain sync: {type(exc).__name__}: {exc}"
+        try:
+            bridge = get_bridge()
+            if bridge and hasattr(bridge, "on_warning"):
+                bridge.on_warning(msg)
+                return
+        except Exception:
+            pass
+        try:
+            print_warning(msg)
+        except Exception:
+            pass
 
     _READ_ONLY_TOOLS = frozenset({
         "read_file", "list_files", "search_in_files", "find_in_file", "rag_search",
@@ -419,14 +536,15 @@ class AgentGraph:
         out = {"messages": [r for r in results if r is not None]}
         try:
             from Agent.stream_chat_mode import get_stream_chat_mode
+            from Agent.project_brain.policy import should_reindex_per_round
 
-            if get_stream_chat_mode() in ("brainer", "research"):
+            if should_reindex_per_round(get_stream_chat_mode()):
                 from Agent.path_utils import get_project_root
                 from Agent.project_brain.agent_architecture import run_brain_sync_if_enabled
 
                 run_brain_sync_if_enabled(get_project_root())
-        except Exception:
-            pass
+        except Exception as e:
+            self._notify_brain_sync_error(e)
         return out
 
     @staticmethod

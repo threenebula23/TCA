@@ -469,7 +469,8 @@ def project_brain_tool(
     write_mode: str = "append",
     brain_rel_path: str = "",
 ) -> Dict[str, Any]:
-    """Brain: refresh|reindex|scan; write_architecture; write_brain (brain_rel_path + content)."""
+    """Brain: reindex (RAG only, fast); refresh|scan (full re-scan + reindex, slow);
+    write_architecture; write_brain (brain_rel_path + content)."""
     from Agent.path_utils import get_project_root
     from Agent.project_brain import refresh_project_brain
     from Agent.project_brain.agent_architecture import (
@@ -549,13 +550,27 @@ def project_brain_tool(
     if a not in ("refresh", "reindex", "scan"):
         return {
             "error": "bad_action",
-            "hint": "refresh|reindex|scan|write_architecture|write_brain",
+            "hint": "reindex|refresh|scan|write_architecture|write_brain",
         }
 
     from Agent.rag import index_project_brain
 
+    if a == "reindex":
+        # Cheap: just reload project_brain/**/*.md into the RAG index from
+        # disk, no AST re-scan. Previously identical to refresh/scan (always
+        # ran a full scan), which made "reindex" a misleading name for a
+        # comparatively expensive call.
+        n = index_project_brain(str(root))
+        return {"ok": True, "action": "reindex", "brain_chunks_indexed": n}
+
     summary = refresh_project_brain(root)
     n = index_project_brain(str(root))
+    try:
+        from Agent.project_brain.policy import mark_full_refresh_done
+
+        mark_full_refresh_done(root)
+    except Exception:
+        pass
     return {"ok": True, **summary, "brain_chunks_indexed": n}
 
 

@@ -897,6 +897,15 @@ def annotate_errors(tool_name: str, result: Any) -> str:
 
 # ─── Conversation compaction ────────────────────────────────────────
 
+_BRAIN_RETRIEVAL_TOOLS = frozenset({"rag_search", "project_brain_tool"})
+# Brain/RAG results are facts the model *actively searched for* (often per the
+# system prompt's own "rag_search first" rule) rather than incidental tool
+# noise like a directory listing — compacting them down to the same 240-char
+# default as everything else was the main reason the model "forgot" project
+# facts shortly after looking them up. Give them several times more room.
+_BRAIN_RETRIEVAL_LIMIT_MULTIPLIER = 4
+
+
 def _compact_tool_result_for_summary(msg: ToolMessage, per_msg_limit: int = 240) -> str:
     """Compact a single tool result to a short excerpt for the summary block.
 
@@ -908,12 +917,15 @@ def _compact_tool_result_for_summary(msg: ToolMessage, per_msg_limit: int = 240)
     content = str(getattr(msg, "content", "") or "").strip()
     if not content:
         return f"  [tool result: {name}] (empty)"
-    if len(content) <= per_msg_limit:
+    effective_limit = per_msg_limit
+    if name in _BRAIN_RETRIEVAL_TOOLS:
+        effective_limit = per_msg_limit * _BRAIN_RETRIEVAL_LIMIT_MULTIPLIER
+    if len(content) <= effective_limit:
         return f"  [tool result: {name}] {content}"
-    half = per_msg_limit // 2
+    half = effective_limit // 2
     return (
         f"  [tool result: {name}] {content[:half]} … "
-        f"[+{len(content) - per_msg_limit} симв.] … {content[-half:]}"
+        f"[+{len(content) - effective_limit} симв.] … {content[-half:]}"
     )
 
 

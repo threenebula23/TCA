@@ -1,0 +1,50 @@
+{
+  "module_name": "Interface.panels.diff_block",
+  "module_purpose": "Side-by-side code diff shown in the chat stream after a file-editing tool.",
+  "responsibilities": [
+    "Side-by-side code diff shown in the chat stream after a file-editing tool."
+  ],
+  "public_api": [
+    {
+      "name": "diff_stats",
+      "description": "Count the number of added / removed lines between two texts."
+    },
+    {
+      "name": "read_before_after_texts",
+      "description": "Best-effort retrieval of the *before* and *after* content of a file.\n\nUses the versioning store for the pre-edit snapshot and the on-disk\ncontent for the post-edit view. Either side may be empty if unavailable."
+    }
+  ],
+  "dependencies": [
+    "Agent.versioning",
+    "Interface.themes",
+    "Interface.ui_prefs",
+    "__future__",
+    "difflib",
+    "pathlib",
+    "rich.text",
+    "textual.app",
+    "textual.containers",
+    "textual.widgets",
+    "typing"
+  ],
+  "used_by": [
+    "Interface/panels/ai_chat/__init__.py",
+    "Interface/panels/ai_chat/_accent_dialog.py",
+    "Interface/panels/ai_chat/_blocks.py",
+    "Interface/panels/ai_chat/_messages.py",
+    "Interface/panels/ai_chat/_mixin_events.py",
+    "Interface/panels/ai_chat/_mixin_setup.py",
+    "Interface/panels/ai_chat/_mixin_stream.py",
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/panels/diff_block.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

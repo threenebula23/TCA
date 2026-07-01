@@ -1,0 +1,52 @@
+{
+  "module_name": "Agent.background_agent_runner",
+  "module_purpose": "Short-lived background agent: LLM + tools in a worker thread (testing while main blocks).",
+  "responsibilities": [
+    "Short-lived background agent: LLM + tools in a worker thread (testing while main blocks)."
+  ],
+  "public_api": [
+    {
+      "name": "run_short_agent_loop",
+      "description": "Synchronous mini-loop; used from worker thread."
+    },
+    {
+      "name": "start_background_job",
+      "description": ""
+    },
+    {
+      "name": "get_job_status",
+      "description": ""
+    },
+    {
+      "name": "wait_for_job",
+      "description": ""
+    }
+  ],
+  "dependencies": [
+    "Agent.message_utils",
+    "Agent.tool_schemas",
+    "Agent.tools",
+    "Interface.tui_bridge",
+    "__future__",
+    "json",
+    "langchain_core.messages",
+    "os",
+    "threading",
+    "time",
+    "typing",
+    "uuid"
+  ],
+  "used_by": [
+    "Agent/tools/parallel_helper_tool.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/background_agent_runner.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

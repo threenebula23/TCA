@@ -1,0 +1,44 @@
+{
+  "module_name": "Interface.panels.code_editor._part_a",
+  "module_purpose": "Панель редактора: TextArea, вкладки, автодополнение, поиск, поддержка .ipynb (часть A).",
+  "responsibilities": [
+    "Панель редактора: TextArea, вкладки, автодополнение, поиск, поддержка .ipynb (часть A)."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "Interface.panels.vi_textarea",
+    "Interface.themes",
+    "Interface.ui_prefs",
+    "__future__",
+    "contextlib",
+    "io",
+    "json",
+    "pathlib",
+    "re",
+    "rich.text",
+    "subprocess",
+    "sys",
+    "textual",
+    "textual.app",
+    "textual.binding",
+    "textual.containers",
+    "textual.message",
+    "textual.widgets",
+    "threading",
+    "traceback",
+    "typing"
+  ],
+  "used_by": [
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/panels/code_editor/_part_a.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

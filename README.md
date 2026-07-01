@@ -16,31 +16,27 @@
 
 ## AI-агент
 
-- **Потоковая генерация ответов**, виджет-мысль модели 
-- **Режимы:** Agent, Ask, Creator, Research, Deep, Brainer
-- **9 новых инструментов для слабых моделей:**
-  - `structured_memory` — KV-память сессии
-  - `ast_analyze` — структура кода без чтения файла
-  - `multi_read` — читать 8 файлов за 1 вызов
-  - `lint_check` — линтер после правок
-  - `task_decompose` — декомпозиция сложной задачи
-  - `env_info` — информация об окружении
-  - `batch_replace` — пакетная замена в файле
-  - `verify_result` — проверка результата
-  - `session_notes` — свободные заметки сессии
-- **Роли воркеров Creator Mode** с детальными промптами в `Agent/roles/`
+- **Потоковая генерация ответов**, виджет-мысль модели
+- **Режимы:** Agent, Ask, Creator, Research, Deep, Brainer — TUI и classic CLI
+- **Sub-агенты:** `spawn_subagent`/`get_subagent_result` — фоновый воркер Creator Mode из любого режима (кроме Ask), общий пул (не более 3 одновременно), дерево во вкладке «Активные агенты»
+- **9 базовых тулов для слабых моделей** (`structured_memory`, `ast_analyze`, `multi_read`, `lint_check`, `task_decompose`, `env_info`, `batch_replace`, `verify_result`, `session_notes`) плюс **опциональный расширенный набор** мега-тулов (`code_intel_tool`, `workspace_search`, `net_tool`, `viz_tool`, `qa_extended_tool`, `session_meta_tool`, `tools_catalog`, …) — включается тумблером **Extended tools** в настройках, по умолчанию выключен, чтобы не раздувать контекст модели
+- **Роли воркеров Creator Mode** с детальными промптами в `Agent/roles/`; воркеры получают укороченный `WORKER_SYSTEM_PROMPT` вместо полного системного промпта сессии
 
 ## Интерфейс
 
 - **Волновая анимация** во время работы модели вместо текстовой строки
 - **Виджет мыслей модели:** коллапсируемый ThinkingBlock
+- **Графики и диаграммы прямо в чате:** ASCII-графики (plotext) и mermaid-flowchart-диаграммы рендерятся из ответа модели
 - **Настройки** с компактным интерфейсом
-- **Только TUI** — без устаревшего CLI-режима
+- **TUI (Textual) и classic CLI** — оба режима поддерживаются, `--classic` / `TCA_MODE=classic`
 
 ## Project Brain
 
-- **Автодокументирование изменений** во всех режимах
-- **Relator 1.3:** `[[TREE]]`, `[[JSON]]`, `%%render%%`, сохранение контекста
+- **Единая политика по режимам** (`Agent/project_brain/policy.py`): что и когда индексировать/писать/дебаунсить для каждого режима чата
+- **Автодокументирование изменений** во всех режимах: Research пишет находки в `agent/research_notes.md`, Creator — сводку прогона в `agent/creator_summary.md`, Deep — итоговый отчёт в `agent/deep_report.md`, Brainer — по ходу диалога
+- **Дебаунс полного пересбора** — дорогой AST-скан не гоняется на каждый ход, только когда реально что-то изменилось
+- **Relator (опционально) + Python-фолбэк:** `[[TREE]]`, `[[JSON]]`, `%%render%%` — при отсутствии Relator страницы brain всё равно генерируются
+- **Автобутстрап** — `project_brain/` создаётся при первом запуске, если его ещё нет
 - **Changelog-шаблон:** каждая сессия фиксирует что изменено и когда
 
 ---
@@ -255,9 +251,12 @@ TCA/
 │   ├── creator_orchestration.py  # Роли, handoff, сводка супервайзера
 │   ├── creator_summary.py      # Единый текст итога Creator (TUI + classic + сессия)
 │   ├── creator_provider.py     # Конфиг Creator (orchestration, local/heavy)
-│   ├── system_promt.py         # Системный промпт (тул-стратегия, веб, фоновый помощник)
-│   ├── tools/                  # @tool + compact_tools.py; parallel_helper_tool, download_tool, …
+│   ├── system_prompt.py        # SYSTEM_PROMPT (сессия) + WORKER_SYSTEM_PROMPT (Creator-воркеры)
+│   ├── prompts/                # Промпты режимов (*.md) + project_brain_rules.py
+│   ├── subagent_runner.py      # Общий раннер фоновых суб-агентов (spawn/get_result, лимит 3)
+│   ├── tools/                  # @tool + compact_tools.py, extended_tools.py (опциональный тир)
 │   ├── rag/                    # Индексация и rag_search
+│   ├── project_brain/          # Скан, Markdown brain, policy.py — политика по режимам
 │   ├── checkpoint/             # Сессии (SQLite)
 │   ├── versioning/             # Снимки файлов (SQLite)
 │   └── file_loading/           # Загрузка файлов для RAG
@@ -343,18 +342,22 @@ save_state(messages) → SQLite
 | Прочее | `rag_search`, `ask_user`, кастомные тулы |
 | **Только TUI + режим Agent** | **`headless_browser`**, **`playwright_sync`** (Python — только при галочке в **Files → Settings**) |
 | **Фон** | **`start_background_task`**, **`get_background_result`** — см. [BACKGROUND_AND_DEEP.md](wiki/BACKGROUND_AND_DEEP.md) |
+| **Суб-агенты** | **`spawn_subagent`**, **`get_subagent_result`** — фоновый Creator-воркер из Agent/Brainer/Research/Deep; недоступны в Ask |
 | **Загрузки** | **`download_file`** — HTTP(S) в файл в рабочей области проекта, лимиты в схеме (`Agent/tools/download_tool.py`) |
+| **Расширенный тир (опционально)** | `code_intel_tool`, `workspace_search`, `net_tool` (http/port_check/db_query), `viz_tool` (chart/diagram), `qa_extended_tool`, `session_meta_tool`, `tools_catalog`, `diff_tool`, `apply_patch`, `project_tree`, `brain_search`, `export_to_brain`, `memory_search` — включается тумблером **Extended tools**, по умолчанию выключен ради бюджета контекста |
 
 Защита `run_command`: блокировка опасных команд; **опциональная** дедупликация повторов одной и той же команды — только если задано ненулевое `TCA_RUN_COMMAND_DEDUPE_S` (по умолчанию выключено). Снимки версий — перед правками файлов.
 
-Детали фонового помощника и **Deep Solver** (`spawn_subagent` / `get_subagent_result`): **[wiki/BACKGROUND_AND_DEEP.md](wiki/BACKGROUND_AND_DEEP.md)**.
+Детали фонового помощника, **Deep Solver** и суб-агентов (`spawn_subagent` / `get_subagent_result`): **[wiki/BACKGROUND_AND_DEEP.md](wiki/BACKGROUND_AND_DEEP.md)**.
 
 ### Управление контекстом
 
 LLM имеют ограниченное окно контекста. TCA управляет этим через:
 
 - **Компактирование** (`compact_conversation`) — старые сообщения сжимаются в текстовое резюме, сохраняя последние 10–12 сообщений. При сжатии границы не разрывают группы tool_call/ToolMessage.
-- **Авто-компактирование** — срабатывает автоматически при превышении 30 сообщений.
+- **Авто-компактирование** — срабатывает автоматически при превышении 30 сообщений **или** ~85% лимита контекста модели (TUI и classic).
+- **Тиринг тулов** — базовый набор всегда в промпте; расширенный тир (мега-тулы) — опционально по тумблеру **Extended tools**, чтобы JSON-схемы не раздували системный промпт.
+- **Слим-промпты по режимам** — общий `SYSTEM_PROMPT` минимален, детали конкретного режима (Agent/Ask/Brainer/…) добавляются отдельным фрагментом (`Agent/prompts/*.md`); воркеры Creator получают отдельный укороченный `WORKER_SYSTEM_PROMPT`.
 - **Усечение результатов** (`_truncate_result`) — большие ответы инструментов обрезаются (лимиты по инструментам: 2000–4000 символов).
 - **Санитизация** (`_sanitize_messages`) — перед каждым вызовом LLM проверяет и исправляет историю: удаляет осиротевшие `ToolMessage`, добавляет заглушки для незавершённых `tool_calls`.
 
@@ -440,7 +443,7 @@ _base_tools: List[Any] = [
 ]
 ```
 
-4. Опционально: добавьте описание в системный промпт (`Agent/system_promt.py`) и специальный вывод в `Interface/visualization.py`.
+4. Опционально: добавьте описание в системный промпт (`Agent/system_prompt.py`) или в промпт конкретного режима (`Agent/prompts/*.md`), и специальный вывод в `Interface/visualization.py`.
 
 ### Добавление модели
 
@@ -466,8 +469,11 @@ _base_tools: List[Any] = [
 | `Agent/git_integration.py` | Git |
 | `Agent/rag/` | RAG |
 | `Agent/llm_provider.py` | Модели и OpenRouter |
-| `Agent/system_promt.py` | Системный промпт |
-| `Agent/tools/` | Реализации инструментов |
+| `Agent/system_prompt.py` | `SYSTEM_PROMPT` / `WORKER_SYSTEM_PROMPT` |
+| `Agent/prompts/` | Промпты режимов (`*.md`), `project_brain_rules.py` |
+| `Agent/project_brain/` | Скан, Markdown brain, `policy.py` (политика по режимам) |
+| `Agent/subagent_runner.py` | Фоновые суб-агенты: `spawn`/`get_result`, лимит concurrency |
+| `Agent/tools/` | Реализации инструментов (+ `extended_tools.py` — опциональный тир) |
 | `Interface/tui_app.py` | Layout IDE, CSS |
 | `Interface/tui_bridge.py` | Обновление панелей из фонового агента |
 | `Interface/panels/*.py` | Панели: дерево, агенты, чат, редактор, … |

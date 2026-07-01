@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Каталог `project_brain/` в корне workspace: Markdown (и `rag_manifest.json`), индексируется как источник RAG с меткой brain. Часть файлов **пересобирается** сканером (`project_brain_tool` с `action=refresh|reindex|scan`), часть **пишет модель**.
+Каталог `project_brain/` в корне workspace: Markdown (и `rag_manifest.json`), индексируется как источник RAG с меткой brain. Часть файлов **пересобирается** сканером (`project_brain_tool` с `action=refresh|scan`, легковесная альтернатива — `action=reindex`), часть **пишет модель**.
 
 ## Сканер vs модель
 
@@ -25,9 +25,12 @@
 
 | action | Назначение |
 |--------|------------|
-| `refresh` / `reindex` / `scan` | Пересборка brain с диска + индексация |
+| `reindex` | Быстро: перечитать уже сгенерированные `project_brain/**/*.md` в RAG (без AST-скана) |
+| `refresh` / `scan` | Полный пересбор Markdown из кода (AST-скан + Relator/фолбэк) + reindex — дороже, вызывать после структурных изменений |
 | `write_architecture` | Только `agent_architecture.md` + `content`, `write_mode` |
 | `write_brain` | `brain_rel_path` + `content`, `write_mode` append\|replace |
+
+В режиме **Brainer** полный `refresh` после хода debounce-ится автоматически (см. `Agent/project_brain/policy.py`) — повторный full-scan пропускается, если ничего не изменилось и последний прошёл недавно; принудительный вызов `action=refresh` из чата всегда выполняется.
 
 Схема аргументов и coerce: `Agent/tool_schemas.py` (`ProjectBrainToolArgs`, блок `project_brain_tool` в `_coerce_common_arg_mistakes`).
 

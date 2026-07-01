@@ -1,0 +1,37 @@
+{
+  "module_name": "Interface.cli_theme",
+  "module_purpose": "Самостоятельные пресеты цветов для классического CLI (Rich + ANSI).",
+  "responsibilities": [
+    "Самостоятельные пресеты цветов для классического CLI (Rich + ANSI)."
+  ],
+  "public_api": [
+    {
+      "name": "resolve_cli_theme_name",
+      "description": "Вернуть id пресета из CLI_THEME_PALETTES."
+    },
+    {
+      "name": "cli_palette",
+      "description": "Палитра для Rich/ANSI. Пользовательский акцент меняет только accent, не accent2 —\nиначе смена темы визуально «пропадает»."
+    }
+  ],
+  "dependencies": [
+    "__future__",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/command_router/_mixin_handlers.py",
+    "Interface/ui_prefs.py",
+    "Interface/visualization.py",
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/cli_theme.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

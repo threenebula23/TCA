@@ -1,0 +1,46 @@
+{
+  "module_name": "Agent.project_brain",
+  "module_purpose": "Project Brain: static scan + Markdown output for RAG (optional Relator).",
+  "responsibilities": [
+    "Project Brain: static scan + Markdown output for RAG (optional Relator)."
+  ],
+  "public_api": [
+    {
+      "name": "refresh_project_brain",
+      "description": "Scan ``root``, write ``project_brain/**``, return summary paths."
+    },
+    {
+      "name": "read_brain_context_summary",
+      "description": "Read a short, prioritised excerpt of ``project_brain/*.md`` for prompt injection.\n\nOriginally only Deep Solver / Creator workers got this auto-injected\n(see ``deep_solver/legacy_loop.py:_read_brain_context`` and\n``creator_mode.py:_read_brai…"
+    }
+  ],
+  "dependencies": [
+    "Agent.path_utils",
+    "__future__",
+    "agent_architecture",
+    "build",
+    "context_builder",
+    "pathlib",
+    "scanner",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_classic.py",
+    "Agent/agent/_impl_prepare.py",
+    "Agent/agent/_impl_tui.py",
+    "Agent/creator_mode.py",
+    "Agent/graph_runner.py",
+    "Agent/tools/compact_tools.py",
+    "tests/test_ollama_provider.py",
+    "tests/test_project_brain_tool.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/project_brain/__init__.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

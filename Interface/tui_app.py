@@ -46,6 +46,10 @@ class LorneApp(App):
         Binding("ctrl+q", "quit", "Exit", show=True, priority=True),
         Binding("ctrl+s", "save_file", "Save", show=False, priority=True),
         Binding("f1", "open_keybindings", "Keybindings", show=False, priority=True),
+        # priority=True is required so these fire even while the chat input
+        # (a TextArea) has focus and would otherwise swallow the keystroke.
+        Binding("f2", "cycle_mode", "Mode", show=True, priority=True),
+        Binding("f3", "cycle_model", "Model", show=True, priority=True),
         Binding("f5", "run_current_file", "Run File", show=False, priority=True),
         Binding("ctrl+shift+x", "stop_agent", "Stop Agent", show=False, priority=True),
         Binding("ctrl+f", "toggle_find", "Find", show=False),
@@ -137,7 +141,8 @@ class LorneApp(App):
         yield Header()
         with Horizontal(id="top-bar"):
             yield Button("✕ Exit", id="app-exit-btn")
-            yield Button("💬 Chat", id="app-chat-btn", variant="primary")
+            yield Button("» Chat", id="app-chat-btn", variant="primary")
+            yield Static(f"{APP_DISPLAY_NAME} · {APP_FULL_VERSION_LABEL}", id="top-bar-badge")
         with Horizontal(id="main"):
             with Vertical(id="col-left"):
                 yield FileExplorerPanel(id="file-explorer")
@@ -322,6 +327,18 @@ class LorneApp(App):
     @on(Button.Pressed, "#sol-add")
     def _app_on_sol_add(self) -> None:
         self.chat.on_sol_add()
+
+    @on(Button.Pressed, "#slm-save-conn")
+    def _app_on_slm_save_conn(self) -> None:
+        self.chat.on_slm_save_conn()
+
+    @on(Button.Pressed, "#slm-refresh")
+    def _app_on_slm_refresh(self) -> None:
+        self.chat.on_slm_refresh()
+
+    @on(Button.Pressed, "#slm-apply-model")
+    def _app_on_slm_apply_model(self) -> None:
+        self.chat.on_slm_apply_model()
 
     @on(FileSaved)
     def on_file_saved(self, event: FileSaved) -> None:
@@ -516,20 +533,37 @@ class LorneApp(App):
 
     def update_status(self, model: str = "", branch: str = "",
                       tokens: str = "", rag: str = "") -> None:
-        parts = []
+        from rich.text import Text
+        from Interface.panels.ai_chat._constants import MODE_ICONS, MODE_COLORS, PURPLE
+
         if model:
-            parts.append(f" {model}")
             self._model_name = model
         if branch:
-            parts.append(f"⎇ {branch}")
             self._branch = branch
+        mode_key = (self._mode_name or "agent").lower()
+        mode_icon = MODE_ICONS.get(mode_key, "•")
+        mode_color = MODE_COLORS.get(mode_key, PURPLE)
+
+        out = Text()
+        if self._model_name:
+            out.append(f" {self._model_name}", style="#9CA3AF")
+        if self._branch:
+            if len(out) > 0:
+                out.append("  │  ", style="dim")
+            out.append(f"⎇ {self._branch}", style="#9CA3AF")
         if tokens:
-            parts.append(f"{tokens}")
+            if len(out) > 0:
+                out.append("  │  ", style="dim")
+            out.append(tokens, style="#9CA3AF")
         if rag:
-            parts.append(f"RAG: {rag}")
-        parts.append(f"MODE: {self._mode_name.upper()}")
-        parts.append("Esc: чат  M: меню")
-        self.status_bar.update(" │ ".join(parts) if parts else "")
+            if len(out) > 0:
+                out.append("  │  ", style="dim")
+            out.append(f"RAG: {rag}", style="#9CA3AF")
+        if len(out) > 0:
+            out.append("  │  ", style="dim")
+        out.append(f" {mode_icon} {mode_key.upper()} ", style=f"bold white on {mode_color}")
+        out.append("   F2:режим  F3:модель  Esc:чат", style="dim")
+        self.status_bar.update(out)
 
     def _update_status(self) -> None:
         self.update_status(model=self._model_name, branch=self._branch)
@@ -545,6 +579,25 @@ class LorneApp(App):
             hint = event.hint
             indicator.update(f"[{label}] {hint}  F1:справка")
             indicator.styles.color = color
+        except Exception:
+            pass
+
+    def on_descendant_focus(self, event) -> None:
+        """Dim the vi-mode indicator when focus leaves a vi-enabled editor,
+        so the status bar never implies vi keys are active in chat/settings/
+        the file explorer (those widgets don't run the vi state machine).
+        """
+        try:
+            from Interface.panels.vi_textarea import ViEditorArea
+            indicator = self.query_one("#vi-mode-indicator", Static)
+            focused = event.widget
+            in_vi_editor = isinstance(focused, ViEditorArea) or any(
+                isinstance(a, ViEditorArea) for a in focused.ancestors
+            )
+            if in_vi_editor:
+                indicator.remove_class("vi-inactive")
+            else:
+                indicator.add_class("vi-inactive")
         except Exception:
             pass
 

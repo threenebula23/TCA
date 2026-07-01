@@ -13,7 +13,7 @@
 
 ## Режимы
 
-- Новый slug режима: добавить в `_MODE_ADDONS`, обработать в `_sync_tui_tool_bundle` при необходимости, документировать в `wiki/MODES/`.
+- Новый slug режима: добавить файл `Agent/prompts/<mode>.md` (и запись в `_MODE_ADDONS_FALLBACK` как фолбэк), обработать в `_sync_tui_tool_bundle`/`_sync_classic_tool_bundle` при необходимости, при необходимости добавить запись в `BRAIN_POLICY` (`Agent/project_brain/policy.py`), документировать в `wiki/MODES/`.
 
 ## Чеклист изменений
 

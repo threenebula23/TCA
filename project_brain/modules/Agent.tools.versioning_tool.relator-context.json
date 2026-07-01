@@ -1,0 +1,45 @@
+{
+  "module_name": "Agent.tools.versioning_tool",
+  "module_purpose": "Инструменты отката/версий файлов для агента.",
+  "responsibilities": [
+    "Инструменты отката/версий файлов для агента."
+  ],
+  "public_api": [
+    {
+      "name": "list_file_versions",
+      "description": "Показывает последние сохранённые версии файла для отката."
+    },
+    {
+      "name": "rollback_file",
+      "description": "Откатывает файл. Если version_id пустой — откат к последней сохранённой версии."
+    }
+  ],
+  "dependencies": [
+    "Agent.path_utils",
+    "Agent.versioning",
+    "__future__",
+    "langchain_core.tools",
+    "path_utils",
+    "pathlib",
+    "typing",
+    "versioning"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "Agent/tools/__init__.py",
+    "Agent/tools/compact_tools.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/versioning_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

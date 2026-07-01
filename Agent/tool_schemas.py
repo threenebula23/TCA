@@ -436,6 +436,127 @@ class PlaywrightSyncArgs(BaseModel):
     full_page: bool = False
 
 
+class CodeIntelToolArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    action: Literal["find_symbol", "import_graph", "ast"] = Field(...)
+    path: str = Field(default="", max_length=2048)
+    query: str = Field(default="", max_length=8000)
+    symbol: str = Field(default="", max_length=512)
+    directory: str = Field(default=".", max_length=2048)
+    file_pattern: str = Field(default="*", max_length=128)
+    depth: int = Field(default=1, ge=1, le=3)
+
+
+class WorkspaceSearchArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    action: Literal["brain", "code", "notes"] = Field(...)
+    query: str = Field(default="", max_length=4000)
+    directory: str = Field(default=".", max_length=2048)
+    file_pattern: str = Field(default="*.py", max_length=128)
+    top_k: int = Field(default=5, ge=1, le=20)
+    tag: str = Field(default="", max_length=64)
+
+
+class NetToolArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    action: Literal["http", "port_check", "db_query"] = Field(...)
+    url: str = Field(default="", max_length=2048)
+    host: str = Field(default="", max_length=512)
+    port: int = Field(default=0, ge=0, le=65535)
+    timeout_seconds: int = Field(default=10, ge=1, le=60)
+    db_path: str = Field(default="", max_length=2048)
+    query: str = Field(default="", max_length=4000)
+
+
+class VizToolArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    action: Literal["chart", "diagram"] = Field(...)
+    spec_json: str = Field(default="", max_length=100_000)
+    title: str = Field(default="", max_length=256)
+    mermaid: str = Field(default="", max_length=50_000)
+
+
+class QaExtendedToolArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    action: Literal["test", "lint"] = Field(...)
+    path: str = Field(default="", max_length=2048)
+    command: str = Field(default="", max_length=4000)
+    fix: bool = False
+    linter: str = Field(default="auto", max_length=32)
+    cwd: str = Field(default="", max_length=2048)
+    timeout_seconds: int = Field(default=120, ge=1, le=3600)
+
+
+class SessionMetaToolArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    action: Literal[
+        "transcript_search", "config_inspect", "json_validate",
+        "review_checklist", "notify_when_done",
+    ] = Field(...)
+    query: str = Field(default="", max_length=4000)
+    json_text: str = Field(default="", max_length=200_000)
+    message: str = Field(default="", max_length=8000)
+    scope: str = Field(default="agent", max_length=64)
+    channel: str = Field(default="session", max_length=64)
+
+
+class ToolsCatalogArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    action: Literal["list", "describe"] = Field(...)
+    name: str = Field(default="", max_length=128)
+    group: str = Field(default="", max_length=64)
+
+
+class DiffToolArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    commit: str = Field(default="", max_length=128)
+    path: str = Field(default="", max_length=2048)
+
+
+class ApplyPatchArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    patch_text: str = Field(..., min_length=1, max_length=500_000)
+
+
+class ProjectTreeArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    path: str = Field(default=".", max_length=2048)
+    pattern: str = Field(default="*", max_length=128)
+    max_entries: int = Field(default=500, ge=1, le=5000)
+
+
+class BrainSearchArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    query: str = Field(..., min_length=1, max_length=2000)
+    top_k: int = Field(default=5, ge=1, le=20)
+
+
+class ExportToBrainArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    brain_rel_path: str = Field(..., min_length=1, max_length=512)
+    content: str = Field(..., min_length=1, max_length=60_000)
+    write_mode: str = Field(default="append", max_length=16)
+
+
+class MemorySearchArgs(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+    query: str = Field(default="", max_length=2000)
+    namespace: str = Field(default="default", max_length=64)
+
+
 # Registry: имя тула → модель
 TOOL_ARG_MODELS: Dict[str, Type[BaseModel]] = {
     "read_file": ReadFileArgs,
@@ -468,6 +589,19 @@ TOOL_ARG_MODELS: Dict[str, Type[BaseModel]] = {
     "project_brain_tool": ProjectBrainToolArgs,
     "headless_browser": HeadlessBrowserArgs,
     "playwright_sync": PlaywrightSyncArgs,
+    "code_intel_tool": CodeIntelToolArgs,
+    "workspace_search": WorkspaceSearchArgs,
+    "net_tool": NetToolArgs,
+    "viz_tool": VizToolArgs,
+    "qa_extended_tool": QaExtendedToolArgs,
+    "session_meta_tool": SessionMetaToolArgs,
+    "tools_catalog": ToolsCatalogArgs,
+    "diff_tool": DiffToolArgs,
+    "apply_patch": ApplyPatchArgs,
+    "project_tree": ProjectTreeArgs,
+    "brain_search": BrainSearchArgs,
+    "export_to_brain": ExportToBrainArgs,
+    "memory_search": MemorySearchArgs,
 }
 
 

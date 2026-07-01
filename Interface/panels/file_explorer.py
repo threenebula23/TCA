@@ -43,20 +43,20 @@ SYNTAX_THEME_MAP = {
 }
 
 _FILE_ICONS = {
-    ".py": "🐍", ".pyw": "🐍",
-    ".js": "📜", ".jsx": "⚛️", ".mjs": "📜",
-    ".ts": "🔷", ".tsx": "⚛️",
-    ".json": "📋", ".yaml": "📋", ".yml": "📋", ".toml": "📋",
-    ".html": "🌐", ".htm": "🌐",
-    ".css": "🎨", ".scss": "🎨", ".sass": "🎨",
-    ".md": "📝", ".mdx": "📝", ".txt": "📝", ".rst": "📝",
-    ".rs": "🦀", ".go": "🔵", ".java": "☕", ".rb": "💎",
-    ".sh": "⚙️", ".bash": "⚙️", ".zsh": "⚙️",
-    ".sql": "🗃️", ".xml": "📰",
-    ".env": "🔒", ".gitignore": "🔒",
-    ".png": "🖼️", ".jpg": "🖼️", ".jpeg": "🖼️", ".gif": "🖼️", ".svg": "🖼️",
-    ".zip": "📦", ".tar": "📦", ".gz": "📦",
-    ".pdf": "📕", ".ipynb": "📓",
+    ".py": "•", ".pyw": "•",
+    ".js": "▤", ".jsx": "•", ".mjs": "▤",
+    ".ts": "•", ".tsx": "•",
+    ".json": "▤", ".yaml": "▤", ".yml": "▤", ".toml": "▤",
+    ".html": "◯", ".htm": "◯",
+    ".css": "◐", ".scss": "◐", ".sass": "◐",
+    ".md": "✎", ".mdx": "✎", ".txt": "✎", ".rst": "✎",
+    ".rs": "•", ".go": "•", ".java": "•", ".rb": "•",
+    ".sh": "⚙", ".bash": "⚙", ".zsh": "⚙",
+    ".sql": "•", ".xml": "▤",
+    ".env": "▪", ".gitignore": "▪",
+    ".png": "▭", ".jpg": "▭", ".jpeg": "▭", ".gif": "▭", ".svg": "▭",
+    ".zip": "◇", ".tar": "◇", ".gz": "◇",
+    ".pdf": "▤", ".ipynb": "▤",
 }
 
 
@@ -76,14 +76,14 @@ class FilteredDirectoryTree(DirectoryTree):
         node_label.stylize(style)
         path = node.data.path if node.data else None
         if path is None or node._allow_expand:
-            icon = "📂 " if node.is_expanded else "📁 "
+            icon = "▥ " if node.is_expanded else "▦ "
         else:
             suffix = path.suffix.lower() if path else ""
             name = path.name if path else ""
             if name in (".env", ".gitignore", ".dockerignore"):
-                icon = "🔒 "
+                icon = "▪ "
             else:
-                icon = _FILE_ICONS.get(suffix, "📄") + " "
+                icon = _FILE_ICONS.get(suffix, "□") + " "
         return Text.assemble((icon, base_style), node_label)
 
 
@@ -134,18 +134,18 @@ class FileExplorerPanel(Vertical):
         self._last_tree_refresh = 0.0
 
     def compose(self) -> ComposeResult:
-        with TabbedContent("Files", "Settings"):
-            with TabPane("Files", id="tab-files"):
+        with TabbedContent("▦ Files", "⚙ Settings"):
+            with TabPane("▦ Files", id="tab-files"):
                 with Horizontal(id="file-tree-header"):
-                    yield Static(f" 📁 {self._root.name}", id="tree-root-label")
-                    yield Button("🔄", id="btn-refresh", classes="header-btn")
+                    yield Static(f" ▦ {self._root.name}", id="tree-root-label")
+                    yield Button("↻", id="btn-refresh", classes="header-btn")
                 yield FilteredDirectoryTree(str(self._root), id="dir-tree")
                 with Horizontal(classes="file-actions"):
                     yield Button("Новый", id="btn-new", variant="default")
                     yield Button("Удалить", id="btn-del", variant="error")
                     yield Button("Переимен.", id="btn-ren", variant="default")
                     yield Button("В контекст", id="btn-ctx", variant="success")
-            with TabPane("Settings", id="tab-settings"):
+            with TabPane("⚙ Settings", id="tab-settings"):
                 yield VerticalScroll(id="settings-panel")
 
     def on_mount(self) -> None:
@@ -172,32 +172,39 @@ class FileExplorerPanel(Vertical):
         container = self.query_one("#settings-panel", VerticalScroll)
         for w in list(container.children):
             w.remove()
-        container.mount(Label("⚙️ Настройки чата и моделей", classes="settings-title"))
+        container.mount(Label("⚙ Настройки чата и моделей", classes="settings-title"))
         container.mount(
             Button(
-                "🎨 Персонализация\nТема, плотность, подсветка, палитра",
+                "◐ Персонализация\nТема, плотность, подсветка, палитра",
                 id="fe-open-settings-personalization",
                 variant="primary",
             )
         )
         container.mount(
             Button(
-                "🤖 Agents\nПрофиль агента и спец. инструменты",
+                "● Agents\nПрофиль агента и спец. инструменты",
                 id="fe-open-settings-agents",
                 variant="default",
             )
         )
         container.mount(
             Button(
-                "🔑 OpenRouter\nAPI ключ и добавление моделей",
+                "▪ OpenRouter\nAPI ключ и добавление моделей",
                 id="fe-open-settings-openrouter",
                 variant="default",
             )
         )
         container.mount(
             Button(
-                "🦙 Ollama\nПодключение, модели, пресеты",
+                "▲ Ollama\nПодключение, модели, пресеты",
                 id="fe-open-settings-ollama",
+                variant="default",
+            )
+        )
+        container.mount(
+            Button(
+                "▣ LM Studio\nПодключение и модели",
+                id="fe-open-settings-lmstudio",
                 variant="default",
             )
         )
@@ -438,20 +445,20 @@ class FileExplorerPanel(Vertical):
         options = []
         if path.is_file():
             options = [
-                ("📄 Open", "open"),
-                ("📎 Add to Context", "ctx"),
-                ("📋 Copy Path", "copypath"),
-                ("✏️ Rename", "rename"),
-                ("🗑️ Delete", "delete"),
+                ("□ Open", "open"),
+                ("▪ Add to Context", "ctx"),
+                ("▤ Copy Path", "copypath"),
+                ("✏ Rename", "rename"),
+                ("✗ Delete", "delete"),
             ]
             if path.suffix in (".py", ".sh", ".js", ".ts"):
                 options.insert(1, ("▶ Run", "run"))
         else:
             options = [
-                ("📄 New File Here", "new"),
-                ("✏️ Rename", "rename"),
-                ("📋 Copy Path", "copypath"),
-                ("🗑️ Delete", "delete"),
+                ("□ New File Here", "new"),
+                ("✏ Rename", "rename"),
+                ("▤ Copy Path", "copypath"),
+                ("✗ Delete", "delete"),
             ]
 
         def _handle(choice: str) -> None:

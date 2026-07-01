@@ -20,17 +20,31 @@ DEFAULT_PREFS: Dict[str, Any] = {
     # Пользовательские модели для селектора (хранятся в проекте).
     "openrouter_custom_models": [],
     "ollama_custom_models": [],
+    "lmstudio_custom_models": [],
     # Настройки подключения Ollama.
     "ollama_base_url": "http://localhost:11434/v1",
     "ollama_api_key": "",
+    # Настройки подключения LM Studio (OpenAI-compatible /v1 only).
+    "lmstudio_base_url": "http://localhost:1234/v1",
+    "lmstudio_api_key": "",
     "ollama_presets": {
         "default": {
             "temperature": 0.2,
             "top_p": 0.9,
             "top_k": 40,
-            "repeat_penalty": 1.1,
+            # 1.1-1.15 is the sweet spot recommended for local models to stop
+            # them looping/repeating text without over-penalizing legitimate
+            # repetition (e.g. code keywords). Paired with repeat_last_n below.
+            "repeat_penalty": 1.15,
+            # How many recent tokens the repeat penalty looks back over. Too
+            # small (e.g. Ollama's old internal default of 64) lets a model
+            # fall into paragraph-level loops; 256 covers a few sentences.
+            "repeat_last_n": 256,
             "num_ctx": 32768,
-            "num_predict": 2048,
+            # 2048 routinely truncated long code/explanation answers mid-way
+            # (looked like the model "hanging" or stopping abruptly). 8192
+            # matches the "balanced" profile's max_tokens default instead.
+            "num_predict": 8192,
             "stop": "",
         }
     },
@@ -47,6 +61,12 @@ DEFAULT_PREFS: Dict[str, Any] = {
     "cli_prompt_glyph": "❯",
     # Custom tools master switch (RAG, planning, interpreter, thinking, etc.).
     "custom_tools_enabled": True,
+    # Extended mega-tools (code_intel_tool, workspace_search, net_tool, viz_tool, …,
+    # see Agent/tools/extended_tools.py). Off by default (J1, context budget):
+    # binding them alongside the full base tool set roughly doubles the JSON
+    # schema payload sent with every LLM call; opt in for power users who want
+    # find_symbol/import_graph/http/diff/apply_patch/etc. in the tool list.
+    "extended_tools_enabled": False,
 }
 
 

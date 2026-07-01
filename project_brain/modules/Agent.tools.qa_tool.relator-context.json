@@ -1,0 +1,37 @@
+{
+  "module_name": "Agent.tools.qa_tool",
+  "module_purpose": "One-shot QA scripts (npm/pnpm) to catch build and framework errors before shipping.",
+  "responsibilities": [
+    "One-shot QA scripts (npm/pnpm) to catch build and framework errors before shipping."
+  ],
+  "public_api": [
+    {
+      "name": "run_package_script",
+      "description": "npm|pnpm|yarn run <script> (default build) в cwd; для dev — run_command(background=True)."
+    }
+  ],
+  "dependencies": [
+    "Agent.path_utils",
+    "Terminal.runner",
+    "__future__",
+    "langchain_core.tools",
+    "path_utils",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/qa_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

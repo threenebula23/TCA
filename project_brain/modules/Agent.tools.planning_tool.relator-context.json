@@ -1,0 +1,52 @@
+{
+  "module_name": "Agent.tools.planning_tool",
+  "module_purpose": "Инструменты плана: модель может создать план, обновлять статусы и продолжать выполнение.",
+  "responsibilities": [
+    "Инструменты плана: модель может создать план, обновлять статусы и продолжать выполнение."
+  ],
+  "public_api": [
+    {
+      "name": "save_plan",
+      "description": "Сохраняет план (список шагов) для текущей задачи. Используй перед выполнением большой задачи."
+    },
+    {
+      "name": "load_plan",
+      "description": "Загружает текущий план (если есть)."
+    },
+    {
+      "name": "update_plan",
+      "description": "Обновляет статус шага плана. status: pending | in_progress | completed | blocked."
+    },
+    {
+      "name": "clear_plan",
+      "description": "Удаляет текущий план."
+    }
+  ],
+  "dependencies": [
+    "Agent.runtime_paths",
+    "__future__",
+    "datetime",
+    "json",
+    "langchain_core.tools",
+    "pathlib",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "Agent/tools/__init__.py",
+    "Agent/tools/compact_tools.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/planning_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

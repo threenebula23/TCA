@@ -1,0 +1,22 @@
+{
+  "module_name": "Interface.panels.ai_chat._css",
+  "module_purpose": "Стили TCSS для панели чата.",
+  "responsibilities": [
+    "Стили TCSS для панели чата."
+  ],
+  "public_api": [],
+  "dependencies": [],
+  "used_by": [
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/panels/ai_chat/_css.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

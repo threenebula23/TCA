@@ -37,6 +37,7 @@ try:
     )
     from .rag import get_rag_tool
     from .tools.parallel_helper_tool import start_background_task, get_background_result
+    from .tools.subagent_tools import spawn_subagent, get_subagent_result
 except ImportError:
     from Agent.tools.planning_tool import save_plan, load_plan, update_plan, clear_plan
     from Agent.tools.versioning_tool import list_file_versions, rollback_file
@@ -68,6 +69,7 @@ except ImportError:
     )
     from Agent.rag import get_rag_tool
     from Agent.tools.parallel_helper_tool import start_background_task, get_background_result
+    from Agent.tools.subagent_tools import spawn_subagent, get_subagent_result
 
 try:
     from .llm_provider import supports_parallel_tool_calls_param
@@ -106,6 +108,28 @@ except ImportError as _e:
     import sys as _sys
     print(f"[tool_registry] Could not load new tools: {_e}", file=_sys.stderr)
 
+try:
+    from .tools.extended_tools import (
+        code_intel_tool,
+        workspace_search,
+        net_tool,
+        viz_tool,
+        qa_extended_tool,
+        session_meta_tool,
+        tools_catalog,
+        diff_tool,
+        apply_patch,
+        project_tree,
+        brain_search,
+        export_to_brain,
+        memory_search,
+    )
+    _HAS_EXTENDED_TOOLS = True
+except ImportError as _e:
+    _HAS_EXTENDED_TOOLS = False
+    import sys as _sys
+    print(f"[tool_registry] Could not load extended tools: {_e}", file=_sys.stderr)
+
 _base_tools: List[Any] = [
     read_file, read_file_lines, list_files, edit_file, write_file,
     replace_file_lines, insert_file_lines,
@@ -115,6 +139,7 @@ _base_tools: List[Any] = [
     search_in_files, find_in_file, run_command, run_package_script, download_file, create_pdf, ask_user,
     web_search, web_fetch,
     start_background_task, get_background_result,
+    spawn_subagent, get_subagent_result,
     ocr_tool,
     office_document_read,
     docx_write_tool,
@@ -168,6 +193,48 @@ _playwright_python_tools: List[Any] = []
 if _HAS_PLAYWRIGHT_SYNC:
     _playwright_python_tools.append(playwright_sync)
 
+_EXTENDED_TOOL_NAMES = frozenset({
+    "code_intel_tool",
+    "workspace_search",
+    "net_tool",
+    "viz_tool",
+    "qa_extended_tool",
+    "session_meta_tool",
+    "tools_catalog",
+    "diff_tool",
+    "apply_patch",
+    "project_tree",
+    "brain_search",
+    "export_to_brain",
+    "memory_search",
+})
+
+# Base tools superseded by extended mega-tools (schema budget).
+_EXTENDED_REPLACES = frozenset({
+    "ast_analyze",
+    "search_in_files",
+    "lint_check",
+    "session_notes",
+})
+
+_extended_tools: List[Any] = []
+if _HAS_EXTENDED_TOOLS:
+    _extended_tools = [
+        code_intel_tool,
+        workspace_search,
+        net_tool,
+        viz_tool,
+        qa_extended_tool,
+        session_meta_tool,
+        tools_catalog,
+        diff_tool,
+        apply_patch,
+        project_tree,
+        brain_search,
+        export_to_brain,
+        memory_search,
+    ]
+
 _tool_session_flags: Dict[str, bool] = {
     "agent_mode": False,
     "ask_mode": False,
@@ -185,6 +252,12 @@ _ASK_EXCLUDED_TOOL_NAMES = frozenset({
     "project_brain_tool",
     # New tools: write/exec operations excluded from Ask mode
     "lint_check", "batch_replace", "verify_result", "task_decompose",
+    # Extended tier: mutating / exec
+    "apply_patch", "export_to_brain", "qa_extended_tool",
+    # Sub-agents inherit the parent's tool set (minus spawn/get_result) and
+    # can run run_command/edit_file/write_file — same write/exec risk as
+    # those tools directly, so Ask (read-only mode) must not spawn one.
+    "spawn_subagent", "get_subagent_result",
 })
 
 
@@ -209,12 +282,14 @@ def set_tool_session_prefs(
     playwright_python: bool = False,
     browser_tools: bool = True,
     custom_tools: bool = True,
+    extended: bool = False,
 ) -> None:
     _tool_session_flags["agent_mode"] = bool(agent_mode)
     _tool_session_flags["ask_mode"] = bool(ask_mode)
     _tool_session_flags["playwright_python"] = bool(playwright_python)
     _tool_session_flags["browser_tools"] = bool(browser_tools)
     _tool_session_flags["custom_tools"] = bool(custom_tools)
+    _tool_session_flags["extended"] = bool(extended)
 
 
 def _strip_custom_tools(tools: List[Any]) -> List[Any]:
@@ -227,10 +302,15 @@ def build_tools(
     playwright_python: bool = False,
     browser_tools: bool = True,
     custom_tools: bool = True,
+    extended: bool = False,
 ) -> tuple[List[Any], Any]:
     """Return ``(tools, custom_list)`` for the session; flags control browser / ask."""
     custom = load_custom_tools() if custom_tools else []
     base = list(_base_tools) if custom_tools else _strip_custom_tools(_base_tools)
+    if extended and _extended_tools:
+        replace = _EXTENDED_REPLACES
+        base = [t for t in base if (getattr(t, "name", "") or "") not in replace]
+        base.extend(_extended_tools)
     all_tools = base + list(custom)
     if ask_mode:
         all_tools = [
@@ -313,8 +393,10 @@ def reload_tools(current_tools: List[Any]) -> List[Any]:
     pw = _tool_session_flags.get("playwright_python", False)
     bw = _tool_session_flags.get("browser_tools", True)
     ct = _tool_session_flags.get("custom_tools", True)
+    ext = _tool_session_flags.get("extended", False)
     fresh, _ = build_tools(
-        agent_mode=am, ask_mode=ask, playwright_python=pw, browser_tools=bw, custom_tools=ct,
+        agent_mode=am, ask_mode=ask, playwright_python=pw, browser_tools=bw,
+        custom_tools=ct, extended=ext,
     )
     current_tools.clear()
     current_tools.extend(fresh)

@@ -1,0 +1,61 @@
+{
+  "module_name": "Agent.creator_mode",
+  "module_purpose": "Creator Mode — оркестратор параллельных агентов для Lorne.",
+  "responsibilities": [
+    "Creator Mode — оркестратор параллельных агентов для Lorne."
+  ],
+  "public_api": [
+    {
+      "name": "run_creator_mode",
+      "description": "Запустить Creator Mode для задачи.\n\nArgs:\n    task: Основная задача пользователя\n    tools: Список инструментов доступных агентам\n    project_context: Контекст проекта (структура, etc.)\n    depth: Current recursion depth (0 = root)\n    pare…"
+    }
+  ],
+  "dependencies": [
+    "Agent.creator_orchestration",
+    "Agent.creator_provider",
+    "Agent.message_utils",
+    "Agent.path_utils",
+    "Agent.planner",
+    "Agent.project_brain.agent_architecture",
+    "Agent.system_prompt",
+    "Agent.tool_registry",
+    "Agent.tool_schemas",
+    "Agent.tools.terminal_tool",
+    "Interface.graph_display",
+    "Interface.tui_bridge",
+    "Interface.visualization",
+    "__future__",
+    "concurrent.futures",
+    "creator_orchestration",
+    "creator_provider",
+    "json",
+    "langchain_core.messages",
+    "langchain_core.tools",
+    "langchain_openai",
+    "langgraph.graph",
+    "message_utils",
+    "pathlib",
+    "planner",
+    "system_prompt",
+    "threading",
+    "time",
+    "tool_registry",
+    "tool_schemas",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_prepare.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "tests/test_creator_mode_local_tools.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/creator_mode.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

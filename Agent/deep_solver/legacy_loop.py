@@ -268,49 +268,24 @@ def _filter_tools_for_deep(tools: List[BaseTool]) -> List[BaseTool]:
             continue
         kept.append(t)
     return kept
-_SUBAGENT_ASYNC_JOBS: Dict[str, Dict[str, Any]] = {}
-_SUBAGENT_ASYNC_LOCK = threading.Lock()
-
 def _start_subagent_async(sub_task: str, tools: List[BaseTool], project_context: str, bridge: Any) -> str:
-    token = f'sub_{uuid.uuid4().hex[:10]}'
-    ev = threading.Event()
-    with _SUBAGENT_ASYNC_LOCK:
-        _SUBAGENT_ASYNC_JOBS[token] = {'status': 'running', 'result': None, 'error': None, 'event': ev}
+    """Delegate to the shared ``subagent_runner`` (F5/subagent-deep-unify).
 
-    def _worker() -> None:
-        try:
-            r = _run_subagent(sub_task, tools, project_context, bridge)
-            with _SUBAGENT_ASYNC_LOCK:
-                if token in _SUBAGENT_ASYNC_JOBS:
-                    _SUBAGENT_ASYNC_JOBS[token]['result'] = r
-                    _SUBAGENT_ASYNC_JOBS[token]['status'] = 'done'
-        except Exception as e:
-            with _SUBAGENT_ASYNC_LOCK:
-                if token in _SUBAGENT_ASYNC_JOBS:
-                    _SUBAGENT_ASYNC_JOBS[token]['error'] = str(e)
-                    _SUBAGENT_ASYNC_JOBS[token]['status'] = 'error'
-        finally:
-            with _SUBAGENT_ASYNC_LOCK:
-                if token in _SUBAGENT_ASYNC_JOBS:
-                    _SUBAGENT_ASYNC_JOBS[token]['event'].set()
-    threading.Thread(target=_worker, name=f'deep-subagent-{token}', daemon=True).start()
-    return token
+    Deep used to keep its own copy of the job registry / worker thread here
+    (``_SUBAGENT_ASYNC_JOBS`` + ``_run_subagent``) — same Creator-mode job as
+    ``Agent/tools/subagent_tools.py`` uses for Agent/Brainer/Research, just
+    duplicated, which also meant Deep's sub-agents never showed up in the
+    shared job registry (e.g. for the "Активные агенты" tree / concurrency cap).
+    """
+    from Agent.subagent_runner import spawn
+
+    return spawn(sub_task, mode="creator", parent_id="deep", tools=tools,
+                 project_context=project_context, bridge=bridge)
 
 def _join_subagent(token: str, wait_seconds: float) -> Dict[str, Any]:
-    with _SUBAGENT_ASYNC_LOCK:
-        j = _SUBAGENT_ASYNC_JOBS.get(token)
-    if not j:
-        return {'ok': False, 'error': 'unknown_subagent_token', 'token': token}
-    if wait_seconds and wait_seconds > 0:
-        j['event'].wait(timeout=float(wait_seconds))
-    with _SUBAGENT_ASYNC_LOCK:
-        j2 = dict(_SUBAGENT_ASYNC_JOBS.get(token) or {})
-    st = j2.get('status')
-    if st == 'running':
-        return {'ok': True, 'status': 'running', 'token': token, 'hint': 'Повтори get_subagent_result с wait_seconds > 0.'}
-    if st == 'error':
-        return {'ok': False, 'error': j2.get('error'), 'token': token}
-    return {'ok': True, 'status': 'done', 'data': j2.get('result'), 'token': token}
+    from Agent.subagent_runner import get_result
+
+    return get_result(token, wait_seconds)
 
 def _build_deep_extra_tools() -> List[BaseTool]:
     from langchain_core.tools import tool
@@ -338,44 +313,15 @@ def _build_deep_extra_tools() -> List[BaseTool]:
     return [deep_checkpoint, spawn_subagent, get_subagent_result, deep_final_done]
 
 def _read_brain_context(max_chars: int = 6000) -> str:
-    """Читает project_brain/*.md и возвращает сжатый текст для инъекции в промпт."""
+    """Читает project_brain/*.md и возвращает сжатый текст для инъекции в промпт.
+
+    Тонкая обёртка над единой реализацией ``project_brain.read_brain_context``
+    (см. P1-2) — раньше здесь была вторая почти идентичная копия логики.
+    """
     try:
-        try:
-            from Agent.path_utils import get_project_root
-        except ImportError:
-            from pathlib import Path
-            get_project_root = lambda: Path.cwd()
-        root = get_project_root()
-        brain_dir = root / "project_brain"
-        if not brain_dir.is_dir():
-            return ""
-        priority = ["overview.md", "architecture.md", "agent_architecture.md", "modules.md"]
-        files = []
-        for name in priority:
-            p = brain_dir / name
-            if p.is_file():
-                files.append(p)
-        for p in sorted(brain_dir.glob("*.md")):
-            if p not in files:
-                files.append(p)
-        parts = []
-        total = 0
-        for fp in files:
-            try:
-                text = fp.read_text(encoding="utf-8", errors="replace").strip()
-                if not text:
-                    continue
-                chunk = f"## {fp.name}\n{text}"
-                if total + len(chunk) > max_chars:
-                    remaining = max_chars - total
-                    if remaining > 200:
-                        parts.append(chunk[:remaining] + "\n… (обрезано)")
-                    break
-                parts.append(chunk)
-                total += len(chunk)
-            except Exception:
-                continue
-        return "\n\n".join(parts)
+        from Agent.project_brain import read_brain_context
+
+        return read_brain_context(max_chars=max_chars)
     except Exception:
         return ""
 
@@ -428,6 +374,12 @@ def run_deep_solver(task: str, tools: List[BaseTool], bridge: Any, project_conte
     conversation: List[Any] = [SystemMessage(content=system_prompt)]
     if project_context:
         conversation.append(SystemMessage(content='### Контекст проекта\n' + str(project_context)[:4000]))
+    try:
+        from Agent.project_brain import bootstrap_project_brain
+
+        bootstrap_project_brain()
+    except Exception:
+        pass
     brain_ctx = _read_brain_context()
     if brain_ctx:
         conversation.append(SystemMessage(content='### Project Brain (база знаний проекта)\nИспользуй эти знания как основу. Обновляй через `project_brain_tool` action=write_brain.\n\n' + brain_ctx))
@@ -721,27 +673,17 @@ def run_deep_solver(task: str, tools: List[BaseTool], bridge: Any, project_conte
                 final_report = f'Сессия прервана из-за ошибки LLM; итог по сводке недоступен. Первая ошибка: {llm_fail_reason[:800]}. Ошибка при запросе итога: {e}'
             else:
                 final_report = f"Остановлен ({('пользователь' if stopped_by_user else 'лимит')}). Сводка недоступна: {e}"
-    return f'⏱ Время работы Deep Solver: {total_elapsed}\n\n' + final_report
+    try:
+        from Agent.project_brain.agent_architecture import write_brain_markdown, reindex_brain_rag
 
-def _run_subagent(sub_task: str, tools: List[BaseTool], project_context: str, bridge: Any) -> Dict[str, Any]:
-    try:
-        try:
-            from .creator_mode import run_creator_mode
-            from .creator_summary import format_creator_summary_text
-        except ImportError:
-            from Agent.creator_mode import run_creator_mode
-            from Agent.creator_summary import format_creator_summary_text
-    except Exception as e:
-        return {'ok': False, 'error': f'creator_mode unavailable: {e}'}
-    try:
-        bridge.on_info(f'🧩 Sub-agent: {sub_task[:80]}')
+        report_body = final_report.strip()
+        if facts:
+            report_body += "\n\n### Накопленные факты\n" + "\n".join(f"- {f}" for f in facts[-_MAX_FACTS:])
+        write_brain_markdown(None, "agent/deep_report.md", f"**Задача:** {task.strip()[:300]}\n\n{report_body}")
+        reindex_brain_rag(None)
     except Exception:
         pass
-    try:
-        res = run_creator_mode(task=sub_task, tools=tools, project_context=project_context, depth=1, parent_worker_id='deep')
-        return {'ok': True, 'summary': format_creator_summary_text(res), 'status': res.get('status') if isinstance(res, dict) else None}
-    except Exception as e:
-        return {'ok': False, 'error': str(e)}
+    return f'⏱ Время работы Deep Solver: {total_elapsed}\n\n' + final_report
 
 def apply_checkpoint_action(cp_id: str, action: str, messages: List[Any], enhanced_system_prompt: str, session_id: str, bridge: Any) -> Dict[str, Any]:
     entry = get_checkpoint(cp_id)

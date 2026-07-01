@@ -61,7 +61,7 @@ try:
     )
 except ImportError:
     APP_DISPLAY_NAME = "Lorne"
-    APP_VERSION = "0.98"
+    APP_VERSION = "0.99"
     APP_FULL_VERSION_LABEL = f"v{APP_VERSION}"
     APP_CLI_SUBTITLE = "Terminal coding assistant"
 
@@ -375,7 +375,7 @@ def display_agent_action(step_num: int, name: str, args: Dict[str, Any]) -> None
         args_str = json.dumps(short_args, ensure_ascii=False, indent=2)
         _aa = _cli_p()
         tool_text = Text()
-        tool_text.append("⚡ ", style="yellow")
+        tool_text.append("", style="yellow")
         tool_text.append(name, style="bold magenta")
 
         panel_content = Text(args_str, style="dim")
@@ -764,7 +764,7 @@ def _display_list_files_result(result: Dict[str, Any]) -> None:
         for e in entries[:40]:
             n = e.get("name", "") if isinstance(e, dict) else str(e)
             t = e.get("type", "") if isinstance(e, dict) else ""
-            icon = "📁" if t == "dir" else "📄"
+            icon = "▦" if t == "dir" else "□"
             items.append(f"{icon} {n}")
         cols = Columns(items, padding=(0, 3), equal=False)
         _lv = _cli_p()
@@ -1182,9 +1182,9 @@ def display_model_selector(models: list, current_model: str) -> None:
 
     tier_config = {
         "free":  ("🆓", "Бесплатные", "green"),
-        "cheap": ("💰", "Доступные",  "yellow"),
-        "paid":  ("💎", "Премиум",    "magenta"),
-        "pro":   ("👑", "Про",        "cyan"),
+        "cheap": ("$", "Доступные",  "yellow"),
+        "paid":  ("•", "Премиум",    "magenta"),
+        "pro":   ("★", "Про",        "cyan"),
     }
 
     _tp = _cli_p()
@@ -1232,7 +1232,7 @@ def display_status_panel(
     if bridge:
         bridge.on_info(f"Модель: {model_name} ({profile})")
         bridge.on_info(f"Контекст: {context_limit:,} токенов")
-        bridge.on_info(f"Сообщения: 👤 {human_count}  🤖 {ai_count}  🔧 {tool_count}  Σ {total}")
+        bridge.on_info(f"Сообщения: ○ {human_count}  ● {ai_count}  ⚙ {tool_count}  Σ {total}")
         return
 
     if not HAS_RICH:
@@ -1258,9 +1258,9 @@ def display_status_panel(
         f"  [dim]Профиль:[/dim]  [bold]{profile}[/bold]\n"
         f"  [dim]Контекст:[/dim] [bold]{context_limit:,}[/bold] токенов\n\n"
         f"  [dim]Сообщения:[/dim]\n"
-        f"    [cyan]👤[/cyan] Пользователь  [bold]{human_count}[/bold]\n"
-        f"    [green]🤖[/green] Ассистент      [bold]{ai_count}[/bold]\n"
-        f"    [magenta]🔧[/magenta] Инструменты    [bold]{tool_count}[/bold]\n"
+        f"    [cyan]○[/cyan] Пользователь  [bold]{human_count}[/bold]\n"
+        f"    [green]●[/green] Ассистент      [bold]{ai_count}[/bold]\n"
+        f"    [magenta]⚙[/magenta] Инструменты    [bold]{tool_count}[/bold]\n"
         f"    [dim]━━━━━━━━━━━━━━━━━━━━[/dim]\n"
         f"    [bold]Σ  Всего           {total}[/bold]\n\n"
         f"  [dim]Заполнение контекста:[/dim] {bar}"
@@ -1818,7 +1818,7 @@ def print_thinking(thought: str = "") -> None:
         console.print(
             Panel(
                 Text(thought, style="italic cyan"),
-                title="[bold cyan]🤔 Рассуждение[/bold cyan]",
+                title="[bold cyan]? Рассуждение[/bold cyan]",
                 title_align="left",
                 border_style=_th["accent"],
                 box=box.ROUNDED,
@@ -1826,19 +1826,19 @@ def print_thinking(thought: str = "") -> None:
             )
         )
     else:
-        print(f"\n{CYAN}🤔 Рассуждение:{RESET}")
+        print(f"\n{CYAN}? Рассуждение:{RESET}")
         print(f"   {thought}")
 
 
 def print_planning(task: str) -> None:
     bridge = _get_tui_bridge()
     if bridge:
-        bridge.on_info(f"📋 Planning: {_truncate(task, 100)}")
+        bridge.on_info(f"▤ Planning: {_truncate(task, 100)}")
         return
     if HAS_RICH:
-        console.print(f"\n[dim]  📋 Составляю план:[/dim] [bold]{_truncate(task, 100)}[/bold]")
+        console.print(f"\n[dim]  ▤ Составляю план:[/dim] [bold]{_truncate(task, 100)}[/bold]")
     else:
-        print(f"\n   📋 Составляю план: {_truncate(task, 100)}")
+        print(f"\n   ▤ Составляю план: {_truncate(task, 100)}")
 
 
 def print_deep_cli_session_banner(model: str, ctx_limit: int) -> None:
@@ -1860,7 +1860,7 @@ def print_deep_cli_session_banner(model: str, ctx_limit: int) -> None:
     console.print(
         Panel(
             body,
-            title="[bold]🧠 Deep Solver — что происходит[/bold]",
+            title="[bold]◐ Deep Solver — что происходит[/bold]",
             title_align="left",
             border_style=pal["accent"],
             box=box.HEAVY,
@@ -1917,7 +1917,7 @@ def print_deep_cli_checkpoint(
     console.print(
         Panel(
             body,
-            title=f"[bold]🧩 Чекпоинт #{index} · {title}[/bold]  {sub}",
+            title=f"[bold]◆ Чекпоинт #{index} · {title}[/bold]  {sub}",
             title_align="left",
             border_style=pal.get("green", "green"),
             box=box.ROUNDED,
@@ -2203,7 +2203,7 @@ def display_enhanced_status(
     if bridge:
         bridge.on_info(f"Модель: {model_name} ({profile})")
         bridge.on_info(f"Контекст: {context_limit:,} токенов")
-        bridge.on_info(f"Сообщения: 👤 {human_count}  🤖 {ai_count}  🔧 {tool_count}  Σ {total}")
+        bridge.on_info(f"Сообщения: ○ {human_count}  ● {ai_count}  ⚙ {tool_count}  Σ {total}")
         if rag_stats and rag_stats.get("chunks"):
             bridge.on_info(f"RAG: {rag_stats['chunks']:,} чанков, {rag_stats['files']} файлов")
         if creator_active:
@@ -2243,9 +2243,9 @@ def display_enhanced_status(
         f"  [dim]Профиль:[/dim]  [bold]{profile}[/bold]\n"
         f"  [dim]Контекст:[/dim] [bold]{context_limit:,}[/bold] токенов\n\n"
         f"  [dim]Сообщения:[/dim]\n"
-        f"    [cyan]👤[/cyan] Пользователь  [bold]{human_count}[/bold]\n"
-        f"    [green]🤖[/green] Ассистент      [bold]{ai_count}[/bold]\n"
-        f"    [magenta]🔧[/magenta] Инструменты    [bold]{tool_count}[/bold]\n"
+        f"    [cyan]○[/cyan] Пользователь  [bold]{human_count}[/bold]\n"
+        f"    [green]●[/green] Ассистент      [bold]{ai_count}[/bold]\n"
+        f"    [magenta]⚙[/magenta] Инструменты    [bold]{tool_count}[/bold]\n"
         f"    [dim]━━━━━━━━━━━━━━━━━━━━[/dim]\n"
         f"    [bold]Σ  Всего           {total}[/bold]\n\n"
         f"  [dim]Заполнение контекста:[/dim] {bar}"
@@ -2320,7 +2320,7 @@ def suggest_command(user_input: str) -> Optional[str]:
         "/balance", "/credits", "/compact", "/versions", "/rollback",
         "/agent", "/custom", "/creator", "/ls", "/tree", "/rag",
         "/mode", "/normal", "/agentmode", "/deepmode", "/deep", "/creatormode", "/researchmode",
-        "/research", "/ollama", "/deepcp", "/stop",
+        "/research", "/ollama", "/lmstudio", "/deepcp", "/stop",
     ]
 
     cmd = user_input.split()[0].lower()

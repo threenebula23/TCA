@@ -1,0 +1,36 @@
+{
+  "module_name": "Agent.tools.interactive",
+  "module_purpose": "Интерактивные инструменты: запрос ввода у пользователя в терминале.",
+  "responsibilities": [
+    "Интерактивные инструменты: запрос ввода у пользователя в терминале."
+  ],
+  "public_api": [
+    {
+      "name": "ask_user",
+      "description": "Спросить пользователя в терминале. Выводит question и возвращает ответ пользователя. Используй для подтверждения действий (например, запуск команды), выбора варианта или уточнения."
+    }
+  ],
+  "dependencies": [
+    "Interface.tui_bridge",
+    "langchain_core.tools",
+    "sys",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "Agent/tools/__init__.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/interactive.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

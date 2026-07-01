@@ -82,7 +82,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
             start = result.get("start_line") or result.get("start") or result.get("offset")
             end = result.get("end_line") or result.get("end")
             showing = result.get("showing") or ""
-            headline = f"📖 {Path(fn).name}"
+            headline = f"▤ {Path(fn).name}"
             bits = [fn]
             if showing:
                 bits.append(showing)
@@ -102,7 +102,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
                 or result.get("items")
                 or []
             )
-            headline = f"🗂 {fn}"
+            headline = f"▤ {fn}"
             meta = f"{len(items)} записей"
             if isinstance(items, list):
                 preview = items[:40]
@@ -133,7 +133,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
                 or result.get("hits")
                 or []
             )
-            headline = f"🔎 {q or tool_name}"
+            headline = f"◎ {q or tool_name}"
             meta = f"{len(matches)} совпадений"
             if isinstance(matches, list):
                 lines = []
@@ -150,7 +150,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
         elif tool_name == "find_in_file":
             fp = str(result.get("file_path") or result.get("path") or "?")
             matches = result.get("matches") or []
-            headline = f"📌 {Path(fp).name}"
+            headline = f"▪ {Path(fp).name}"
             meta = fp
             if isinstance(matches, list):
                 body = "\n".join(
@@ -161,7 +161,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
         elif tool_name == "rag_search":
             q = str(result.get("query") or "")
             hits = result.get("results") or result.get("hits") or []
-            headline = f"🧠 RAG · {q[:56]}"
+            headline = f"◐ RAG · {q[:56]}"
             meta = f"{len(hits)} хитов  ·  index≈{result.get('index_size', '?')} чанков"
             if isinstance(hits, list):
                 lines = []
@@ -177,7 +177,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
 
         elif tool_name == "reasoning_tool":
             act = str(result.get("action") or "")
-            headline = f"💭 {act or 'reasoning'}"
+            headline = f"· {act or 'reasoning'}"
             if act == "think" or "thought" in result:
                 body = str(result.get("thought") or result.get("content") or "")[:4000]
             elif act in ("diff", "show_diff"):
@@ -189,16 +189,16 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
 
         elif tool_name == "git_ops":
             act = str(result.get("action") or "")
-            headline = f"📎 git {act or 'ops'}"
+            headline = f"▪ git {act or 'ops'}"
             body = json.dumps(result, ensure_ascii=False, default=str)[:3500]
 
         elif tool_name == "library_context":
-            headline = "📚 Library"
+            headline = "▤ Library"
             meta = str(result.get("library_name") or result.get("library") or "")
             body = str(result.get("content") or result.get("text") or result.get("docs") or "")[:4000]
 
         elif tool_name == "project_brain_tool":
-            headline = "🧩 Project brain"
+            headline = "◆ Project brain"
             if result.get("ok"):
                 n = result.get("brain_chunks_indexed")
                 wn = len(result.get("written") or [])
@@ -215,17 +215,17 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
             )[:3500]
 
         elif tool_name == "file_versions_tool":
-            headline = "📜 Версии файла"
+            headline = "▤ Версии файла"
             meta = str(result.get("path") or "")
             body = json.dumps(result, ensure_ascii=False, default=str)[:3500]
 
         elif tool_name == "get_file_line_count":
-            headline = f"📏 {Path(str(result.get('path') or '?')).name}"
+            headline = f"▪ {Path(str(result.get('path') or '?')).name}"
             meta = str(result.get("path") or "")
             body = f"строк: {result.get('line_count', result.get('lines', '?'))}"
 
         elif tool_name == "run_package_script":
-            headline = "📦 npm/pnpm"
+            headline = "◇ npm/pnpm"
             meta = str(result.get("script") or result.get("command") or "")
             body = str(result.get("stdout") or result.get("output") or "")[:2500]
 
@@ -235,26 +235,26 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
             body = str(result.get("path") or result.get("dest") or "")[:500]
 
         elif tool_name in ("ocr_tool", "ocr_read_file_soft", "ocr_read_image_medium", "ocr_read_photo_strong"):
-            headline = "👁 OCR"
+            headline = "○ OCR"
             body = str(result.get("text") or result.get("content") or json.dumps(result, default=str))[:4000]
 
         elif tool_name == "office_document_read":
-            headline = "📄 Office read"
+            headline = "□ Office read"
             meta = str(result.get("path") or result.get("file_path") or "")
             body = str(result.get("text") or result.get("content") or "")[:4000]
 
         elif tool_name in ("docx_write_tool", "docxedit_tool", "docx_document_advanced_ops"):
-            headline = f"📝 {tool_name.replace('_', ' ')}"
+            headline = f"✎ {tool_name.replace('_', ' ')}"
             meta = str(result.get("file_path") or result.get("path") or "")
             body = json.dumps(result, ensure_ascii=False, default=str)[:3500]
 
         elif tool_name in ("pdf_styled_document_create", "create_pdf"):
-            headline = "📕 PDF"
+            headline = "▤ PDF"
             meta = str(result.get("path") or result.get("file_path") or "")
             body = json.dumps(result, ensure_ascii=False, default=str)[:2000]
 
         elif tool_name in ("headless_browser", "playwright_sync"):
-            headline = f"🌍 {tool_name}"
+            headline = f"◯ {tool_name}"
             meta = str(result.get("url") or "")
             body = json.dumps(result, ensure_ascii=False, default=str)[:3000]
 
@@ -267,15 +267,15 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
             body = json.dumps(result, ensure_ascii=False, default=str)[:2000]
 
         elif tool_name == "code_interpreter":
-            headline = "🐍 code_interpreter"
+            headline = "• code_interpreter"
             body = str(result.get("output") or result.get("stdout") or result.get("result") or "")[:4000]
 
         elif tool_name == "load_plan":
-            headline = "📋 План (load)"
+            headline = "▤ План (load)"
             body = json.dumps(result, ensure_ascii=False, default=str)[:3000]
 
         elif tool_name in ("save_plan", "update_plan", "clear_plan"):
-            headline = f"📋 {tool_name}"
+            headline = f"▤ {tool_name}"
             body = json.dumps(result, ensure_ascii=False, default=str)[:3000]
 
         elif tool_name in ("run_command", "terminal_run", "run_python", "execute_code"):
@@ -306,7 +306,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
         elif tool_name in ("web_search", "web_search_and_read"):
             q = str(result.get("query") or "")
             results = result.get("results") or []
-            headline = f"🌐 {q[:60]}"
+            headline = f"◯ {q[:60]}"
             meta = f"{len(results)} результатов"
             if isinstance(results, list):
                 lines = []
@@ -320,7 +320,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
         elif tool_name == "web_fetch":
             url = str(result.get("url") or "")
             title = str(result.get("title") or "")
-            headline = f"🌐 {title or url[:60]}"
+            headline = f"◯ {title or url[:60]}"
             meta = url
             body = str(result.get("content") or result.get("text") or "")[:2000]
 
@@ -333,7 +333,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
             body = f"action: {action}"
 
         else:
-            headline = f"🔧 {tool_name}"
+            headline = f"⚙ {tool_name}"
             meta = ", ".join(str(k) for k in list(result.keys())[:10])
             try:
                 body = json.dumps(result, ensure_ascii=False, default=str)[:4000]
@@ -361,7 +361,7 @@ def _summarize(tool_name: str, result: Any) -> Dict[str, str]:
 
 def _plan_card_summary(result: Any) -> Dict[str, str]:
     """Build headline/meta/body for :class:`PlanToolCardBlock`."""
-    headline = "📋 План"
+    headline = "▤ План"
     meta = ""
     body = ""
 

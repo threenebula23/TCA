@@ -1,0 +1,32 @@
+{
+  "module_name": "Interface.session_picker_screen",
+  "module_purpose": "Модальный экран: выбрать существующий чат, новый или удалить.",
+  "responsibilities": [
+    "Модальный экран: выбрать существующий чат, новый или удалить."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "Interface.modal_style",
+    "__future__",
+    "datetime",
+    "textual",
+    "textual.app",
+    "textual.containers",
+    "textual.screen",
+    "textual.widgets",
+    "typing"
+  ],
+  "used_by": [
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/session_picker_screen.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

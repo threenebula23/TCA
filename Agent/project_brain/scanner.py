@@ -14,9 +14,63 @@ _SKIP_DIR_PARTS = frozenset({
 
 _ENTRY_NAMES = frozenset({"__main__.py", "main.py", "lorne.py", "tca.py", "cli.py"})
 
+_TS_JS_EXPORT_RE = re.compile(
+    r"^\s*export\s+(?:default\s+)?(?:async\s+)?(?:function|class|const|let|var)\s+([A-Za-z_$][\w$]*)",
+    re.MULTILINE,
+)
+_TS_JS_IMPORT_RE = re.compile(
+    r"""(?:import\s+(?:[\w${},*\s]+\s+from\s+)?|require\()\s*['"]([^'"]+)['"]""",
+)
+_TS_JS_MAX_FILES = 300
+
 
 def _should_skip(path: Path) -> bool:
     return any(p in _SKIP_DIR_PARTS for p in path.parts)
+
+
+def _scan_ts_js(root: Path) -> List[Dict[str, Any]]:
+    """Regex-heuristic scan for ``.ts``/``.tsx``/``.js``/``.jsx`` (no full parser/tree-sitter).
+
+    Extracts top-level exported symbols and import specifiers so
+    ``project_brain`` isn't limited to Python repos; entries share the same
+    shape as the Python scan (``path``, ``module_id``, ``functions``,
+    ``import_targets``) so ``context_builder`` handles them without changes.
+    """
+    out: List[Dict[str, Any]] = []
+    files: List[Path] = []
+    for pat in ("*.ts", "*.tsx", "*.js", "*.jsx"):
+        for fp in root.rglob(pat):
+            if _should_skip(fp):
+                continue
+            files.append(fp)
+    for fp in sorted(files)[:_TS_JS_MAX_FILES]:
+        try:
+            rel = str(fp.relative_to(root))
+        except ValueError:
+            rel = str(fp)
+        try:
+            text = fp.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        exports = [
+            {"name": m.group(1), "description": ""}
+            for m in _TS_JS_EXPORT_RE.finditer(text)
+        ][:60]
+        imports = sorted({m.group(1) for m in _TS_JS_IMPORT_RE.finditer(text)})[:80]
+        mid = rel.replace("\\", "/").rsplit(".", 1)[0].replace("/", ".")
+        out.append(
+            {
+                "path": rel,
+                "module_id": mid,
+                "module_doc": "",
+                "functions": exports,
+                "imports": sorted({i.split("/")[0] for i in imports if i}),
+                "import_targets": imports,
+                "api_hints": [],
+                "used_by": [],
+            },
+        )
+    return out
 
 
 def _module_id_from_rel(rel: str) -> str:
@@ -158,6 +212,8 @@ def scan_project(root: Path) -> Dict[str, Any]:
                     if p != m.get("path"):
                         acc.add(p)
         m["used_by"] = sorted(acc)[:40]
+
+    modules.extend(_scan_ts_js(root))
 
     return {
         "project_name": root.name,

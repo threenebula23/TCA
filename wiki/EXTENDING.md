@@ -12,7 +12,7 @@
 
 ## Режимы и промпты
 
-Фрагменты режимов: `Agent/prompts/__init__.py` (`_MODE_ADDONS`). Системный текст: `Agent/system_promt.py`.
+Фрагменты режимов: `Agent/prompts/<mode>.md` (фолбэк `_MODE_ADDONS_FALLBACK` в `Agent/prompts/__init__.py`). Общий системный текст: `Agent/system_prompt.py` (`SYSTEM_PROMPT` для сессии, `WORKER_SYSTEM_PROMPT` для воркеров Creator). Правила по Project Brain (общие для всех режимов): `Agent/prompts/project_brain_rules.py`; политика по режиму (что индексировать/писать/дебаунсить): `Agent/project_brain/policy.py`.
 
 ## Creator
 

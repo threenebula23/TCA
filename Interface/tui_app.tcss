@@ -70,6 +70,15 @@ Header {
     background: #DC2626;
 }
 
+#top-bar-badge {
+    height: 1;
+    width: 1fr;
+    color: #A78BFA;
+    text-style: bold;
+    content-align: right middle;
+    padding: 0 2 0 0;
+}
+
 #top-model-label {
     height: 1;
     color: #A78BFA;
@@ -97,6 +106,12 @@ Header {
     min-width: 40;
     padding: 0 1;
     text-align: right;
+}
+#vi-mode-indicator.vi-inactive {
+    /* Focus is on a widget without vi keybindings (chat, settings, explorer,
+       terminal) — dim the indicator so it doesn't imply vi keys are active. */
+    color: #4B5563;
+    text-style: dim;
 }
 
 /* ─── Main 3-Column Layout ──────────────────────── */
@@ -752,7 +767,7 @@ FilteredDirectoryTree > .tree--highlight {
     height: auto;
     max-height: 40;
     background: #0D0D0D;
-    padding: 1;
+    padding: 0 1 1 1;
 }
 
 #chat-input {

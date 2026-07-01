@@ -1,0 +1,33 @@
+{
+  "module_name": "Agent.prompts",
+  "module_purpose": "Per-mode system prompt fragments for Lorne v1.0.",
+  "responsibilities": [
+    "Per-mode system prompt fragments for Lorne v1.0."
+  ],
+  "public_api": [
+    {
+      "name": "mode_prompt_addon",
+      "description": "Return system prompt fragment for *mode* slug, or empty string."
+    }
+  ],
+  "dependencies": [
+    "__future__",
+    "pathlib",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_classic.py",
+    "Agent/agent/_impl_prepare.py",
+    "Agent/agent/_impl_tui.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/prompts/__init__.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

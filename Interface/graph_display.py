@@ -38,7 +38,7 @@ BLUE = "\033[34m"
 # Статус-иконки
 _STATUS_ICONS = {
     "idle": ("○", "dim"),
-    "planning": ("📋", "yellow"),
+    "planning": ("▤", "yellow"),
     "working": ("▶", "cyan"),
     "done": ("✓", "green"),
     "error": ("✗", "red"),
@@ -204,7 +204,7 @@ def build_graph_renderable(
     total = len(workers)
 
     # Заголовок оркестратора
-    phase_icon = {"planning": "📋", "working": "⚡", "done": "✓", "error": "✗"}.get(phase, "●")
+    phase_icon = {"planning": "▤", "working": "", "done": "✓", "error": "✗"}.get(phase, "●")
     task_short = main_task[:70] + "…" if len(main_task) > 70 else main_task
 
     header_lines = [
@@ -240,7 +240,7 @@ def build_graph_renderable(
 
     return Panel(
         body,
-        title="[bold white]⚡ Creator Orchestrator[/bold white]",
+        title="[bold white]Creator Orchestrator[/bold white]",
         title_align="left",
         border_style=border_color,
         box=box.DOUBLE,
@@ -373,7 +373,7 @@ def display_creator_result(workers: List[WorkerInfo], main_task: str, elapsed: f
         console = Console()
 
         table = Table(
-            title="[bold]⚡ Creator Mode — Результат[/bold]",
+            title="[bold]Creator Mode — Результат[/bold]",
             box=box.ROUNDED,
             border_style="green",
             padding=(0, 1),

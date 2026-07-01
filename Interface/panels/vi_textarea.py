@@ -52,6 +52,17 @@ _STATUS_HINTS: dict[str, str] = {
 }
 
 
+class _FakeKeyEvent:
+    """No-op stand-in for ``textual.events.Key`` used when replaying a
+    recorded command (e.g. ``.`` repeat) outside of real key dispatch."""
+
+    def stop(self) -> None:
+        pass
+
+    def prevent_default(self) -> None:
+        pass
+
+
 class ViModeChanged(Message):
     """Emitted when the vi mode changes."""
 
@@ -144,7 +155,13 @@ class ViTextArea(Vertical):
         self._ft_char: str = ""
         self._ft_dir: int = 1
         self._ft_inclusive: bool = True
-        self._last_change: Optional[str] = None
+        # "." repeat-last-change support. ``_last_change`` is either:
+        #   ("simple", name, count, extra)  -- a one-shot normal-mode edit
+        #   ("insert", action, count, text) -- an edit that entered INSERT
+        self._last_change: Optional[tuple] = None
+        self._recording_insert: bool = False
+        self._pending_repeat_action: Optional[tuple] = None
+        self._insert_buffer: list[str] = []
 
     def compose(self) -> ComposeResult:
         ta = ViEditorArea(
@@ -161,7 +178,7 @@ class ViTextArea(Vertical):
         except Exception:
             pass
 
-    def _set_mode(self, mode: ViMode) -> None:
+    def _set_mode(self, mode: ViMode, prefix: str = ":") -> None:
         prev = self._vi_mode
         self._vi_mode = mode
         self._pending_op = ""
@@ -170,7 +187,7 @@ class ViTextArea(Vertical):
             cmd_input = self.query_one("#vi-command-input", Input)
             if mode == "command":
                 cmd_input.add_class("visible")
-                cmd_input.value = ":"
+                cmd_input.value = prefix
                 cmd_input.focus()
             else:
                 cmd_input.remove_class("visible")
@@ -259,6 +276,7 @@ class ViTextArea(Vertical):
             return
         if key in ("escape", "ctrl+["):
             event.stop()
+            self._finish_insert_recording()
             self._set_mode("normal")
         elif key == "ctrl+w":
             event.stop()
@@ -266,6 +284,33 @@ class ViTextArea(Vertical):
         elif key == "ctrl+u":
             event.stop()
             self._delete_to_line_start(ta)
+        elif self._recording_insert:
+            # Capture what gets typed so "." can replay this insertion later.
+            if key == "enter":
+                self._insert_buffer.append("\n")
+            elif key == "backspace":
+                if self._insert_buffer:
+                    self._insert_buffer.pop()
+            elif char and char.isprintable():
+                self._insert_buffer.append(char)
+
+    def _start_insert_recording(self, action: str, count: int = 1) -> None:
+        """Begin capturing keystrokes typed in INSERT mode for ``.`` repeat."""
+        self._recording_insert = True
+        self._pending_repeat_action = (action, count)
+        self._insert_buffer = []
+
+    def _finish_insert_recording(self) -> None:
+        if self._recording_insert and self._pending_repeat_action:
+            action, count = self._pending_repeat_action
+            self._last_change = ("insert", action, count, "".join(self._insert_buffer))
+        self._recording_insert = False
+        self._pending_repeat_action = None
+        self._insert_buffer = []
+
+    def _record_simple_change(self, name: str, count: int = 1, extra: str = "") -> None:
+        """Record a one-shot (non-INSERT) edit for ``.`` repeat."""
+        self._last_change = ("simple", name, count, extra)
 
     def _handle_normal_key(self, event: Key, key: str, char: str) -> None:
         ta = self._textarea
@@ -286,21 +331,27 @@ class ViTextArea(Vertical):
         event.stop()
 
         if char == "i":
+            self._start_insert_recording("i", count)
             self._set_mode("insert")
         elif char == "I":
             self._move_first_nonblank(ta)
+            self._start_insert_recording("I", count)
             self._set_mode("insert")
         elif char == "a":
             self._move_right(ta, 1)
+            self._start_insert_recording("a", count)
             self._set_mode("insert")
         elif char == "A":
             self._move_line_end(ta)
+            self._start_insert_recording("A", count)
             self._set_mode("insert")
         elif char == "o":
             self._open_line_below(ta)
+            self._start_insert_recording("o", count)
             self._set_mode("insert")
         elif char == "O":
             self._open_line_above(ta)
+            self._start_insert_recording("O", count)
             self._set_mode("insert")
         elif char == "v":
             try:
@@ -319,13 +370,21 @@ class ViTextArea(Vertical):
         elif key == "ctrl+leftbracket":
             self._set_mode("normal")
 
-        elif char in ("h", "") or key == "left":
+        elif key == "ctrl+f":
+            self._page_down(ta, count)
+        elif key == "ctrl+b":
+            self._page_up(ta, count)
+        elif key == "ctrl+d":
+            self._half_page_down(ta, count)
+        elif key == "ctrl+u":
+            self._half_page_up(ta, count)
+        elif char == "h" or key == "left":
             self._move_left(ta, count)
-        elif char in ("l", "") or key == "right":
+        elif char == "l" or key == "right":
             self._move_right(ta, count)
-        elif char in ("j", "") or key == "down":
+        elif char == "j" or key == "down":
             self._move_down(ta, count)
-        elif char in ("k", "") or key == "up":
+        elif char == "k" or key == "up":
             self._move_up(ta, count)
         elif char == "w":
             self._move_word_forward(ta, count)
@@ -348,37 +407,36 @@ class ViTextArea(Vertical):
                 self._goto_line(ta, count)
             else:
                 self._goto_file_end(ta)
-        elif key == "ctrl+f":
-            self._page_down(ta, count)
-        elif key == "ctrl+b":
-            self._page_up(ta, count)
-        elif key == "ctrl+d":
-            self._half_page_down(ta, count)
-        elif key == "ctrl+u":
-            self._half_page_up(ta, count)
 
         elif char == "x":
             self._delete_char(ta, count)
+            self._record_simple_change("x", count)
         elif char == "X":
             self._delete_char_before(ta, count)
+            self._record_simple_change("X", count)
         elif char == "r":
             self._pending_op = "r"
         elif char == "R":
+            self._start_insert_recording("R", count)
             self._set_mode("insert")
         elif char == "s":
             self._delete_char(ta, 1)
+            self._start_insert_recording("s", count)
             self._set_mode("insert")
         elif char == "S":
             self._delete_line_content(ta)
+            self._start_insert_recording("S", count)
             self._set_mode("insert")
         elif char == "d":
             self._pending_op = "d"
         elif char == "D":
             self._delete_to_line_end(ta)
+            self._record_simple_change("D", count)
         elif char == "c":
             self._pending_op = "c"
         elif char == "C":
             self._delete_to_line_end(ta)
+            self._start_insert_recording("C", count)
             self._set_mode("insert")
         elif char == "y":
             self._pending_op = "y"
@@ -386,18 +444,22 @@ class ViTextArea(Vertical):
             self._yank_line_full(ta, count)
         elif char == "p":
             self._paste_after(ta)
+            self._record_simple_change("p", count)
         elif char == "P":
             self._paste_before(ta)
+            self._record_simple_change("P", count)
         elif key == "ctrl+r":
             ta.redo()
         elif char == "u":
             ta.undo()
         elif char == ".":
-            pass  # TODO: повторить последнее изменение
+            self._repeat_last_change(ta, count)
         elif char == "~":
             self._toggle_case(ta)
+            self._record_simple_change("~", count)
         elif char == "J":
             self._join_line(ta)
+            self._record_simple_change("J", count)
         elif char in (">",):
             self._pending_op = ">"
         elif char in ("<",):
@@ -414,8 +476,10 @@ class ViTextArea(Vertical):
         elif char == "%":
             self._match_bracket(ta)
 
-        elif char == "/" or char == "?":
-            self._set_mode("command")
+        elif char == "/":
+            self._set_mode("command", prefix="/")
+        elif char == "?":
+            self._set_mode("command", prefix="?")
         elif char == "n":
             self._search_next(ta)
         elif char == "N":
@@ -435,6 +499,72 @@ class ViTextArea(Vertical):
             self._pending_op = "z"
 
         self._count_str = ""
+
+    def _repeat_last_change(self, ta: TextArea, count: int) -> None:
+        """Replay the last buffer-modifying command (vi ``.``)."""
+        if not self._last_change or not ta:
+            return
+        kind = self._last_change[0]
+        if kind == "simple":
+            _, name, orig_count, extra = self._last_change
+            n = count if count > 1 else orig_count
+            self._apply_simple_change(ta, name, n, extra)
+        elif kind == "insert":
+            _, action, orig_count, text = self._last_change
+            n = count if count > 1 else orig_count
+            self._apply_insert_replay(ta, action, n, text)
+
+    def _apply_simple_change(self, ta: TextArea, name: str, count: int, extra: str = "") -> None:
+        if name == "x":
+            self._delete_char(ta, count)
+        elif name == "X":
+            self._delete_char_before(ta, count)
+        elif name == "D":
+            self._delete_to_line_end(ta)
+        elif name == "p":
+            self._paste_after(ta)
+        elif name == "P":
+            self._paste_before(ta)
+        elif name == "~":
+            for _ in range(count):
+                self._toggle_case(ta)
+        elif name == "J":
+            for _ in range(count):
+                self._join_line(ta)
+        elif name == "r" and extra:
+            self._replace_char(ta, extra)
+        elif name.startswith("d") and len(name) == 2:
+            motion = name[1]
+            self._pending_op = "d"
+            self._resolve_operator(_FakeKeyEvent(), motion, motion, ta, count)
+
+    def _apply_insert_replay(self, ta: TextArea, action: str, count: int, text: str) -> None:
+        for _ in range(max(1, count) if action in ("o", "O") else 1):
+            if action == "i":
+                pass
+            elif action == "I":
+                self._move_first_nonblank(ta)
+            elif action == "a":
+                self._move_right(ta, 1)
+            elif action == "A":
+                self._move_line_end(ta)
+            elif action == "o":
+                self._open_line_below(ta)
+            elif action == "O":
+                self._open_line_above(ta)
+            elif action == "s":
+                self._delete_char(ta, 1)
+            elif action == "S":
+                self._delete_line_content(ta)
+            elif action == "C":
+                self._delete_to_line_end(ta)
+            elif action == "R":
+                pass
+            elif action.startswith("c") and len(action) == 2:
+                self._pending_op = "c"
+                self._resolve_operator(_FakeKeyEvent(), action[1], action[1], ta, 1)
+            if text:
+                ta.insert(text)
 
     def _resolve_operator(self, event: Key, key: str, char: str, ta: TextArea, count: int) -> None:
         op = self._pending_op
@@ -470,6 +600,7 @@ class ViTextArea(Vertical):
         if op == "r":
             if char:
                 self._replace_char(ta, char)
+                self._record_simple_change("r", count, char)
             return
 
         if op in ("f", "F", "t", "T"):
@@ -502,7 +633,10 @@ class ViTextArea(Vertical):
             elif motion == "0":
                 self._op_to_line_start(ta, op)
             if op == "c":
+                self._start_insert_recording(f"c{motion}", count)
                 self._set_mode("insert")
+            elif op == "d":
+                self._record_simple_change(f"d{motion}", count)
 
     def _handle_visual_key(self, event: Key, key: str, char: str) -> None:
         ta = self._textarea
@@ -516,13 +650,13 @@ class ViTextArea(Vertical):
 
         count = self._count
 
-        if char in ("h", "") or key == "left":
+        if char == "h" or key == "left":
             self._move_left(ta, count)
-        elif char in ("l", "") or key == "right":
+        elif char == "l" or key == "right":
             self._move_right(ta, count)
-        elif char in ("j", "") or key == "down":
+        elif char == "j" or key == "down":
             self._move_down(ta, count)
-        elif char in ("k", "") or key == "up":
+        elif char == "k" or key == "up":
             self._move_up(ta, count)
         elif char == "w":
             self._move_word_forward(ta, count)
@@ -580,6 +714,9 @@ class ViTextArea(Vertical):
 
         if cmd in ("w", "write"):
             self._save_file()
+        elif cmd.startswith("w ") or cmd.startswith("write "):
+            path = cmd.split(" ", 1)[1].strip()
+            self._save_file(path)
         elif cmd in ("q", "quit"):
             self._close_tab()
         elif cmd in ("q!", "quit!"):
@@ -902,22 +1039,38 @@ class ViTextArea(Vertical):
                             ta.action_delete_right()
 
     def _op_whole_line(self, ta: TextArea, op: str, count: int) -> None:
+        if op in ("y",):
+            row, _ = ta.cursor_location
+            lines = ta.text.splitlines()
+            if row < len(lines):
+                self._yank_buf = "\n".join(lines[row:row + count])
+                self._yank_line = True
+            return
         for _ in range(count):
-            if op == "d":
+            if op in ("d", "c"):
                 ta.action_delete_line()
-            elif op == "y":
-                row, _ = ta.cursor_location
-                lines = ta.text.splitlines()
-                if row < len(lines):
-                    self._yank_buf = "\n".join(lines[row:row + count])
-                    self._yank_line = True
-                break
+        if op == "c":
+            # vim leaves an empty line behind for "cc"
+            ta.insert("\n")
+            ta.action_cursor_up()
 
     def _op_motion_word(self, ta: TextArea, op: str, count: int, big: bool) -> None:
+        if op == "y":
+            row, col = ta.cursor_location
+            text = ta.text
+            for _ in range(count):
+                ta.action_cursor_word_right()
+            end_row, end_col = ta.cursor_location
+            lines = text.splitlines() or [""]
+            if row == end_row:
+                self._yank_buf = lines[row][col:end_col]
+            else:
+                self._yank_buf = lines[row][col:]
+            self._yank_line = False
+            ta.move_cursor((row, col))
+            return
         for _ in range(count):
-            if op == "d":
-                ta.action_delete_word_right()
-            elif op == "c":
+            if op in ("d", "c"):
                 ta.action_delete_word_right()
 
     def _op_lines(self, ta: TextArea, op: str, count: int) -> None:
@@ -981,10 +1134,39 @@ class ViTextArea(Vertical):
             pass
 
     def _indent_selection(self, ta: TextArea, right: bool) -> None:
-        pass  # Сложная операция; делегируем будущей реализации
+        try:
+            start, end = ta.selection.start, ta.selection.end
+            r0, r1 = sorted((start[0], end[0]))
+            for row in range(r0, r1 + 1):
+                self._indent_line_at(ta, row, right)
+        except Exception:
+            pass
+
+    def _indent_line_at(self, ta: TextArea, row: int, right: bool) -> None:
+        lines = ta.text.splitlines()
+        if row >= len(lines):
+            return
+        if right:
+            ta.move_cursor((row, 0))
+            ta.insert("    ")
+        else:
+            line = lines[row]
+            strip = min(4, len(line) - len(line.lstrip()))
+            if strip > 0:
+                ta.move_cursor((row, 0))
+                for _ in range(strip):
+                    ta.action_delete_right()
 
     def _toggle_case_selection(self, ta: TextArea) -> None:
-        pass
+        try:
+            sel = ta.selected_text
+            if not sel:
+                return
+            swapped = sel.swapcase()
+            ta.action_delete_left()
+            ta.insert(swapped)
+        except Exception:
+            pass
 
     def _lower_selection(self, ta: TextArea) -> None:
         try:
@@ -1003,7 +1185,14 @@ class ViTextArea(Vertical):
             pass
 
     def _join_selection(self, ta: TextArea) -> None:
-        pass
+        try:
+            start, end = ta.selection.start, ta.selection.end
+            r0, r1 = sorted((start[0], end[0]))
+            ta.move_cursor((r0, 0))
+            for _ in range(max(1, r1 - r0)):
+                self._join_line(ta)
+        except Exception:
+            pass
 
     def _search_next(self, ta: TextArea) -> None:
         if self._search_pattern:
@@ -1051,7 +1240,7 @@ class ViTextArea(Vertical):
             if row < len(lines):
                 line = lines[row]
                 start = col
-                while start > 0 and line[start - 1].isalnum() or (start > 0 and line[start - 1] == "_"):
+                while start > 0 and (line[start - 1].isalnum() or line[start - 1] == "_"):
                     start -= 1
                 end = col
                 while end < len(line) and (line[end].isalnum() or line[end] == "_"):
@@ -1073,14 +1262,17 @@ class ViTextArea(Vertical):
         except Exception:
             pass
 
-    def _save_file(self) -> None:
+    def _save_file(self, path: str = "") -> None:
         try:
-            if self._filepath:
+            target = path or self._filepath
+            if target:
                 from pathlib import Path
-                Path(self._filepath).write_text(
+                Path(target).write_text(
                     self._textarea.text if self._textarea else "",
                     encoding="utf-8",
                 )
+                if path:
+                    self._filepath = path
         except Exception:
             pass
 
@@ -1109,7 +1301,21 @@ class ViTextArea(Vertical):
             pass
 
     def _handle_set(self, opts: str) -> None:
-        pass
+        ta = self._textarea
+        if not ta:
+            return
+        opt = opts.strip().lower()
+        try:
+            if opt in ("nu", "number"):
+                ta.show_line_numbers = True
+            elif opt in ("nonu", "nonumber"):
+                ta.show_line_numbers = False
+            elif opt in ("wrap",):
+                ta.soft_wrap = True
+            elif opt in ("nowrap",):
+                ta.soft_wrap = False
+        except Exception:
+            pass
 
     def _run_shell(self, cmd: str) -> None:
         try:

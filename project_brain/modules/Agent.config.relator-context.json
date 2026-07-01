@@ -1,0 +1,25 @@
+{
+  "module_name": "Agent.config",
+  "module_purpose": "Центральные настройки Lorne v0.99.",
+  "responsibilities": [
+    "Центральные настройки Lorne v0.99."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "__future__"
+  ],
+  "used_by": [
+    "Agent/message_utils/_impl_low.py",
+    "Agent/tools/web_tool.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/config.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

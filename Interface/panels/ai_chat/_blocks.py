@@ -71,6 +71,11 @@ from ._constants import PURPLE, PURPLE_LIGHT, GRAY
 from ._helpers import _syntax_theme
 from ._messages import RollbackRequested
 
+try:
+    from Interface.panels.rich_message import RichAssistantBody
+except Exception:  # pragma: no cover
+    RichAssistantBody = None  # type: ignore[misc, assignment]
+
 class AssistantMessageBlock(Vertical):
     """Ответ ассистента: Markdown + кнопка копирования + футер."""
 
@@ -81,6 +86,14 @@ class AssistantMessageBlock(Vertical):
         padding: 0 1 1 1;
         background: #12121a;
         border: round #2D2D3D;
+        border-title-color: #A78BFA;
+        border-title-style: bold;
+    }
+    AssistantMessageBlock .assistant-header {
+        height: auto;
+        margin: 0 0 1 0;
+        color: #A78BFA;
+        text-style: bold;
     }
     AssistantMessageBlock .assistant-md {
         height: auto;
@@ -90,6 +103,8 @@ class AssistantMessageBlock(Vertical):
         height: auto;
         color: #6B7280;
         margin-top: 1;
+        border-top: solid #1F1F2C;
+        padding-top: 1;
     }
     AssistantMessageBlock .copy-row {
         height: auto;
@@ -100,6 +115,7 @@ class AssistantMessageBlock(Vertical):
         min-width: 18;
         height: 3;
         content-align: center middle;
+        border: round #2D2D3D;
     }
     """
 
@@ -109,15 +125,32 @@ class AssistantMessageBlock(Vertical):
         self._footer = footer or ""
         self._copy_id = copy_id
 
+    def _accent(self) -> str:
+        try:
+            from Interface.ui_prefs import load_prefs
+            from Interface.themes import get_theme
+            prefs = load_prefs()
+            theme = get_theme(str(prefs.get("theme", "Purple Dark")))
+            return str(prefs.get("accent_color") or theme.get("accent") or PURPLE)
+        except Exception:
+            return PURPLE
+
     def compose(self) -> ComposeResult:
-        theme = _syntax_theme()
         body = (self._plain or "").strip()[:120_000]
-        if MarkdownWidget is not None:
+        accent = self._accent()
+        yield Static(
+            Text.assemble(("● ", ""), ("Lorne", f"bold {accent}"), ("  ·  ", "dim"), (time.strftime("%H:%M"), "dim")),
+            classes="assistant-header",
+        )
+        if RichAssistantBody is not None:
+            yield RichAssistantBody(body)
+        elif MarkdownWidget is not None:
             yield MarkdownWidget(body, classes="assistant-md")
         else:
+            theme = _syntax_theme()
             yield Static(Markdown(body, code_theme=theme), classes="assistant-md")
         with Horizontal(classes="copy-row"):
-            yield Button("Копировать ответ", id=f"copy-assistant-{self._copy_id}", variant="default")
+            yield Button("▤ Копировать ответ", id=f"copy-assistant-{self._copy_id}", variant="default")
         if self._footer.strip():
             yield Static(self._footer, classes="assistant-footer")
 
@@ -143,9 +176,15 @@ class UserMessageBlock(Vertical):
     UserMessageBlock {
         height: auto;
         margin: 0 0 1 0;
-        padding: 0 1;
+        padding: 0 1 1 1;
         background: #1a1528;
+        border: round #3D2D5C;
         border-left: outer #8B5CF6;
+    }
+    UserMessageBlock .user-header {
+        height: auto;
+        margin: 0 0 1 0;
+        text-style: bold;
     }
     UserMessageBlock .user-rollback-row {
         height: auto;
@@ -155,7 +194,7 @@ class UserMessageBlock(Vertical):
         min-width: 28;
         background: #1F2430;
         color: #9CA3AF;
-        border: tall #2D2D3D;
+        border: round #2D2D3D;
     }
     UserMessageBlock .user-rollback-row Button:hover {
         background: #272D3A;
@@ -168,6 +207,7 @@ class UserMessageBlock(Vertical):
         self._text = text
         self._turn_index = int(turn_index)
         self._name_static: Optional[Static] = None
+        self._timestamp = time.strftime("%H:%M")
 
     def _accent(self) -> str:
         try:
@@ -181,13 +221,16 @@ class UserMessageBlock(Vertical):
 
     def compose(self) -> ComposeResult:
         accent = self._accent()
-        self._name_static = Static(Text("Вы", style=f"bold {accent}"))
+        self._name_static = Static(
+            Text.assemble(("○ ", ""), ("Вы", f"bold {accent}"), ("  ·  ", "dim"), (self._timestamp, "dim")),
+            classes="user-header",
+        )
         yield self._name_static
         yield Static(Text(self._text, style="#E5E7EB"))
         if self._turn_index >= 0:
             with Horizontal(classes="user-rollback-row"):
                 yield Button(
-                    "Откат к состоянию до этого запроса",
+                    "↺ Откат к состоянию до этого запроса",
                     id=f"rollback-btn-{self._turn_index}",
                     variant="default",
                 )
@@ -203,7 +246,9 @@ class UserMessageBlock(Vertical):
             pass
         if self._name_static is not None:
             try:
-                self._name_static.update(Text("Вы", style=f"bold {accent}"))
+                self._name_static.update(
+                    Text.assemble(("○ ", ""), ("Вы", f"bold {accent}"), ("  ·  ", "dim"), (self._timestamp, "dim")),
+                )
             except Exception:
                 pass
 

@@ -71,7 +71,7 @@ class CodeEditorPanel(Vertical):
 
     def compose(self) -> ComposeResult:
         with Horizontal(id="editor-toolbar"):
-            yield Button("💾 Save", id="editor-save-btn", variant="default")
+            yield Button("▣ Save", id="editor-save-btn", variant="default")
             yield Button("✕ Close", id="editor-close-btn", variant="error")
         yield Vertical(id="find-overlay")
         yield TabbedContent(id="editor-tabs")
@@ -172,7 +172,7 @@ class CodeEditorPanel(Vertical):
             cells = nb_data.get("cells", []) or []
 
         tabs = self.query_one("#editor-tabs", TabbedContent)
-        pane = TabPane(f"📓 {path.name}", id=tab_id)
+        pane = TabPane(f"▤ {path.name}", id=tab_id)
         tabs.add_pane(pane)
 
         tab_num = self._tab_counter
@@ -180,7 +180,7 @@ class CodeEditorPanel(Vertical):
         pane.mount(bar)
         bar.mount(Button("+ Code", id=f"nb-add-code-{tab_num}", variant="success"))
         bar.mount(Button("+ Markdown", id=f"nb-add-md-{tab_num}", variant="default"))
-        bar.mount(Button("💾 Save", id=f"nb-save-{tab_num}", variant="warning"))
+        bar.mount(Button("▣ Save", id=f"nb-save-{tab_num}", variant="warning"))
         bar.mount(
             Button(
                 "↻ Kernel",
@@ -834,13 +834,13 @@ class CodeEditorPanel(Vertical):
             return
         from Interface.panels.file_explorer import _ContextMenuDialog
         options = [
-            ("📋 Copy Selection", "copy"),
-            ("📋 Paste", "paste"),
-            ("✂️ Cut Selection", "cut"),
-            ("🗑️ Delete Line", "delete_line"),
-            ("🔍 Find", "find"),
-            ("↕️ Go to Line", "goto"),
-            ("📄 Select All", "select_all"),
+            ("▤ Copy Selection", "copy"),
+            ("▤ Paste", "paste"),
+            ("✂ Cut Selection", "cut"),
+            ("✗ Delete Line", "delete_line"),
+            ("◎ Find", "find"),
+            ("↕ Go to Line", "goto"),
+            ("□ Select All", "select_all"),
         ]
 
         def _handle(choice: str) -> None:

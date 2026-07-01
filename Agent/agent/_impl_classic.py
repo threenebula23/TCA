@@ -4,6 +4,7 @@ from __future__ import annotations
 from ._impl_prepare import *  # noqa: F403
 from ._impl_prepare import (
     _build_session_system_prompt,
+    _ensure_forced_brain_tools,
     _init_llm,
     _print_creator_details,
     _refresh_runtime_tools,
@@ -165,6 +166,9 @@ def run_coding_agent_loop():
     # RAG indexing with progress
     try:
         set_project_root(Path.cwd())
+        from Agent.project_brain import bootstrap_project_brain
+
+        bootstrap_project_brain(Path.cwd())
         try:
             from Interface.visualization import display_rag_progress
             n_rag = index_documents(str(Path.cwd()), pattern="*.py",
@@ -220,10 +224,12 @@ def run_coding_agent_loop():
         pw = False
         bw = True
         ct = True
+        ext = False
         try:
             from Interface.ui_prefs import load_prefs
             prefs = load_prefs()
             ct = bool(prefs.get("custom_tools_enabled", True))
+            ext = bool(prefs.get("extended_tools_enabled", False))
             if agent_extras:
                 pw = bool(prefs.get("playwright_python_enabled", False))
                 bw = bool(prefs.get("browser_tools_enabled", True))
@@ -237,6 +243,7 @@ def run_coding_agent_loop():
                 playwright_python=pw,
                 browser_tools=bw,
                 custom_tools=ct,
+                extended=ext,
             )
             fresh, _ = build_tools(
                 agent_mode=agent_extras,
@@ -244,7 +251,9 @@ def run_coding_agent_loop():
                 playwright_python=pw,
                 browser_tools=bw,
                 custom_tools=ct,
+                extended=ext,
             )
+            fresh = _ensure_forced_brain_tools(ml, fresh, custom_tools_off=not ct)
             tools.clear()
             tools.extend(fresh)
             _refresh_runtime_tools()
@@ -347,7 +356,10 @@ def run_coding_agent_loop():
 
     _sync_classic_tool_bundle(classic_mode_state[0])
 
+    _MODE_ADDON_TAG = "### MODE_ADDON ###"
+
     def _set_classic_mode(mode: str) -> None:
+        nonlocal messages
         m = (mode or "agent").strip().lower()
         if m not in ("agent", "ask", "deep", "creator", "research", "brainer"):
             m = "agent"
@@ -355,6 +367,50 @@ def run_coding_agent_loop():
         creator_mode_active[0] = m == "creator"
         research_mode_active[0] = m == "research"
         _sync_classic_tool_bundle(m)
+        # Mirror the TUI's mode-addon injection (same tag/replace logic) so
+        # `/mode` behaves consistently whether the session runs in the TUI
+        # or the classic CLI — previously only the TUI added this fragment.
+        try:
+            from langchain_core.messages import SystemMessage
+            from Agent.prompts import mode_prompt_addon
+
+            messages[:] = [
+                msg for msg in messages
+                if not (
+                    getattr(msg, "type", "") == "system"
+                    and isinstance(getattr(msg, "content", None), str)
+                    and msg.content.startswith(_MODE_ADDON_TAG)
+                )
+            ]
+            frag = mode_prompt_addon(m)
+            if frag:
+                messages.append(SystemMessage(content=f"{_MODE_ADDON_TAG}\n{frag}"))
+        except Exception:
+            pass
+        if m == "brainer":
+            # Mirror the TUI's eager bg refresh on mode switch (A3) — previously
+            # only the TUI ran `refresh_project_brain` when toggling into
+            # Brainer; the classic CLI just relied on the end-of-turn sync,
+            # so `/mode brainer` here looked like a no-op until the first
+            # full turn completed.
+            import threading
+
+            def _bg_refresh() -> None:
+                try:
+                    from Agent.project_brain import refresh_project_brain
+                    from Agent.project_brain.agent_architecture import reindex_brain_rag
+                    from Agent.project_brain.policy import mark_full_refresh_done
+                    from Agent.path_utils import get_project_root
+
+                    root = get_project_root()
+                    refresh_project_brain(root)
+                    reindex_brain_rag(root)
+                    mark_full_refresh_done(root)
+                    print_info("Brainer: project_brain обновлён.")
+                except Exception as e:
+                    print_warning(f"Brainer: не удалось обновить brain ({type(e).__name__}: {e})")
+
+            threading.Thread(target=_bg_refresh, daemon=True).start()
 
     # ─── Run & render ───────────────────────────────────────────
     def _run_and_render(old_len: int) -> None:
@@ -444,6 +500,18 @@ def run_coding_agent_loop():
                 pass
 
         elapsed = time.time() - t_start
+
+        # J7: same auto-compact threshold as the TUI loop.
+        try:
+            if CONTEXT_LIMIT and cumulative_usage.get("total_tokens"):
+                ratio = cumulative_usage["total_tokens"] / float(CONTEXT_LIMIT)
+                if ratio >= 0.85:
+                    compacted = compact_conversation(messages, keep_last=6)
+                    if len(compacted) < len(messages):
+                        messages[:] = compacted
+                        print_info(f"Контекст {int(ratio * 100)}% — история сжата (/compact авто).")
+        except Exception:
+            pass
 
         if file_changes:
             display_turn_summary(file_changes)

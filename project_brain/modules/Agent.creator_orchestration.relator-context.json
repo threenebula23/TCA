@@ -1,0 +1,52 @@
+{
+  "module_name": "Agent.creator_orchestration",
+  "module_purpose": "Режимы оркестрации Creator Mode (мультиагентность: параллель, конвейер, супервайзер, иерархия).",
+  "responsibilities": [
+    "Режимы оркестрации Creator Mode (мультиагентность: параллель, конвейер, супервайзер, иерархия)."
+  ],
+  "public_api": [
+    {
+      "name": "normalize_orchestration",
+      "description": ""
+    },
+    {
+      "name": "worker_roles_for_count",
+      "description": "Return role names for n workers (used for system prompt and tree display)."
+    },
+    {
+      "name": "role_hint",
+      "description": "Return full role prompt markdown (loaded from Agent/roles/)."
+    },
+    {
+      "name": "format_worker_mode_section",
+      "description": "Блок для SystemMessage после SYSTEM_PROMPT и project_context."
+    },
+    {
+      "name": "build_worker_user_content",
+      "description": ""
+    },
+    {
+      "name": "synthesize_supervisor_report",
+      "description": "Один проход тяжёлой модели: единый отчёт по всем воркерам."
+    }
+  ],
+  "dependencies": [
+    "__future__",
+    "langchain_core.messages",
+    "pathlib",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/creator_mode.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/creator_orchestration.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

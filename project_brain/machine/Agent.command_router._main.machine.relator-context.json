@@ -1,0 +1,51 @@
+{
+  "module_name": "Agent.command_router._main",
+  "module_purpose": "Маршрутизатор slash-команд (classic CLI и воркер TUI). Возврат: обработано / не команда / exit.",
+  "responsibilities": [
+    "Маршрутизатор slash-команд (classic CLI и воркер TUI). Возврат: обработано / не команда / exit."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "Agent.agent._impl_prepare",
+    "Agent.creator_summary",
+    "Agent.llm_provider",
+    "Agent.message_utils",
+    "Agent.rag",
+    "Agent.tool_registry",
+    "Interface.panels.usage_calendar",
+    "Interface.ui_prefs",
+    "Interface.visualization",
+    "Terminal.runner",
+    "_mixin_handlers",
+    "creator_summary",
+    "json",
+    "langchain_core.messages",
+    "message_utils",
+    "os",
+    "pathlib",
+    "rich",
+    "rich.console",
+    "rich.panel",
+    "rich.rule",
+    "rich.table",
+    "rich.text",
+    "simple_term_menu",
+    "tool_registry",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_classic.py",
+    "Agent/agent/_impl_prepare.py",
+    "Agent/agent/_impl_tui.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/command_router/_main.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

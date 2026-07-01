@@ -1,0 +1,36 @@
+{
+  "module_name": "Interface.splash",
+  "module_purpose": "Краткий splash при старте (Rich + pyfiglet) для Lorne.",
+  "responsibilities": [
+    "Краткий splash при старте (Rich + pyfiglet) для Lorne."
+  ],
+  "public_api": [
+    {
+      "name": "show_splash",
+      "description": "Печатает баннер с именем продукта и версией (до поднятия Textual)."
+    }
+  ],
+  "dependencies": [
+    "Interface.branding",
+    "__future__",
+    "pyfiglet",
+    "rich",
+    "rich.console",
+    "rich.panel",
+    "rich.text",
+    "sys"
+  ],
+  "used_by": [
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/splash.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

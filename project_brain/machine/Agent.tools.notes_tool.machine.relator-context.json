@@ -1,0 +1,35 @@
+{
+  "module_name": "Agent.tools.notes_tool",
+  "module_purpose": "Free-form session notes and hypotheses scratch pad.",
+  "responsibilities": [
+    "Free-form session notes and hypotheses scratch pad."
+  ],
+  "public_api": [
+    {
+      "name": "session_notes",
+      "description": "Свободные заметки сессии: append/read/clear/search.\n\naction: append | read | clear | search\ncontent: текст заметки (для append)\ntag: категория ('bug', 'decision', 'todo', 'observation', 'hypothesis', 'fact')\nЗаписывай сюда рассуждения, гипо…"
+    }
+  ],
+  "dependencies": [
+    "__future__",
+    "datetime",
+    "langchain_core.tools",
+    "pathlib"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/notes_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

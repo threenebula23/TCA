@@ -1,0 +1,64 @@
+{
+  "module_name": "Agent.path_utils",
+  "module_purpose": "Общая утилита разрешения путей для агента и модуля загрузки Path.",
+  "responsibilities": [
+    "Общая утилита разрешения путей для агента и модуля загрузки Path."
+  ],
+  "public_api": [
+    {
+      "name": "set_project_root",
+      "description": ""
+    },
+    {
+      "name": "clear_project_root",
+      "description": "Reset project root override (tests / subprocess boundaries)."
+    },
+    {
+      "name": "get_project_root",
+      "description": "Текущий корень проекта (как у resolve_abs_path для относительных путей)."
+    },
+    {
+      "name": "resolve_abs_path",
+      "description": ""
+    }
+  ],
+  "dependencies": [
+    "pathlib",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_classic.py",
+    "Agent/agent/_impl_prepare.py",
+    "Agent/agent/_impl_tui.py",
+    "Agent/checkpoint/__init__.py",
+    "Agent/creator_mode.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/graph_runner.py",
+    "Agent/project_brain/__init__.py",
+    "Agent/project_brain/agent_architecture.py",
+    "Agent/project_brain/context_builder.py",
+    "Agent/rag/__init__.py",
+    "Agent/tools/compact_tools.py",
+    "Agent/tools/docxedit_tools.py",
+    "Agent/tools/ocr_tool.py",
+    "Agent/tools/office_document_tool.py",
+    "Agent/tools/playwright_sync_tool.py",
+    "Agent/tools/qa_tool.py",
+    "Agent/tools/versioning_tool.py",
+    "Interface/ui_prefs.py",
+    "Terminal/runner.py",
+    "tests/test_checkpoint_rollback.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py",
+    "tests/test_project_brain_tool.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/path_utils.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

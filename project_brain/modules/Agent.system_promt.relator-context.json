@@ -1,0 +1,24 @@
+{
+  "module_name": "Agent.system_promt",
+  "module_purpose": "Python module `Agent.system_promt`.",
+  "responsibilities": [
+    "Python module `Agent.system_promt`."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "system_prompt"
+  ],
+  "used_by": [
+    "tests/test_ollama_provider.py",
+    "tests/test_prompt_budget.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/system_promt.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

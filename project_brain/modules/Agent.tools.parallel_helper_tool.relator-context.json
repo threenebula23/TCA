@@ -1,0 +1,46 @@
+{
+  "module_name": "Agent.tools.parallel_helper_tool",
+  "module_purpose": "Background helper: тот же пул тулов + отдельный LLM-цикл в потоке (тест, пока основной run_command ждёт).",
+  "responsibilities": [
+    "Background helper: тот же пул тулов + отдельный LLM-цикл в потоке (тест, пока основной run_command ждёт)."
+  ],
+  "public_api": [
+    {
+      "name": "start_background_task",
+      "description": "Фоновый микро-цикл LLM+тулы; вернёт job_id → get_background_result (параллельно с долгим run_command)."
+    },
+    {
+      "name": "get_background_result",
+      "description": "Статус или ожидание `start_background_task`. wait_seconds=0 — без ожидания."
+    }
+  ],
+  "dependencies": [
+    "Agent.background_agent_runner",
+    "Agent.llm_provider",
+    "Agent.tool_registry",
+    "Interface.ui_prefs",
+    "__future__",
+    "background_agent_runner",
+    "json",
+    "langchain_core.tools",
+    "llm_provider",
+    "tool_registry",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/parallel_helper_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

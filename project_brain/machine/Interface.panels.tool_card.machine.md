@@ -1,0 +1,37 @@
+MODULE: Interface.panels.tool_card
+
+PURPOSE:
+Compact, pretty cards for tool invocations shown in the chat stream.
+
+PUBLIC_API:
+
+
+DEPENDENCIES:
+- Interface.themes
+- Interface.ui_prefs
+- __future__
+- json
+- pathlib
+- rich.text
+- textual.app
+- textual.containers
+- textual.widgets
+- typing
+
+SIDE_EFFECTS:
+- May perform I/O when executed
+
+USED_BY:
+- Interface/panels/ai_chat/__init__.py
+- Interface/panels/ai_chat/_accent_dialog.py
+- Interface/panels/ai_chat/_blocks.py
+- Interface/panels/ai_chat/_messages.py
+- Interface/panels/ai_chat/_mixin_events.py
+- Interface/panels/ai_chat/_mixin_setup.py
+- Interface/panels/ai_chat/_mixin_stream.py
+- tests/test_branding.py
+- tests/test_latest_fixes.py
+- tests/test_package_imports.py
+- tests/test_tool_card_list_files.py
+
+RISKS:

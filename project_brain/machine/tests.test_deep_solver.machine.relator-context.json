@@ -1,0 +1,69 @@
+{
+  "module_name": "tests.test_deep_solver",
+  "module_purpose": "Smoke tests for the Deep Solver plumbing — not the long run itself.",
+  "responsibilities": [
+    "Smoke tests for the Deep Solver plumbing — not the long run itself."
+  ],
+  "public_api": [
+    {
+      "name": "test_deep_extra_tools_have_expected_names",
+      "description": ""
+    },
+    {
+      "name": "test_filter_tools_drops_human_interactive_tools",
+      "description": ""
+    },
+    {
+      "name": "test_extract_facts_read_file",
+      "description": ""
+    },
+    {
+      "name": "test_extract_facts_write_file",
+      "description": ""
+    },
+    {
+      "name": "test_render_tool_result_truncates_long_strings",
+      "description": ""
+    },
+    {
+      "name": "test_render_tool_result_dumps_dict_json",
+      "description": ""
+    },
+    {
+      "name": "test_checkpoint_registry_roundtrip",
+      "description": ""
+    },
+    {
+      "name": "test_format_elapsed_branches",
+      "description": ""
+    },
+    {
+      "name": "test_deep_state_singleton_queues_messages",
+      "description": ""
+    },
+    {
+      "name": "test_deep_state_checkpoint_timing_monotonic",
+      "description": ""
+    },
+    {
+      "name": "test_compact_with_head_lock_preserves_head",
+      "description": ""
+    }
+  ],
+  "dependencies": [
+    "Agent.deep_solver",
+    "__future__",
+    "langchain_core.messages",
+    "pytest"
+  ],
+  "used_by": [],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "tests/test_deep_solver.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

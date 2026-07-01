@@ -101,6 +101,26 @@
 
 ---
 
+## Тулы для слабых моделей
+
+- **`structured_memory`**, **`ast_analyze`**, **`multi_read`**, **`lint_check`**, **`task_decompose`**, **`env_info`**, **`batch_replace`**, **`verify_result`**, **`session_notes`** — по одному модулю в `Agent/tools/`, см. таблицу в [TOOLS.md](../TOOLS.md#базовый-тир-для-слабых-моделей). `session_notes` с `tag=research` экспортируется в `project_brain/agent/research_notes.md` в режиме Research.
+
+---
+
+## Суб-агенты
+
+- **`spawn_subagent(task)`** / **`get_subagent_result(token, wait_seconds)`** — `Agent/tools/subagent_tools.py`, исполнение через `Agent/subagent_runner.py` (общий пул, лимит 3 одновременных job). Доступны в Agent/Brainer/Research/Deep (Deep Solver диспетчит их через тот же раннер); **исключены в Ask**.
+
+---
+
+## Расширенный тир (опционально)
+
+- Реализация: `Agent/tools/extended_tools.py`. Включается тумблером **Extended tools** (`extended_tools_enabled`, по умолчанию `false`) — см. [TOOLS.md](../TOOLS.md#расширенный-тир-опционально-extended_tools_enabled).
+- **`viz_tool`**: `action=chart` возвращает `{"format": "lorne-chart", "chart": {"labels": [...], "series": [...]}}`, `action=diagram` — mermaid-lite текст. Модель должна вставить результат в финальный ответ как ` ```lorne-chart ` / ` ```mermaid ` fenced-блок — TUI отрендерит его через `Interface/panels/rich_message.py`.
+- **`net_tool`**: `action=db_query` — только SQLite, только `SELECT`/`PRAGMA table_info` (без записи, без сторонних драйверов).
+
+---
+
 ## Custom tools
 
 Загрузка из `~/.lorne_custom_tools` (legacy: `~/.tca_custom_tools`): `custom_tools.py` — `load_custom_tools`, `add_custom_tool`, … Отображаются в списке тулов, если включено в настройках.

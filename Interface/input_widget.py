@@ -18,11 +18,13 @@ _SKIP_DIRS: Set[str] = {
 
 _COMMANDS = [
     "/help", "/exit", "/plan", "/status", "/profile", "/model",
-    "/model <id>", "/model ollama", "/ollama pick",
+    "/model <id>", "/model ollama", "/ollama pick", "/model lmstudio", "/lmstudio pick",
     "/balance", "/credits", "/compact", "/versions", "/rollback",
     "/mode", "/mode settings", "/normal", "/agentmode", "/askmode", "/deepmode", "/deep", "/creatormode", "/researchmode", "/brainer",
     "/ollama status", "/ollama list", "/ollama refresh", "/ollama set-url", "/ollama set-key",
     "/ollama add-model", "/ollama remove-model", "/ollama preset-list", "/ollama preset-set", "/ollama model-set",
+    "/lmstudio status", "/lmstudio list", "/lmstudio set-url", "/lmstudio set-key",
+    "/lmstudio add-model", "/lmstudio remove-model",
     "/deepcp list", "/deepcp rollback", "/deepcp continue", "/stop",
     "/theme", "/accent",
     "/agent", "/custom", "/creator", "/ls", "/tree", "/rag",

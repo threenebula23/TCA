@@ -1,0 +1,52 @@
+{
+  "module_name": "Agent.project_brain.agent_architecture",
+  "module_purpose": "Model-authored Markdown under ``project_brain/`` (RAG-indexed, mostly not touched by refresh).",
+  "responsibilities": [
+    "Model-authored Markdown under ``project_brain/`` (RAG-indexed, mostly not touched by refresh)."
+  ],
+  "public_api": [
+    {
+      "name": "write_brain_markdown",
+      "description": "Записать или дополнить ``project_brain/<rel_path>`` (только .md, без выхода из каталога).\n\nРазрешённые пути см. :func:`_is_allowed_brain_rel`. Запрещены корневые\n``overview.md`` / ``architecture.md`` и деревья ``modules/`` … — для них\nиспол…"
+    },
+    {
+      "name": "write_agent_architecture",
+      "description": "Совместимость: то же, что ``write_brain_markdown(..., agent_architecture.md, ...)``."
+    },
+    {
+      "name": "reindex_brain_rag",
+      "description": "Reload brain chunks from disk into the in-process RAG store."
+    },
+    {
+      "name": "run_brain_sync_if_enabled",
+      "description": "Reindex brain docs after an agent turn (respect ``LORNE_SKIP_BRAIN_SYNC``)."
+    }
+  ],
+  "dependencies": [
+    "Agent.path_utils",
+    "Agent.rag",
+    "__future__",
+    "datetime",
+    "os",
+    "pathlib",
+    "re"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_classic.py",
+    "Agent/agent/_impl_prepare.py",
+    "Agent/agent/_impl_tui.py",
+    "Agent/creator_mode.py",
+    "Agent/graph_runner.py",
+    "Agent/tools/compact_tools.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/project_brain/agent_architecture.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

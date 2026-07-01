@@ -5,6 +5,6 @@
 `web_search`, `web_fetch`, `library_context`, `get_file_line_count`, `ask_user`,
 `reasoning_tool` (think/analyze), `structured_memory` (get/list only),
 `env_info`, `session_notes` (read only), `ocr_tool`, `office_document_read` —
-**без** записи в файлы, без `run_command`, `edit_file`, `write_file`.
-
-Строковые JSON-аргументы (`steps_json`, `data_json`, …): одна строка = **полный** валидный JSON в **двойных** кавычках, без обрыва; для `plan_tool` save надёжнее поле `steps` как массив строк.
+**без** записи в файлы, без `run_command`, `edit_file`, `write_file`,
+`project_brain_tool`. Для фиксации выводов в Project Brain переключись в
+Agent или Brainer (`/mode brainer`).

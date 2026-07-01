@@ -30,7 +30,7 @@ try:
         synthesize_supervisor_report,
     )
     from .planner import build_creator_plan
-    from .system_prompt import SYSTEM_PROMPT
+    from .system_prompt import WORKER_SYSTEM_PROMPT
 except ImportError:
     from Agent.creator_provider import (
         get_local_llm, get_heavy_llm, classify_task_complexity,
@@ -44,7 +44,7 @@ except ImportError:
         synthesize_supervisor_report,
     )
     from Agent.planner import build_creator_plan
-    from Agent.system_prompt import SYSTEM_PROMPT
+    from Agent.system_prompt import WORKER_SYSTEM_PROMPT
 
 try:
     from .message_utils import (
@@ -248,44 +248,15 @@ _MAX_DEPTH = 5
 
 
 def _read_brain_context_for_creator(max_chars: int = 4000) -> str:
-    """Краткое содержимое project_brain для инъекции в системный промпт воркера."""
+    """Краткое содержимое project_brain для инъекции в системный промпт воркера.
+
+    Тонкая обёртка над единой реализацией ``project_brain.read_brain_context``
+    (см. P1-2) — раньше здесь была третья почти идентичная копия логики.
+    """
     try:
-        try:
-            from Agent.path_utils import get_project_root
-        except ImportError:
-            from pathlib import Path
-            get_project_root = lambda: Path.cwd()
-        root = get_project_root()
-        brain_dir = root / "project_brain"
-        if not brain_dir.is_dir():
-            return ""
-        priority = ["overview.md", "architecture.md", "agent_architecture.md"]
-        files: list = []
-        for name in priority:
-            p = brain_dir / name
-            if p.is_file():
-                files.append(p)
-        for p in sorted(brain_dir.glob("*.md")):
-            if p not in files:
-                files.append(p)
-        parts = []
-        total = 0
-        for fp in files:
-            try:
-                text = fp.read_text(encoding="utf-8", errors="replace").strip()
-                if not text:
-                    continue
-                chunk = f"### {fp.name}\n{text}"
-                if total + len(chunk) > max_chars:
-                    remaining = max_chars - total
-                    if remaining > 150:
-                        parts.append(chunk[:remaining] + "\n…")
-                    break
-                parts.append(chunk)
-                total += len(chunk)
-            except Exception:
-                continue
-        return "\n\n".join(parts)
+        from Agent.project_brain import read_brain_context
+
+        return read_brain_context(max_chars=max_chars)
     except Exception:
         return ""
 
@@ -330,7 +301,7 @@ def _run_single_worker(
         "\n\n### Project Brain\n" + brain_ctx if brain_ctx else ""
     )
     worker_system = (
-        f"{SYSTEM_PROMPT}\n\n{project_context}{brain_section}\n\n"
+        f"{WORKER_SYSTEM_PROMPT}\n\n{project_context}{brain_section}\n\n"
         + format_worker_mode_section(worker_id, role, orch)
     )
 
@@ -1028,6 +999,35 @@ def run_creator_mode(
         
     if modified_files:
         display_file_diffs(modified_files)
+
+    # mode-creator-brain-writer: a single write_brain for the whole run instead
+    # of relying on individual workers to remember `write_brain` (they rarely
+    # do — the plan notes the Creator prompt never even mentions it), plus a
+    # full refresh only when workers actually touched code (policy:
+    # creator.refresh_on_end == "if_code_changed").
+    if is_root_run:
+        try:
+            from Agent.project_brain.agent_architecture import write_brain_markdown, reindex_brain_rag
+            from Agent.project_brain.policy import should_refresh_on_end
+
+            summary_lines = [f"**Задача:** {task.strip()[:300]}", ""]
+            for r in results:
+                icon = "OK" if r.get("status") == "done" else "ERR"
+                summary_lines.append(f"- [{icon}] {r.get('worker_id')}: {str(r.get('task', ''))[:120]}")
+            if modified_files:
+                summary_lines.append("\n**Изменённые файлы:**")
+                summary_lines.extend(f"- {f}" for f in modified_files[:40])
+            if supervisor_synthesis:
+                summary_lines.append("\n**Сводка супервайзера:**\n" + supervisor_synthesis[:2000])
+            write_brain_markdown(None, "agent/creator_summary.md", "\n".join(summary_lines))
+            if should_refresh_on_end("creator", code_changed=bool(modified_files)):
+                from Agent.path_utils import get_project_root
+                from Agent.project_brain import refresh_project_brain
+
+                refresh_project_brain(get_project_root())
+            reindex_brain_rag(None)
+        except Exception:
+            pass
 
     return {
         "status": "done" if error_count == 0 else "partial",

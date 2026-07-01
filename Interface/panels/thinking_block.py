@@ -9,7 +9,7 @@ from typing import Optional
 
 from rich.text import Text
 from textual.app import ComposeResult
-from textual.containers import Vertical
+from textual.containers import Horizontal, Vertical
 from textual.widgets import Button, Collapsible, Static
 
 
@@ -27,7 +27,7 @@ def _accent_color() -> str:
 class ThinkingBlock(Vertical):
     """Collapsible card displaying one model thought segment.
 
-    Header shows "💭 Мысль модели" with a char-count badge.
+    Header shows "· Мысль модели" with a char-count badge.
     Body renders the full thought text, trimmed to 2000 chars.
     Collapsed by default.
     """
@@ -90,29 +90,20 @@ class ThinkingBlock(Vertical):
         self._expanded = False
 
     def compose(self) -> ComposeResult:
-        accent = _accent_color()
         char_count = len(self._text)
-        with Vertical(classes="tb-header"):
+        with Horizontal(classes="tb-header"):
             yield Static(
-                Text("💭 Мысль модели", style=f"italic #6B7280"),
+                Text("· Мысль модели", style="italic #6B7280"),
                 classes="tb-label",
+            )
+            yield Button(
+                f"▶ развернуть ({char_count} симв.)",
+                classes="tb-toggle",
             )
         yield Static(
             Text(self._text, style="#6B7280"),
             classes="tb-body",
         )
-
-    def on_mount(self) -> None:
-        try:
-            header = self.query_one(".tb-header")
-            char_count = len(self._text)
-            toggle_btn = Button(
-                f"▶ развернуть ({char_count} симв.)",
-                classes="tb-toggle",
-            )
-            header.mount(toggle_btn)
-        except Exception:
-            pass
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.stop()

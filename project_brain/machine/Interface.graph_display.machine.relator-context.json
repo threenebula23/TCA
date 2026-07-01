@@ -1,0 +1,52 @@
+{
+  "module_name": "Interface.graph_display",
+  "module_purpose": "Graph Display — Rich-визуализация работы параллельных агентов Creator Mode.",
+  "responsibilities": [
+    "Graph Display — Rich-визуализация работы параллельных агентов Creator Mode."
+  ],
+  "public_api": [
+    {
+      "name": "pause_live_display",
+      "description": "Пауза Live-отображения для ввода (с блокировкой)."
+    },
+    {
+      "name": "build_graph_renderable",
+      "description": "Построить Rich-рендеринг графа агентов.\n\nReturns:\n    Panel с визуализацией (для использования в Live)"
+    },
+    {
+      "name": "display_creator_result",
+      "description": "Показать финальный результат Creator Mode."
+    }
+  ],
+  "dependencies": [
+    "__future__",
+    "contextlib",
+    "rich",
+    "rich.columns",
+    "rich.console",
+    "rich.layout",
+    "rich.live",
+    "rich.panel",
+    "rich.table",
+    "rich.text",
+    "sys",
+    "threading",
+    "time",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/creator_mode.py",
+    "Agent/tools/terminal_tool.py",
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/graph_display.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

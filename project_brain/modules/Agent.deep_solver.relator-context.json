@@ -1,0 +1,29 @@
+{
+  "module_name": "Agent.deep_solver",
+  "module_purpose": "Deep Solver — пакет (раньше один модуль ``deep_solver.py``).",
+  "responsibilities": [
+    "Deep Solver — пакет (раньше один модуль ``deep_solver.py``)."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "__future__",
+    "_impl_a",
+    "_impl_b"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_classic.py",
+    "Agent/agent/_impl_tui.py",
+    "tests/test_deep_solver.py",
+    "tests/test_ollama_provider.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/deep_solver/__init__.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

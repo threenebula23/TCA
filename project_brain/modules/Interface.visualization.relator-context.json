@@ -1,0 +1,217 @@
+{
+  "module_name": "Interface.visualization",
+  "module_purpose": "Красивый терминальный вывод для агента Lorne (classic CLI) — вдохновлён Claude Code.",
+  "responsibilities": [
+    "Красивый терминальный вывод для агента Lorne (classic CLI) — вдохновлён Claude Code."
+  ],
+  "public_api": [
+    {
+      "name": "refresh_cli_ui_from_prefs",
+      "description": "Перечитать cli_theme и cli_accent_color; обновить Rich Console и ANSI для plain-режима."
+    },
+    {
+      "name": "get_context_limit",
+      "description": ""
+    },
+    {
+      "name": "set_cli_progress_round",
+      "description": ""
+    },
+    {
+      "name": "set_cli_progress_plan_step",
+      "description": ""
+    },
+    {
+      "name": "section",
+      "description": ""
+    },
+    {
+      "name": "step",
+      "description": ""
+    },
+    {
+      "name": "round_header",
+      "description": ""
+    },
+    {
+      "name": "display_agent_action",
+      "description": ""
+    },
+    {
+      "name": "display_tool_result",
+      "description": ""
+    },
+    {
+      "name": "display_model_reply",
+      "description": ""
+    },
+    {
+      "name": "display_turn_summary",
+      "description": ""
+    },
+    {
+      "name": "display_usage",
+      "description": ""
+    },
+    {
+      "name": "display_cumulative_usage",
+      "description": ""
+    },
+    {
+      "name": "print_startup_banner",
+      "description": "Стартовый баннер classic CLI: аттрактор слева, figlet имени, метаданные сессии."
+    },
+    {
+      "name": "print_welcome",
+      "description": "Обратная совместимость: тот же вид, что стартовый баннер (без дублирования логики)."
+    },
+    {
+      "name": "display_shell_command",
+      "description": "Display a user-initiated shell command with terminal-like styling."
+    },
+    {
+      "name": "display_model_selector",
+      "description": "Display a rich model selection interface grouped by tier."
+    },
+    {
+      "name": "display_status_panel",
+      "description": "Display a formatted status panel for /status command."
+    },
+    {
+      "name": "print_help_topic",
+      "description": "Показать строки справки, где встречается topic (команда или описание)."
+    },
+    {
+      "name": "print_commands",
+      "description": ""
+    },
+    {
+      "name": "print_session_list",
+      "description": ""
+    },
+    {
+      "name": "print_thinking",
+      "description": ""
+    },
+    {
+      "name": "print_planning",
+      "description": ""
+    },
+    {
+      "name": "print_deep_cli_session_banner",
+      "description": "Rich-блок: что Deep Solver делает и что можно вводить (классический CLI)."
+    },
+    {
+      "name": "print_deep_cli_heartbeat",
+      "description": "Компактная строка: время, чекпоинты, шаг (throttle снаружи).\n\nДля classic CLI ``to_stderr=True`` — не смешивать с stdout/prompt_toolkit."
+    },
+    {
+      "name": "print_deep_cli_checkpoint",
+      "description": ""
+    },
+    {
+      "name": "print_info_block",
+      "description": "Несколько строк в одной Rich-панели (команды /mode, /ollama, …)."
+    },
+    {
+      "name": "print_info",
+      "description": ""
+    },
+    {
+      "name": "print_success",
+      "description": ""
+    },
+    {
+      "name": "print_warning",
+      "description": ""
+    },
+    {
+      "name": "print_error",
+      "description": ""
+    },
+    {
+      "name": "get_user_input",
+      "description": ""
+    },
+    {
+      "name": "read_cli_line",
+      "description": "Одна строка ввода; при EOF/Ctrl+D — пустая строка (не ``/exit``), чтобы не путать с id модели."
+    },
+    {
+      "name": "display_file_diffs",
+      "description": "Визуализация списка измененных файлов (как в обычном агенте)."
+    },
+    {
+      "name": "display_rag_progress",
+      "description": "Display RAG indexing progress inline."
+    },
+    {
+      "name": "display_rag_results",
+      "description": "Display RAG search results in a formatted table."
+    },
+    {
+      "name": "display_enhanced_status",
+      "description": "Enhanced status panel with RAG, versioning, and creator mode info."
+    },
+    {
+      "name": "suggest_command",
+      "description": "Suggest a command if user input looks like a mistyped command."
+    }
+  ],
+  "dependencies": [
+    "Agent.llm_provider",
+    "Interface.branding",
+    "Interface.cli_theme",
+    "Interface.tui_bridge",
+    "Interface.ui_prefs",
+    "__future__",
+    "io",
+    "json",
+    "pathlib",
+    "plotext",
+    "pyfiglet",
+    "re",
+    "rich",
+    "rich.columns",
+    "rich.console",
+    "rich.live",
+    "rich.markdown",
+    "rich.panel",
+    "rich.progress",
+    "rich.rule",
+    "rich.spinner",
+    "rich.syntax",
+    "rich.table",
+    "rich.text",
+    "rich.theme",
+    "sys",
+    "time",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_classic.py",
+    "Agent/agent/_impl_prepare.py",
+    "Agent/command_router/_main.py",
+    "Agent/command_router/_mixin_handlers.py",
+    "Agent/creator_mode.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/graph_runner.py",
+    "Agent/message_utils/_impl_high.py",
+    "Agent/message_utils/_impl_low.py",
+    "Agent/spinner.py",
+    "Agent/tools/custom_tools.py",
+    "Interface/__init__.py",
+    "Interface/panels/usage_calendar.py",
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/visualization.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

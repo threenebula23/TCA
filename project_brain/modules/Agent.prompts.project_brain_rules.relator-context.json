@@ -1,0 +1,24 @@
+{
+  "module_name": "Agent.prompts.project_brain_rules",
+  "module_purpose": "Project Brain + RAG rules (workspace brain, not the IDE package).",
+  "responsibilities": [
+    "Project Brain + RAG rules (workspace brain, not the IDE package)."
+  ],
+  "public_api": [],
+  "dependencies": [],
+  "used_by": [
+    "Agent/agent/_impl_classic.py",
+    "Agent/agent/_impl_prepare.py",
+    "Agent/agent/_impl_tui.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/prompts/project_brain_rules.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

@@ -646,6 +646,102 @@ class AIChatPanelEventsMixin:
         self._refresh_ollama_list_view()
         self._update_custom_models_line()
 
+    def on_slm_save_conn(self) -> None:
+        base = (self.app.query_one("#slm-base-url", Input).value or "").strip()
+        api = (self.app.query_one("#slm-api-key", Input).value or "").strip()
+        if not base:
+            self.notify("Введите base URL", severity="warning")
+            return
+        os.environ["LMSTUDIO_BASE_URL"] = base
+        os.environ["LMSTUDIO_API_KEY"] = api
+        try:
+            from Interface.ui_prefs import save_prefs
+            save_prefs(lmstudio_base_url=base, lmstudio_api_key=api)
+            self._update_env_file("LMSTUDIO_BASE_URL", base)
+            self._update_env_file("LMSTUDIO_API_KEY", api)
+            self.notify("Настройки LM Studio сохранены")
+        except Exception as e:
+            self.notify(f"Ошибка: {e}", severity="error")
+
+    def on_slm_refresh(self) -> None:
+        status = self.app.query_one("#slm-status", Static)
+        status.update("Запрашиваю список LM Studio моделей…")
+        base = (self.app.query_one("#slm-base-url", Input).value or "").strip()
+        api = (self.app.query_one("#slm-api-key", Input).value or "").strip()
+
+        def _work() -> None:
+            try:
+                from Agent.llm_provider import fetch_lmstudio_models
+                rows = fetch_lmstudio_models(base_url=base, api_key=api)
+                # Cache name -> row so "Применить модель" can use the real
+                # ctx fetched here instead of a hardcoded guess.
+                self._lmstudio_models_cache = {str(r.get("name")): r for r in rows}
+                opts = []
+                for r in rows:
+                    name = str(r.get("name"))
+                    ctx = int(r.get("ctx") or 0)
+                    mark = "●" if r.get("loaded") else "○"
+                    opts.append((f"{mark} {name}  (ctx {ctx:,})", name))
+                if not opts:
+                    opts = [("Модели не найдены (сервер не запущен?)", "")]
+
+                def _apply() -> None:
+                    sel = self.app.query_one("#slm-model-select", Select)
+                    sel.set_options(opts)
+                    if opts:
+                        sel.value = opts[0][1]
+                    status.update(f"Найдено моделей: {len(rows)}  (● загружена · ○ не загружена)")
+
+                self.app.call_from_thread(_apply)
+            except Exception as e:
+                self.app.call_from_thread(status.update, f"Ошибка: {e}")
+
+        threading.Thread(target=_work, daemon=True).start()
+
+    def on_slm_apply_model(self) -> None:
+        try:
+            model_name = str(self.app.query_one("#slm-model-select", Select).value or "").strip()
+        except Exception:
+            model_name = ""
+        if not model_name:
+            self.notify("Сначала обновите и выберите модель", severity="warning")
+            return
+        from Interface.ui_prefs import load_prefs, save_prefs
+
+        cache = getattr(self, "_lmstudio_models_cache", {}) or {}
+        cached = cache.get(model_name) if isinstance(cache, dict) else None
+        model_ctx = int((cached or {}).get("ctx") or 32768)
+        if not (cached or {}).get("loaded"):
+            self.notify(
+                f"Модель {model_name} не загружена в LM Studio — "
+                "ctx может быть неточным, пока её не загрузят там.",
+                severity="warning",
+            )
+
+        prefs = load_prefs()
+        cur = [m for m in (prefs.get("lmstudio_custom_models") or []) if isinstance(m, dict)]
+        cur = [m for m in cur if str(m.get("name") or "") != model_name]
+        cur.append({"name": model_name, "label": f"LM Studio · {model_name}", "ctx": model_ctx})
+        save_prefs(lmstudio_custom_models=cur)
+        self.add_external_model(
+            f"lmstudio/{model_name}",
+            name=f"LM Studio · {model_name}",
+            ctx=model_ctx,
+            tier="local",
+            source="lmstudio",
+            activate=True,
+        )
+        try:
+            self.app.query_one("#slm-model-list", Static).update(
+                "\n".join(
+                    f"  • {m.get('label') or m.get('name')}  [{m.get('name')}]"
+                    for m in cur
+                ) or "  Пока нет добавленных моделей."
+            )
+        except Exception:
+            pass
+        self.notify(f"Модель активирована: lmstudio/{model_name}")
+
     @on(Select.Changed, "#mode-select")
     def on_mode_change(self, event: Select.Changed) -> None:
         if not event.value or event.value == Select.BLANK:

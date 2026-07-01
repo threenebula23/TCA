@@ -9,9 +9,10 @@
 
 ## 2. Реестр
 
-- **`Agent/tool_registry.py`**: добавить объект в **`_base_tools`** или в условный список (браузер, git).
+- **`Agent/tool_registry.py`**: добавить объект в **`_base_tools`** (всегда доступен) или в **`_extended_tools`** (опциональный тир, ` Agent/tools/extended_tools.py`, включается тумблером Extended tools — используйте для тулов, которые не нужны в каждой сессии, чтобы не раздувать бюджет схем).
 - Для Ask-режима: при необходимости добавить имя в **`_ASK_EXCLUDED_TOOL_NAMES`** или оставить доступным.
 - Для переключателя Custom tools: при необходимости **`_CUSTOM_TOOL_NAMES`**.
+- Если тул обязателен в конкретном режиме независимо от prefs (как `rag_search`/`project_brain_tool` в Brainer) — добавить в `force_tools` соответствующей записи `BRAIN_POLICY` (`Agent/project_brain/policy.py`) и убедиться, что `_ensure_forced_brain_tools` подхватывает его.
 
 ## 3. Схемы и coerce
 
@@ -25,7 +26,7 @@
 
 ## 5. Поведение модели
 
-- При необходимости: **`Agent/system_promt.py`** или **`Agent/prompts/`** (режимные дополнения).
+- При необходимости: **`Agent/system_prompt.py`** (общий `SYSTEM_PROMPT`/`WORKER_SYSTEM_PROMPT`) или **`Agent/prompts/<mode>.md`** (дополнение конкретного режима). Держите оба короткими — есть тесты бюджета (`tests/test_prompt_budget.py`), которые проверяют размер промптов и схем.
 
 ## 6. UI
 

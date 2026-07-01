@@ -1,0 +1,37 @@
+{
+  "module_name": "Agent.tools.lint_tool",
+  "module_purpose": "Run linters and return structured error reports.",
+  "responsibilities": [
+    "Run linters and return structured error reports."
+  ],
+  "public_api": [
+    {
+      "name": "lint_check",
+      "description": "Запускает линтер на path и возвращает ошибки структурировано.\n\npath: путь к файлу или директории\nfix: если True — применить автоисправления (ruff --fix)\nlinter: auto | ruff | pylint | eslint | tsc\nВсегда вызывай после правки кода перед тем …"
+    }
+  ],
+  "dependencies": [
+    "__future__",
+    "json",
+    "langchain_core.tools",
+    "pathlib",
+    "subprocess",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/lint_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

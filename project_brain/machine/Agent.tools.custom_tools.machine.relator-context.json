@@ -1,0 +1,62 @@
+{
+  "module_name": "Agent.tools.custom_tools",
+  "module_purpose": "Custom Tools — загрузка, управление и регистрация пользовательских инструментов.",
+  "responsibilities": [
+    "Custom Tools — загрузка, управление и регистрация пользовательских инструментов."
+  ],
+  "public_api": [
+    {
+      "name": "load_custom_tools",
+      "description": "Сканирует каталог кастомных тулов, загружает все @tool-декорированные функции.\n\nReturns:\n    Список BaseTool-объектов, готовых к использованию агентом."
+    },
+    {
+      "name": "list_custom_tools",
+      "description": "Возвращает информацию обо всех кастомных тулах.\n\nReturns:\n    [{name, description, file}, ...]"
+    },
+    {
+      "name": "add_custom_tool",
+      "description": "Сохраняет кастомный тул как .py файл.\n\nArgs:\n    name: Имя тула (будет использовано как имя файла без .py)\n    code: Python-код с @tool декоратором. Если None — создаётся шаблон.\n    description: Описание (для шаблона)\n\nReturns:\n    {\"ok\": …"
+    },
+    {
+      "name": "remove_custom_tool",
+      "description": "Удаляет кастомный тул.\n\nArgs:\n    name: Имя тула (без .py)\n\nReturns:\n    {\"ok\": True} или {\"ok\": False, \"error\": str}"
+    },
+    {
+      "name": "get_custom_tools_prompt",
+      "description": "Формирует блок для system prompt с описанием кастомных тулов.\n\nReturns:\n    Строка с описанием, или пустая строка если тулов нет."
+    },
+    {
+      "name": "reload_custom_tools",
+      "description": "Перезагрузить все кастомные тулы (очистить кэш модулей и загрузить заново)."
+    }
+  ],
+  "dependencies": [
+    "Agent.runtime_paths",
+    "Interface.visualization",
+    "__future__",
+    "importlib.util",
+    "langchain_core.tools",
+    "os",
+    "pathlib",
+    "sys",
+    "traceback",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "Agent/tools/__init__.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/custom_tools.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

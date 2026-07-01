@@ -1,0 +1,46 @@
+{
+  "module_name": "Interface.panels.ai_chat._accent_dialog",
+  "module_purpose": "Accent colour palette modal.",
+  "responsibilities": [
+    "Accent colour palette modal."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "Interface.modal_style",
+    "Interface.panels.creator_progress",
+    "Interface.panels.deep_checkpoint",
+    "Interface.panels.diff_block",
+    "Interface.panels.download_block",
+    "Interface.panels.tool_card",
+    "__future__",
+    "_constants",
+    "os",
+    "pathlib",
+    "re",
+    "rich.markdown",
+    "rich.text",
+    "textual",
+    "textual.app",
+    "textual.binding",
+    "textual.containers",
+    "textual.message",
+    "textual.screen",
+    "textual.widgets",
+    "threading",
+    "time",
+    "typing"
+  ],
+  "used_by": [
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/panels/ai_chat/_accent_dialog.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

@@ -44,13 +44,120 @@ _PROVIDER_CAPS: Dict[str, Dict[str, bool]] = {
     # but our recovery layer in message_utils handles non-native models by extracting
     # tool calls from plain-text responses.
     "ollama/":      {"parallel_tool_calls": False, "native_tools": True},
+    # LM Studio: OpenAI-compatible /v1 server only (no native endpoint like
+    # Ollama's /api/chat). Function-calling support depends on the loaded
+    # model, same caveat as Ollama; the message_utils recovery layer applies
+    # here too since both speak the same OpenAI tool-call wire format.
+    "lmstudio/":    {"parallel_tool_calls": False, "native_tools": True},
 }
 
 
+# ─── Ollama per-tag quirks registry ─────────────────────────────────
+# `_PROVIDER_CAPS["ollama/"]` above is a single flag set shared by *every*
+# Ollama tag, even though native tool-calling support, safe context size and
+# stop tokens vary a lot by model family. This registry lets us apply
+# family-specific defaults instead of guessing the same thing for all of
+# them — it's the concrete reason "some Ollama models don't work right".
+# Matched by substring against the lowercased wire model name (e.g. "qwen2.5:7b").
+_OLLAMA_MODEL_QUIRKS: List[Dict[str, Any]] = [
+    {"match": ("qwen2.5", "qwen2"), "supports_tools": True, "default_num_ctx": 32768, "stop": []},
+    {"match": ("qwen3",), "supports_tools": True, "default_num_ctx": 40960, "stop": []},
+    {"match": ("llama3.1", "llama-3.1"), "supports_tools": True, "default_num_ctx": 131072, "stop": ["<|eot_id|>"]},
+    {"match": ("llama3.2", "llama-3.2"), "supports_tools": True, "default_num_ctx": 131072, "stop": ["<|eot_id|>"]},
+    {"match": ("llama3", "llama-3"), "supports_tools": False, "default_num_ctx": 8192, "stop": ["<|eot_id|>"]},
+    {"match": ("mistral-nemo",), "supports_tools": True, "default_num_ctx": 131072, "stop": []},
+    {"match": ("mistral",), "supports_tools": True, "default_num_ctx": 32768, "stop": []},
+    {"match": ("mixtral",), "supports_tools": True, "default_num_ctx": 32768, "stop": []},
+    {"match": ("gemma2",), "supports_tools": False, "default_num_ctx": 8192, "stop": ["<end_of_turn>"]},
+    {"match": ("gemma3", "gemma"), "supports_tools": False, "default_num_ctx": 32768, "stop": ["<end_of_turn>"]},
+    {"match": ("phi3", "phi-3"), "supports_tools": False, "default_num_ctx": 4096, "stop": ["<|end|>"]},
+    {"match": ("phi4", "phi-4"), "supports_tools": True, "default_num_ctx": 16384, "stop": ["<|end|>"]},
+    {"match": ("deepseek-r1",), "supports_tools": False, "default_num_ctx": 32768, "stop": []},
+    {"match": ("deepseek-coder", "deepseek-v"), "supports_tools": True, "default_num_ctx": 32768, "stop": []},
+    {"match": ("codellama",), "supports_tools": False, "default_num_ctx": 16384, "stop": []},
+]
+_OLLAMA_DEFAULT_QUIRK: Dict[str, Any] = {"supports_tools": True, "default_num_ctx": 32768, "stop": []}
+
+
+def get_ollama_model_quirks(wire_model_name: str) -> Dict[str, Any]:
+    """Best-effort per-family defaults for an Ollama tag (e.g. ``qwen2.5:7b``).
+
+    Falls back to a generic "assume native tools, 32k ctx" entry for unknown
+    families. This does not replace explicit user overrides in
+    ``ollama_model_settings`` — it only fills in sane defaults so unfamiliar
+    tags don't silently inherit settings tuned for a different model.
+    """
+    name = (wire_model_name or "").lower()
+    for entry in _OLLAMA_MODEL_QUIRKS:
+        if any(tag in name for tag in entry["match"]):
+            return dict(entry)
+    return dict(_OLLAMA_DEFAULT_QUIRK)
+
+
+# Cache of `/api/show` lookups so we don't hit the local server on every LLM
+# call just to read the model's real context window.
+_MODEL_SHOW_CACHE: Dict[str, Dict[str, Any]] = {}
+_MODEL_SHOW_CACHE_TTL = 300.0
+
+
+def fetch_ollama_model_show(
+    wire_model_name: str, base_url: str = "", api_key: str = "",
+) -> Optional[Dict[str, Any]]:
+    """Query Ollama ``/api/show`` for a model's real metadata (cached).
+
+    Used to clip a too-large ``num_ctx`` down to what the model actually
+    supports, instead of trusting a single hardcoded default for every tag.
+    """
+    cache_key = f"{base_url}::{wire_model_name}"
+    cached = _MODEL_SHOW_CACHE.get(cache_key)
+    now = time.time()
+    if cached and (now - cached.get("_fetched_at", 0)) < _MODEL_SHOW_CACHE_TTL:
+        return cached.get("data")
+
+    data = _ollama_http_json(
+        "POST", "/api/show", payload={"model": wire_model_name},
+        base_url=base_url, api_key=api_key, timeout=6,
+    )
+    _MODEL_SHOW_CACHE[cache_key] = {"_fetched_at": now, "data": data}
+    return data
+
+
+def get_ollama_model_max_ctx(wire_model_name: str, base_url: str = "", api_key: str = "") -> Optional[int]:
+    """Best-effort real context-length ceiling for a model, via ``/api/show``.
+
+    Returns ``None`` when unknown (offline server, unsupported field, etc.)
+    so callers can fall back to the family-quirk default instead.
+    """
+    info = fetch_ollama_model_show(wire_model_name, base_url=base_url, api_key=api_key)
+    if not isinstance(info, dict):
+        return None
+    model_info = info.get("model_info") if isinstance(info.get("model_info"), dict) else {}
+    for key, value in model_info.items():
+        if key.endswith(".context_length"):
+            try:
+                n = int(value)
+                if n > 0:
+                    return n
+            except Exception:
+                continue
+    return None
+
+
 def get_model_capabilities(model_id: str) -> Dict[str, bool]:
-    """Return capability flags for a given model based on its provider prefix."""
+    """Return capability flags for a given model based on its provider prefix.
+
+    For ``ollama/<tag>`` models this refines the generic prefix-level flags
+    with the per-tag quirks registry, since native tool-calling support is
+    not uniform across local model families (see ``_OLLAMA_MODEL_QUIRKS``).
+    """
+    mid = model_id or ""
+    if mid.startswith("ollama/"):
+        caps = dict(_PROVIDER_CAPS["ollama/"])
+        wire_name = mid.split("/", 1)[1]
+        caps["native_tools"] = bool(get_ollama_model_quirks(wire_name).get("supports_tools", True))
+        return caps
     for prefix, caps in _PROVIDER_CAPS.items():
-        if (model_id or "").startswith(prefix):
+        if mid.startswith(prefix):
             return dict(caps)
     return {"parallel_tool_calls": False, "native_tools": True}
 
@@ -215,6 +322,22 @@ def get_available_models() -> List[Dict[str, Any]]:
             }
         )
 
+    for m in (prefs.get("lmstudio_custom_models") or []):
+        if not isinstance(m, dict):
+            continue
+        name = str(m.get("name") or "").strip()
+        if not name:
+            continue
+        merged.append(
+            {
+                "id": f"lmstudio/{name}",
+                "name": str(m.get("label") or f"LM Studio · {name}"),
+                "ctx": int(m.get("ctx") or 32_768),
+                "tier": "local",
+                "source": "lmstudio",
+            }
+        )
+
     return _dedupe_models(merged)
 
 
@@ -355,19 +478,40 @@ def _resolve_ollama_settings(
         mp_default = int(base_max_tokens) if int(base_max_tokens or 0) > 0 else 8192
     except Exception:
         mp_default = 8192
+    quirks = get_ollama_model_quirks(wire_model_name)
     merged: Dict[str, Any] = {
         "temperature": base_temperature,
         "top_p": 0.9,
         "top_k": 40,
-        "repeat_penalty": 1.1,
-        "num_ctx": 32768,
+        # 1.1-1.15 discourages local models from looping/repeating text
+        # without over-penalizing legitimate repetition; repeat_last_n
+        # controls how far back that penalty looks (too small lets a model
+        # fall into paragraph-level loops).
+        "repeat_penalty": 1.15,
+        "repeat_last_n": 256,
+        "num_ctx": quirks.get("default_num_ctx", 32768),
         "num_predict": mp_default,
-        "stop": "",
+        "stop": quirks.get("stop") or "",
     }
     merged.update({k: v for k, v in preset_cfg.items() if v is not None})
     merged.update({k: v for k, v in raw_cfg.items() if k != "preset" and v is not None})
 
     stop_list = _parse_stop_sequences(merged.get("stop"))
+
+    # Clip num_ctx to the model's real context window when we can find it out
+    # (via /api/show) — a too-large num_ctx either gets silently truncated
+    # server-side or, on constrained hardware, can blow up VRAM/RAM usage.
+    requested_num_ctx = int(merged.get("num_ctx", quirks.get("default_num_ctx", 32768)) or 32768)
+    try:
+        real_max_ctx = get_ollama_model_max_ctx(
+            wire_model_name,
+            base_url=_ensure_native_base_url(base_url_raw),
+            api_key=api_key,
+        )
+    except Exception:
+        real_max_ctx = None
+    if real_max_ctx and requested_num_ctx > real_max_ctx:
+        requested_num_ctx = real_max_ctx
 
     try:
         num_predict_final = int(merged.get("num_predict", mp_default))
@@ -384,10 +528,12 @@ def _resolve_ollama_settings(
         "temperature": float(merged.get("temperature", base_temperature)),
         "top_p": float(merged.get("top_p", 0.9)),
         "top_k": int(merged.get("top_k", 40)),
-        "repeat_penalty": float(merged.get("repeat_penalty", 1.1)),
-        "num_ctx": int(merged.get("num_ctx", 32768)),
+        "repeat_penalty": float(merged.get("repeat_penalty", 1.15)),
+        "repeat_last_n": int(merged.get("repeat_last_n", 256)),
+        "num_ctx": requested_num_ctx,
         "num_predict": num_predict_final,
         "stop": stop_list,
+        "supports_tools": bool(quirks.get("supports_tools", True)),
     }
 
 
@@ -403,6 +549,7 @@ def _build_ollama_chat_llm(wire_model_name: str, settings: Dict[str, Any]) -> An
         "top_p": settings["top_p"],
         "top_k": settings["top_k"],
         "repeat_penalty": settings["repeat_penalty"],
+        "repeat_last_n": settings.get("repeat_last_n", 256),
         "num_ctx": settings["num_ctx"],
         "num_predict": settings["num_predict"],
         # Local models can be slow on first load — give them breathing room.
@@ -443,6 +590,138 @@ def _build_ollama_openai_llm(wire_model_name: str, settings: Dict[str, Any]) -> 
     return ChatOpenAI(**kwargs)
 
 
+def _resolve_lmstudio_settings(base_temperature: float, base_max_tokens: int) -> Dict[str, Any]:
+    """Resolve LM Studio connection settings (base_url/api_key) + sampling params.
+
+    LM Studio only exposes an OpenAI-compatible ``/v1`` server (default port
+    1234), so unlike Ollama there's no native endpoint to fall back from —
+    every request goes through ``ChatOpenAI``.
+    """
+    prefs = _load_ui_model_overrides()
+    base_url_raw = _env(
+        "LMSTUDIO_BASE_URL",
+        str(prefs.get("lmstudio_base_url") or "http://localhost:1234/v1"),
+    )
+    api_key = (
+        _env("LMSTUDIO_API_KEY", str(prefs.get("lmstudio_api_key") or "")) or "lm-studio"
+    )
+    try:
+        mp_default = int(base_max_tokens) if int(base_max_tokens or 0) > 0 else 8192
+    except Exception:
+        mp_default = 8192
+    return {
+        "base_url_v1": _ensure_v1_base_url(base_url_raw),
+        "api_key": api_key,
+        "temperature": base_temperature,
+        "top_p": 0.9,
+        "max_tokens": mp_default,
+    }
+
+
+def _build_lmstudio_llm(wire_model_name: str, settings: Dict[str, Any]) -> ChatOpenAI:
+    """LM Studio is OpenAI-compatible; reuse the same client as OpenRouter/Ollama-/v1."""
+    return ChatOpenAI(
+        base_url=settings["base_url_v1"],
+        api_key=settings["api_key"] or "lm-studio",
+        model=wire_model_name,
+        temperature=settings["temperature"],
+        max_tokens=settings["max_tokens"],
+        top_p=settings["top_p"],
+        request_timeout=600,
+        max_retries=1,
+    )
+
+
+def _lmstudio_native_base(base_url_v1: str) -> str:
+    """Turn the OpenAI-compatible ``/v1`` base into LM Studio's native ``/api/v0``.
+
+    The native endpoint exposes real per-model context length (``GET /v1/models``
+    only returns bare ids), so it's needed to avoid showing a fake hardcoded ctx.
+    """
+    u = (base_url_v1 or "").rstrip("/")
+    if u.endswith("/v1"):
+        u = u[: -len("/v1")]
+    return u + "/api/v0"
+
+
+def fetch_lmstudio_models(base_url: str = "", api_key: str = "") -> List[Dict[str, Any]]:
+    """Fetch model list with real context length from LM Studio's native API.
+
+    Tries ``GET /api/v0/models`` first (LM Studio-specific; reports
+    ``max_context_length`` / ``loaded_context_length`` per model and whether a
+    model is actually loaded). Falls back to the bare OpenAI-compatible
+    ``GET /v1/models`` (no ctx info, so we fall back to a conservative default)
+    if the native endpoint isn't available (older LM Studio versions).
+    """
+    raw = (base_url or "").strip() or _env("LMSTUDIO_BASE_URL", "http://localhost:1234/v1")
+    base_v1 = _ensure_v1_base_url(raw)
+    token = (api_key or "").strip() or _env("LMSTUDIO_API_KEY", "")
+    out: List[Dict[str, Any]] = []
+
+    native_base = _lmstudio_native_base(base_v1)
+    req = urllib.request.Request(native_base + "/models", method="GET")
+    req.add_header("Authorization", f"Bearer {token or 'lm-studio'}")
+    try:
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        for m in (data.get("data") or []):
+            if not isinstance(m, dict):
+                continue
+            name = str(m.get("id") or "").strip()
+            if not name:
+                continue
+            # Embeddings / reranker / TTS models aren't chat models — only
+            # "llm" entries are valid completions targets.
+            mtype = str(m.get("type") or "llm").strip().lower()
+            if mtype and mtype != "llm":
+                continue
+            loaded = str(m.get("state") or "").strip().lower() == "loaded"
+            ctx = m.get("loaded_context_length") if loaded else None
+            if not isinstance(ctx, int) or ctx <= 0:
+                ctx = m.get("max_context_length")
+            if not isinstance(ctx, int) or ctx <= 0:
+                ctx = 32_768
+            out.append({
+                "name": name,
+                "label": f"LM Studio · {name}",
+                "ctx": int(ctx),
+                "loaded": loaded,
+            })
+        if out:
+            return out
+    except Exception:
+        pass
+
+    # Fallback: bare OpenAI-compatible listing has no ctx info at all.
+    req = urllib.request.Request(base_v1 + "/models", method="GET")
+    req.add_header("Authorization", f"Bearer {token or 'lm-studio'}")
+    try:
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return out
+    for m in (data.get("data") or []):
+        if not isinstance(m, dict):
+            continue
+        name = str(m.get("id") or "").strip()
+        if not name:
+            continue
+        out.append({"name": name, "label": f"LM Studio · {name}", "ctx": 32_768, "loaded": False})
+    return out
+
+
+def check_lmstudio_server(base_url: str = "", timeout: int = 4) -> bool:
+    """Quick reachability check for an LM Studio server (``GET /v1/models``)."""
+    raw = (base_url or "").strip() or _env("LMSTUDIO_BASE_URL", "http://localhost:1234/v1")
+    base = _ensure_v1_base_url(raw)
+    req = urllib.request.Request(base + "/models", method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout):
+            return True
+    except Exception:
+        return False
+
+
 def get_llm(profile: str | None = None) -> Tuple[Any, ProfileName, str]:
     profile_name = normalize_profile(profile)
     cfg = _PROFILES[profile_name]
@@ -457,6 +736,12 @@ def get_llm(profile: str | None = None) -> Tuple[Any, ProfileName, str]:
             llm = _build_ollama_chat_llm(wire_model_name, settings)
         else:
             llm = _build_ollama_openai_llm(wire_model_name, settings)
+        return llm, profile_name, model_name
+
+    if model_name.startswith("lmstudio/"):
+        wire_model_name = model_name.split("/", 1)[1]
+        settings = _resolve_lmstudio_settings(temperature, max_tokens)
+        llm = _build_lmstudio_llm(wire_model_name, settings)
         return llm, profile_name, model_name
 
     base_url = env_pref("BASE_URL", "https://openrouter.ai/api/v1")

@@ -16,6 +16,22 @@ from Interface.panels._colors import (
 __all__ = ["PURPLE", "PURPLE_LIGHT", "GRAY", "GREEN", "RED", "YELLOW", "DIM", "BLUE", "CYAN"]
 
 MODES = ["Agent", "Ask", "Creator", "Research", "Deep", "Brainer"]
+MODE_ICONS = {
+    "agent": "●",
+    "ask": "»",
+    "creator": "◆",
+    "research": "◎",
+    "deep": "◐",
+    "brainer": "✧",
+}
+MODE_COLORS = {
+    "agent": PURPLE,
+    "ask": BLUE,
+    "creator": GREEN,
+    "research": CYAN,
+    "deep": YELLOW,
+    "brainer": "#EC4899",
+}
 MARKDOWN_SYNTAX_THEME_MAP = {
     "monokai": "monokai",
     "dracula": "dracula",

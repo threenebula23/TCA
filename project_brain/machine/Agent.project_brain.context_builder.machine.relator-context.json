@@ -1,0 +1,41 @@
+{
+  "module_name": "Agent.project_brain.context_builder",
+  "module_purpose": "Normalize ``scan_project`` output into a Relator-ready context (flat lists + nested dicts).",
+  "responsibilities": [
+    "Normalize ``scan_project`` output into a Relator-ready context (flat lists + nested dicts)."
+  ],
+  "public_api": [
+    {
+      "name": "build_project_context",
+      "description": "Build the JSON model consumed by Relator templates and ``rag_manifest``."
+    }
+  ],
+  "dependencies": [
+    "Agent.path_utils",
+    "__future__",
+    "collections",
+    "datetime",
+    "json",
+    "pathlib",
+    "re",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/agent/_impl_classic.py",
+    "Agent/agent/_impl_prepare.py",
+    "Agent/agent/_impl_tui.py",
+    "Agent/graph_runner.py",
+    "Agent/tools/compact_tools.py",
+    "tests/test_ollama_provider.py",
+    "tests/test_project_brain_tool.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/project_brain/context_builder.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

@@ -1,0 +1,26 @@
+{
+  "module_name": "Terminal",
+  "module_purpose": "Python module `Terminal`.",
+  "responsibilities": [
+    "Python module `Terminal`."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "Terminal.runner"
+  ],
+  "used_by": [
+    "Agent/command_router/_main.py",
+    "Agent/tools/qa_tool.py",
+    "Agent/tools/terminal_tool.py",
+    "tests/test_latest_fixes.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Terminal/__init__.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

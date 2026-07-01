@@ -1,0 +1,41 @@
+{
+  "module_name": "Interface.branding",
+  "module_purpose": "Константы продукта Lorne: имя, версия, вспомогательные строки для UI и HTTP.",
+  "responsibilities": [
+    "Константы продукта Lorne: имя, версия, вспомогательные строки для UI и HTTP."
+  ],
+  "public_api": [
+    {
+      "name": "cli_attractor_block",
+      "description": "Статичный мини-блок слева от логотипа в classic CLI (палитра фиолетового TUI).\n\nВозвращает многострочную ASCII-«искру» без анимации — только визуальный якорь.\n\nПример::\n\n    from rich.text import Text\n    from Interface.branding import cli_…"
+    },
+    {
+      "name": "user_agent_fragment",
+      "description": "Фрагмент User-Agent для исходящих HTTP-запросов (совместимость с логами серверов).\n\nПример::\n\n    headers = {\"User-Agent\": f\"Mozilla/5.0 (compatible; {user_agent_fragment()})\"}"
+    }
+  ],
+  "dependencies": [
+    "__future__"
+  ],
+  "used_by": [
+    "Agent/tools/context7_tool.py",
+    "Agent/tools/download_tool.py",
+    "Agent/tools/web_tool.py",
+    "Interface/panels/ai_chat/_mixin_setup.py",
+    "Interface/splash.py",
+    "Interface/start_screen.py",
+    "Interface/tui_app.py",
+    "Interface/visualization.py",
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/branding.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

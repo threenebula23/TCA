@@ -1,0 +1,34 @@
+{
+  "module_name": "Interface.panels.terminal_panel",
+  "module_purpose": "Terminal panel — embedded terminal emulator with tabs + close support.",
+  "responsibilities": [
+    "Terminal panel — embedded terminal emulator with tabs + close support."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "__future__",
+    "os",
+    "pathlib",
+    "subprocess",
+    "textual",
+    "textual.app",
+    "textual.containers",
+    "textual.widgets",
+    "textual_terminal",
+    "threading",
+    "typing"
+  ],
+  "used_by": [
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/panels/terminal_panel.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

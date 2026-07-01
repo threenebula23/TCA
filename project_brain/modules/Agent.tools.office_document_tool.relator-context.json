@@ -1,0 +1,72 @@
+{
+  "module_name": "Agent.tools.office_document_tool",
+  "module_purpose": "Чтение и запись Office/PDF: DOCX со стилями Word, простой PDF с типографикой ReportLab, .doc через antiword (если есть).",
+  "responsibilities": [
+    "Чтение и запись Office/PDF: DOCX со стилями Word, простой PDF с типографикой ReportLab, .doc через antiword (если есть)."
+  ],
+  "public_api": [
+    {
+      "name": "office_document_read",
+      "description": "Читает .docx (абзацы + имена стилей Word), .pdf (текст по страницам) или .doc (только текст, нужен antiword).\nДля правок стилей и текста используй docx_document_patch_paragraphs / docx_document_append_paragraphs."
+    },
+    {
+      "name": "docx_document_create",
+      "description": "Создаёт новый .docx. paragraphs_json: [{\"text\":\"...\",\"style\":\"Title|Heading 1|Normal|...\"}, ...]."
+    },
+    {
+      "name": "docx_document_append_paragraphs",
+      "description": "Добавляет в конец существующего .docx абзацы. paragraphs_json как в docx_document_create."
+    },
+    {
+      "name": "docx_document_patch_paragraphs",
+      "description": "Правка абзацев по индексу (0-based). patches_json:\n[{\"paragraph_index\": 0, \"text\": \"новый текст\", \"style\": \"Heading 2\"}, ...]\nПоле style можно опустить — останется прежний стиль (кроме смены через text)."
+    },
+    {
+      "name": "docx_document_advanced_ops",
+      "description": "Массив op в operations_json (до 40): append_paragraph, set_paragraph_*, set_run_font, set_section_*, insert_page_break_after_paragraph, insert_table_after_paragraph. Детали полей — из ответа валидации; TOC/PAGE — через code_interpreter."
+    },
+    {
+      "name": "pdf_styled_document_create",
+      "description": "PDF через ReportLab; sections_json: [{role: title|h1|h2|body, text}, ...]; перезапись файла."
+    }
+  ],
+  "dependencies": [
+    "Agent.path_utils",
+    "__future__",
+    "docx",
+    "docx.enum.section",
+    "docx.enum.text",
+    "docx.shared",
+    "fitz",
+    "json",
+    "langchain_core.tools",
+    "path_utils",
+    "pathlib",
+    "re",
+    "reportlab.lib.pagesizes",
+    "reportlab.lib.styles",
+    "reportlab.lib.units",
+    "reportlab.platypus",
+    "subprocess",
+    "typing",
+    "xml.sax.saxutils"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "Agent/tools/__init__.py",
+    "Agent/tools/compact_tools.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/office_document_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

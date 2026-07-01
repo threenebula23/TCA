@@ -1,0 +1,29 @@
+{
+  "module_name": "Interface.panels.ai_chat._helpers",
+  "module_purpose": "Вспомогательные функции для блоков сообщений в чате.",
+  "responsibilities": [
+    "Вспомогательные функции для блоков сообщений в чате."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "Agent.message_utils",
+    "Interface.ui_prefs",
+    "__future__",
+    "_constants",
+    "pathlib",
+    "re"
+  ],
+  "used_by": [
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/panels/ai_chat/_helpers.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

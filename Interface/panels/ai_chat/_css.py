@@ -89,6 +89,44 @@ AIChatPanel {
     min-height: 1;
     display: block;
 }
+#agent-activity-bar {
+    height: 0;
+    min-height: 0;
+    display: none;
+    padding: 0 1;
+    margin: 0 0 1 0;
+    background: #12121A;
+    border-left: thick #22C55E;
+    color: #E5E7EB;
+}
+#agent-activity-bar.-active {
+    height: auto;
+    min-height: 1;
+    display: block;
+}
+#brain-sync-bar {
+    height: 0;
+    min-height: 0;
+    display: none;
+    padding: 0 1;
+    margin: 0 0 1 0;
+    background: #12121A;
+    border-left: thick #3B82F6;
+    color: #E5E7EB;
+}
+#brain-sync-bar.-active {
+    height: auto;
+    min-height: 1;
+    display: block;
+}
+.tool-in-progress {
+    height: auto;
+    margin: 0 0 0 0;
+    color: #9CA3AF;
+}
+.tool-in-progress.-active {
+    color: #E5E7EB;
+}
 #ctx-meter-row {
     height: auto;
     min-height: 2;

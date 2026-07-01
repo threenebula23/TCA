@@ -1,6 +1,6 @@
 # Режимы TUI
 
-Каждый режим задаёт дополнительный фрагмент системного промпта (`Agent/prompts/__init__.py`, `_MODE_ADDONS`) и влияет на набор тулов через `_sync_tui_tool_bundle` / `build_tools` в `Agent/agent/_impl_prepare.py`.
+Каждый режим задаёт дополнительный фрагмент системного промпта — файл `Agent/prompts/<mode>.md` (фолбэк — `_MODE_ADDONS_FALLBACK` в `Agent/prompts/__init__.py`), возвращается через `mode_prompt_addon(mode)` — и влияет на набор тулов через `_sync_tui_tool_bundle` / `build_tools` в `Agent/agent/_impl_prepare.py`, а также на политику Project Brain (`Agent/project_brain/policy.py`: что индексировать/писать/дебаунсить в этом режиме).
 
 | Режим | Файл | Кратко |
 |-------|------|--------|

@@ -1,0 +1,35 @@
+{
+  "module_name": "Interface.panels.image_viewer",
+  "module_purpose": "Image Viewer panel — display images in the terminal (fallback to metadata if no renderer).",
+  "responsibilities": [
+    "Image Viewer panel — display images in the terminal (fallback to metadata if no renderer)."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "PIL",
+    "__future__",
+    "os",
+    "pathlib",
+    "rich.panel",
+    "rich.style",
+    "rich.text",
+    "textual.app",
+    "textual.binding",
+    "textual.containers",
+    "textual.widgets",
+    "typing"
+  ],
+  "used_by": [
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/panels/image_viewer.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

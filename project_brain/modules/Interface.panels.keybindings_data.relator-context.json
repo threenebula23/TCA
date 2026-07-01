@@ -1,0 +1,26 @@
+{
+  "module_name": "Interface.panels.keybindings_data",
+  "module_purpose": "Single source of truth for all keybinding data.",
+  "responsibilities": [
+    "Single source of truth for all keybinding data."
+  ],
+  "public_api": [],
+  "dependencies": [
+    "__future__",
+    "typing"
+  ],
+  "used_by": [
+    "Interface/panels/ai_chat/_mixin_setup.py",
+    "tests/test_branding.py",
+    "tests/test_package_imports.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Interface/panels/keybindings_data.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

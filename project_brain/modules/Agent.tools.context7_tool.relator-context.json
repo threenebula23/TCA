@@ -1,0 +1,50 @@
+{
+  "module_name": "Agent.tools.context7_tool",
+  "module_purpose": "Инструмент Context7 — прямой вызов REST API.",
+  "responsibilities": [
+    "Инструмент Context7 — прямой вызов REST API."
+  ],
+  "public_api": [
+    {
+      "name": "resolve_library",
+      "description": "Найти библиотеку в Context7 по имени. Возвращает Context7 ID для использования в get_library_docs.\nПримеры: 'react', 'fastapi', 'langchain', 'nextjs'."
+    },
+    {
+      "name": "get_library_docs",
+      "description": "Получить документацию библиотеки из Context7.\nlibrary_id — ID из resolve_library (например '/reactjs/react.dev').\nquery — что именно нужно найти (например 'hooks useState useEffect').\nmax_tokens — максимальное число токенов в ответе."
+    },
+    {
+      "name": "get_documentation",
+      "description": "Ищет документацию для библиотек и фреймворков.\nЕсли установлен CONTEXT7_API_KEY — использует Context7 API для точных результатов.\nИначе — DuckDuckGo поиск.\nquery — текст запроса, library — название библиотеки (опционально)."
+    }
+  ],
+  "dependencies": [
+    "Interface.branding",
+    "__future__",
+    "ddgs",
+    "json",
+    "langchain_core.tools",
+    "os",
+    "typing",
+    "urllib.error",
+    "urllib.request"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "Agent/tools/__init__.py",
+    "Agent/tools/compact_tools.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/context7_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

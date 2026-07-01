@@ -172,7 +172,7 @@ class AIChatPanelStreamMixin:
             body = body[:-1]
 
         count = len(self._round_file_changes)
-        title = f"📂 Изменённые файлы  ·  {count} шт."
+        title = f"▥ Изменённые файлы  ·  {count} шт."
         card = Collapsible(
             Static(body),
             title=title,
@@ -251,7 +251,7 @@ class AIChatPanelStreamMixin:
             body = body[:-1]
 
         count = len(self._round_web_sources)
-        title = f"🌐 Источники  ·  {count} шт."
+        title = f"◯ Источники  ·  {count} шт."
         card = Collapsible(
             Static(body),
             title=title,
@@ -555,7 +555,7 @@ class AIChatPanelStreamMixin:
     def add_file_indicator(self, path: str) -> None:
         name = Path(path).name if path else "unknown"
         accent = self._ui_colors()["accent"]
-        self._mount_main(Static(Text(f"📄 {name}", style=f"{accent}"), classes="stream-line"))
+        self._mount_main(Static(Text(f"□ {name}", style=f"{accent}"), classes="stream-line"))
 
     # ─── Deep Solver checkpoints ────────────────────────────────────
     # The Deep mode drops a checkpoint card in the chat every few
@@ -607,6 +607,190 @@ class AIChatPanelStreamMixin:
         bar.update(label)
         bar.add_class("-active")
 
+    def show_agent_activity_bar(self) -> None:
+        """Ensure the agent activity badge slot is visible (timer starts on update)."""
+        try:
+            bar = self.query_one("#agent-activity-bar", Static)
+            bar.add_class("-active")
+        except Exception:
+            pass
+
+    def hide_agent_activity_bar(self) -> None:
+        try:
+            if getattr(self, "_agent_activity_timer", None):
+                self._agent_activity_timer.stop()
+                self._agent_activity_timer = None
+            bar = self.query_one("#agent-activity-bar", Static)
+            bar.remove_class("-active")
+            bar.update("")
+            self._agent_activity_phase = ""
+            self._agent_activity_tool = ""
+        except Exception:
+            pass
+
+    def set_agent_activity(
+        self, phase: str, tool_name: str = "", elapsed_sec: float = 0.0,
+    ) -> None:
+        """Show phase / tool / elapsed above chat input for all agent modes."""
+        phase = str(phase or "").strip()
+        tool_name = str(tool_name or "").strip()
+        if not phase:
+            self.hide_agent_activity_bar()
+            return
+        self._agent_activity_phase = phase
+        self._agent_activity_tool = tool_name
+        elapsed = max(0.0, float(elapsed_sec or 0.0))
+        if elapsed > 0:
+            self._agent_activity_elapsed = elapsed
+            if getattr(self, "_agent_activity_timer", None):
+                try:
+                    self._agent_activity_timer.stop()
+                except Exception:
+                    pass
+                self._agent_activity_timer = None
+        elif phase == "tool":
+            self._agent_activity_started = time.time()
+            self._agent_activity_elapsed = 0.0
+            if not getattr(self, "_agent_activity_timer", None):
+                self._agent_activity_timer = self.set_interval(0.5, self._tick_agent_activity)
+        self.show_agent_activity_bar()
+        self._render_agent_activity_bar()
+
+    def _tick_agent_activity(self) -> None:
+        if self._agent_activity_phase != "tool":
+            return
+        if self._agent_activity_started > 0:
+            self._agent_activity_elapsed = time.time() - self._agent_activity_started
+        self._render_agent_activity_bar()
+
+    def _render_agent_activity_bar(self) -> None:
+        try:
+            bar = self.query_one("#agent-activity-bar", Static)
+        except Exception:
+            return
+        accent = self._ui_colors().get("accent", "#8B5CF6")
+        label = Text()
+        phase = self._agent_activity_phase
+        if phase == "tool":
+            label.append("▸ ", style="#22C55E")
+            label.append("Инструмент  ·  ", style=f"bold #22C55E")
+            if self._agent_activity_tool:
+                label.append(self._agent_activity_tool, style=f"bold {accent}")
+                label.append("  ·  ", style="#9CA3AF")
+            secs = self._agent_activity_elapsed
+            label.append(f"⏱ {secs:.1f}s", style="#E5E7EB")
+        elif phase == "thinking":
+            label.append("◐ ", style=accent)
+            label.append("Модель думает…", style=f"bold {accent}")
+        else:
+            label.append("● ", style=accent)
+            label.append(phase, style=f"bold {accent}")
+        bar.update(label)
+        bar.add_class("-active")
+
+    def show_tool_in_progress(
+        self, tool_name: str, step: int = 0, tool_args: Any = None,
+    ) -> None:
+        """Mount or refresh a compact in-progress line for any tool call."""
+        key = f"{tool_name}:{int(step or 0)}"
+        summary = ""
+        if isinstance(tool_args, dict) and tool_args:
+            for k in ("file_path", "path", "filename", "command", "query", "url"):
+                if tool_args.get(k):
+                    summary = str(tool_args.get(k))[:80]
+                    break
+            if not summary:
+                summary = str(list(tool_args.items())[0])[:80]
+        accent = self._ui_colors().get("accent", PURPLE)
+        msg = Text()
+        msg.append("▸ ", style=accent)
+        msg.append(str(tool_name or "tool"), style=f"bold {accent}")
+        if summary:
+            msg.append(f"  {summary}", style="#9CA3AF")
+        msg.append("  …", style=DIM)
+        widget = self._tool_progress.get(key)
+        if widget is None:
+            widget = Static(msg, classes="stream-line tool-in-progress -active")
+            self._tool_progress[key] = widget
+            self._mount_main(widget)
+        else:
+            try:
+                widget.update(msg)
+                widget.add_class("-active")
+            except Exception:
+                pass
+        self.set_agent_activity("tool", str(tool_name or "tool"), 0.0)
+
+    def finish_tool_in_progress(self, tool_name: str) -> None:
+        """Mark in-progress tool lines done (keeps them visible but dimmed)."""
+        tool_name = str(tool_name or "")
+        for key, widget in list(self._tool_progress.items()):
+            if not key.startswith(f"{tool_name}:"):
+                continue
+            try:
+                widget.remove_class("-active")
+                cur = widget.renderable
+                if isinstance(cur, Text):
+                    done = Text()
+                    done.append("✓ ", style=GREEN)
+                    done.append_text(cur)
+                    widget.update(done)
+            except Exception:
+                pass
+        if self._agent_activity_tool == tool_name:
+            self.set_timer(1.2, self.hide_agent_activity_bar)
+
+    def set_brain_sync_indicator(
+        self,
+        phase: str,
+        ok: bool = True,
+        detail: str = "",
+        chunks: Optional[int] = None,
+    ) -> None:
+        """Flash brain sync / RAG status above chat input."""
+        try:
+            bar = self.query_one("#brain-sync-bar", Static)
+        except Exception:
+            return
+        phase = str(phase or "").strip()
+        if not phase:
+            bar.remove_class("-active")
+            bar.update("")
+            return
+        self._brain_sync_phase = phase
+        self._brain_sync_ok = bool(ok)
+        self._brain_sync_detail = str(detail or "")
+        self._brain_sync_chunks = chunks
+
+        label = Text()
+        color = GREEN if ok else RED
+        label.append("◆ ", style=color)
+        label.append("Project Brain  ·  ", style=f"bold {color}")
+        label.append(phase, style="#E5E7EB")
+        if chunks is not None:
+            label.append(f"  ·  {int(chunks)} chunks", style="#9CA3AF")
+        if detail and not ok:
+            short = detail[:120] + ("…" if len(detail) > 120 else "")
+            label.append(f"  ·  {short}", style=RED)
+        bar.update(label)
+        bar.add_class("-active")
+
+        if getattr(self, "_brain_sync_hide_timer", None):
+            try:
+                self._brain_sync_hide_timer.stop()
+            except Exception:
+                pass
+        if ok:
+            self._brain_sync_hide_timer = self.set_timer(4.0, self._hide_brain_sync_bar)
+
+    def _hide_brain_sync_bar(self) -> None:
+        try:
+            bar = self.query_one("#brain-sync-bar", Static)
+            bar.remove_class("-active")
+            bar.update("")
+        except Exception:
+            pass
+
     def add_deep_context_chip(self, cp_id: str, label: str) -> None:
         """Planted by 'Continue from checkpoint' — shows up in the
         attachment strip as a neutral chip so the next user message is
@@ -647,22 +831,22 @@ class AIChatPanelStreamMixin:
         total = self._context_total
         pct = round(100 * used / total) if total > 0 else 0
         pct = max(0, min(100, pct))
-        bar_w = 16
+        bar_w = 20
         filled = round(bar_w * pct / 100)
         filled = max(0, min(bar_w, filled))
-        bar = "[" + "=" * filled + "-" * (bar_w - filled) + "]"
-        accent = self._ui_colors()["accent"]
         if pct < 50:
             pct_style = GREEN
         elif pct < 85:
-            pct_style = accent
+            pct_style = YELLOW
         else:
             pct_style = RED
+        bar = "█" * filled + "░" * (bar_w - filled)
         try:
             pv = self.query_one("#ctx-progress-visual", Static)
             pv.update(Text.assemble(
-                (f"Окно {bar} ", ""),
-                (f"{pct}%", f"bold {pct_style}"),
+                ("Контекст ", "dim"),
+                (bar, pct_style),
+                (f" {pct}%", f"bold {pct_style}"),
                 (f"  ~{used:,}/{total:,} ток.", "dim"),
             ))
         except Exception:
@@ -800,10 +984,17 @@ class AIChatPanelStreamMixin:
         """
         try:
             self._stream_raw = (self._stream_raw or "") + (token or "")
-            try:
-                from Agent.message_utils import extract_thought_segments
-                thoughts, body = extract_thought_segments(self._stream_raw)
-            except Exception:
+            # Fast path: most models never emit reasoning-tag markers at all,
+            # so skip the (O(n) per call, O(n^2) over a full stream) regex
+            # re-parse of the whole accumulated buffer until we've actually
+            # seen something that *could* be a thinking-tag opener.
+            if "<" in self._stream_raw or "[" in self._stream_raw:
+                try:
+                    from Agent.message_utils import extract_thought_segments
+                    thoughts, body = extract_thought_segments(self._stream_raw)
+                except Exception:
+                    thoughts, body = [], self._stream_raw
+            else:
                 thoughts, body = [], self._stream_raw
             think_text = "\n\n".join(t.strip() for t in thoughts if (t or "").strip())
             body = (body or "").strip()
@@ -815,7 +1006,7 @@ class AIChatPanelStreamMixin:
                     )
                     self._mount_main(self._stream_think_widget)
                 self._stream_think_widget.update(
-                    Text(f"💭 {think_text}", style=f"italic {DIM}")
+                    Text(f"· {think_text}", style=f"italic {DIM}")
                 )
 
             if body:
@@ -825,7 +1016,11 @@ class AIChatPanelStreamMixin:
                 self._stream_widget.update(body)
 
             try:
-                self._main_stream().scroll_end(animate=False)
+                stream = self._main_stream()
+                # Sticky scroll: keep following new tokens only if the user
+                # hasn't scrolled up to read earlier messages.
+                if self._is_stream_at_bottom():
+                    stream.scroll_end(animate=False)
             except Exception:
                 pass
         except Exception:

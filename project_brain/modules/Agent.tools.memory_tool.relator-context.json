@@ -1,0 +1,36 @@
+{
+  "module_name": "Agent.tools.memory_tool",
+  "module_purpose": "Persistent in-session key-value memory for the agent.",
+  "responsibilities": [
+    "Persistent in-session key-value memory for the agent."
+  ],
+  "public_api": [
+    {
+      "name": "structured_memory",
+      "description": "Сессионная KV-память: set/get/list/delete/clear.\n\naction: set | get | list | delete | clear\nkey: ключ записи (для set/get/delete)\nvalue: значение (для set)\nnamespace: пространство имён (по умолчанию 'default'; воркеры Creator используют wor…"
+    }
+  ],
+  "dependencies": [
+    "__future__",
+    "json",
+    "langchain_core.tools",
+    "pathlib",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/memory_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

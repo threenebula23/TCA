@@ -14,30 +14,106 @@ def _slug(mid: str) -> str:
     return (s[:120] or "module") + ".md"
 
 
-def _write_fallback(ctx: Dict[str, Any], out_dir: Path) -> List[Path]:
+def _write_fallback(ctx: Dict[str, Any], out_dir: Path, only: Any = None) -> List[Path]:
+    """Plain-Python Markdown for root pages when Relator isn't installed or fails.
+
+    Relator is optional (see ``requirements.txt``); without it ``modules/``,
+    ``glossary.md``, ``tools.md`` and ``flows.md`` used to stay completely
+    empty (only ``overview.md`` + ``architecture.md`` were covered here),
+    so most installs without the optional package saw a near-empty brain
+    even after a successful refresh. This now covers every root page.
+
+    ``only`` restricts which filenames get (re)written, so a partial Relator
+    failure doesn't clobber pages that *did* render successfully.
+    """
+    wanted = set(only) if only is not None else None
     out_dir.mkdir(parents=True, exist_ok=True)
     written: List[Path] = []
-    overview = [
-        f"# {ctx.get('project_name', 'project')}",
-        "",
-        str(ctx.get("project_purpose") or ""),
-        "",
-        "## Modules (summary)",
-        "",
-    ]
-    for row in (ctx.get("modules") or [])[:80]:
-        if isinstance(row, dict):
-            overview.append(f"- **{row.get('name')}** ({row.get('type')}): {row.get('purpose', '')[:200]}")
-    p = out_dir / "overview.md"
-    p.write_text("\n".join(overview), encoding="utf-8")
-    written.append(p)
-    arch = out_dir / "architecture.md"
-    arch.write_text(
-        "# Architecture\n\n" + str(ctx.get("architecture", {}).get("overview", "")),
-        encoding="utf-8",
-    )
-    written.append(arch)
+
+    if wanted is None or "overview.md" in wanted:
+        overview = [
+            f"# {ctx.get('project_name', 'project')}",
+            "",
+            str(ctx.get("project_purpose") or ""),
+            "",
+            "## Modules (summary)",
+            "",
+        ]
+        for row in (ctx.get("modules") or [])[:80]:
+            if isinstance(row, dict):
+                overview.append(f"- **{row.get('name')}** ({row.get('type')}): {row.get('purpose', '')[:200]}")
+        p = out_dir / "overview.md"
+        p.write_text("\n".join(overview), encoding="utf-8")
+        written.append(p)
+
+    if wanted is None or "architecture.md" in wanted:
+        arch = out_dir / "architecture.md"
+        arch_lines = ["# Architecture", "", str(ctx.get("architecture", {}).get("overview", "")), ""]
+        for layer in ctx.get("layers") or []:
+            if isinstance(layer, dict):
+                arch_lines.append(f"## {layer.get('name')}")
+                arch_lines.append(str(layer.get("purpose") or ""))
+                arch_lines.append("")
+        arch.write_text("\n".join(arch_lines), encoding="utf-8")
+        written.append(arch)
+
+    if wanted is None or "glossary.md" in wanted:
+        glossary = out_dir / "glossary.md"
+        glossary_lines = ["# Glossary", ""] + [
+            f"- {line}" for line in ctx.get("glossary_lines") or []
+        ]
+        glossary.write_text("\n".join(glossary_lines), encoding="utf-8")
+        written.append(glossary)
+
+    if wanted is None or "tools.md" in wanted:
+        tools_md = out_dir / "tools.md"
+        tools_lines = ["# Tools", ""]
+        for t in ctx.get("tools") or []:
+            if isinstance(t, dict):
+                tools_lines.append(f"## {t.get('name')}")
+                tools_lines.append(str(t.get("purpose") or ""))
+                tools_lines.append("")
+        tools_md.write_text("\n".join(tools_lines), encoding="utf-8")
+        written.append(tools_md)
+
+    if wanted is None or "flows.md" in wanted:
+        flows_md = out_dir / "flows.md"
+        flows_lines = ["# Flows", ""]
+        for f in ctx.get("flows") or []:
+            if isinstance(f, dict):
+                flows_lines.append(f"## {f.get('name')}")
+                flows_lines.append(str(f.get("description") or ""))
+                flows_lines.append(str(f.get("steps_text") or ""))
+                flows_lines.append("")
+        flows_md.write_text("\n".join(flows_lines), encoding="utf-8")
+        written.append(flows_md)
+
     return written
+
+
+def _write_module_stub(flat: Dict[str, Any], dest: Path) -> Path:
+    """Minimal per-module Markdown when Relator's ``module.md`` template isn't rendered."""
+    lines = [
+        f"# {flat.get('module_name', 'module')}",
+        "",
+        str(flat.get("module_purpose") or ""),
+        "",
+        "## Public API",
+    ]
+    for api in flat.get("public_api") or []:
+        if isinstance(api, dict):
+            lines.append(f"- `{api.get('name')}` — {api.get('description', '')[:160]}")
+        else:
+            lines.append(f"- {api}")
+    lines += ["", "## Dependencies"]
+    for d in flat.get("dependencies") or []:
+        lines.append(f"- {d}")
+    lines += ["", "## Used by"]
+    for u in flat.get("used_by") or []:
+        lines.append(f"- {u}")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text("\n".join(lines), encoding="utf-8")
+    return dest
 
 
 def _relator_render(tpl_dir: Path, template_name: str, out_path: Path,
@@ -130,8 +206,16 @@ def build_brain_markdown(root: Path, scan: Dict[str, Any]) -> List[Path]:
     _try("flows.md", out_dir / "flows.md")
     _try("changelog.md", out_dir / "changelog.md")
 
-    if not (out_dir / "overview.md").is_file():
-        written.extend(_write_fallback(ctx, out_dir))
+    # Fill in whichever root pages Relator didn't render (missing package, or
+    # a template failure for just one page) instead of only falling back when
+    # *every* page is missing — this is the main reason installs without the
+    # optional `relator` package used to see an almost-empty brain.
+    missing_root = [
+        name for name in ("overview.md", "architecture.md", "glossary.md", "tools.md", "flows.md")
+        if not (out_dir / name).is_file()
+    ]
+    if missing_root:
+        written.extend(_write_fallback(ctx, out_dir, only=missing_root))
 
     for mod in ctx.get("modules_detail") or []:
         if not isinstance(mod, dict):
@@ -154,6 +238,8 @@ def build_brain_markdown(root: Path, scan: Dict[str, Any]) -> List[Path]:
         dest = modules_dir / slug
         if _relator_render(tpl_dir, "module.md", dest, flat):
             written.append(dest)
+        else:
+            written.append(_write_module_stub(flat, dest))
         mdest = machine_dir / (slug.replace(".md", ".machine.md"))
         if _relator_render(tpl_dir, "machine.md", mdest, flat):
             written.append(mdest)

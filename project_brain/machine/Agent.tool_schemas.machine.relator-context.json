@@ -1,0 +1,38 @@
+{
+  "module_name": "Agent.tool_schemas",
+  "module_purpose": "Pydantic-схемы аргументов инструментов: валидация, сжатие лишних полей, подсказки модели.",
+  "responsibilities": [
+    "Pydantic-схемы аргументов инструментов: валидация, сжатие лишних полей, подсказки модели."
+  ],
+  "public_api": [
+    {
+      "name": "validate_tool_arguments",
+      "description": "Возвращает (нормализованные аргументы, текст ошибки или None)."
+    }
+  ],
+  "dependencies": [
+    "__future__",
+    "json",
+    "pydantic",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/creator_mode.py",
+    "Agent/deep_solver/_impl_a.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/graph_runner.py",
+    "tests/test_latest_fixes.py",
+    "tests/test_ollama_provider.py",
+    "tests/test_project_brain_tool.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tool_schemas.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

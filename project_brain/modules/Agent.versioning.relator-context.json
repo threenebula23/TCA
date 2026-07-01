@@ -1,0 +1,70 @@
+{
+  "module_name": "Agent.versioning",
+  "module_purpose": "Версионирование файлов для отката правок (SQLite).",
+  "responsibilities": [
+    "Версионирование файлов для отката правок (SQLite)."
+  ],
+  "public_api": [
+    {
+      "name": "save_version",
+      "description": "Сохраняет версию содержимого файла. Возвращает version_id."
+    },
+    {
+      "name": "list_versions",
+      "description": "Список версий для файла (последние сначала)."
+    },
+    {
+      "name": "get_version_content",
+      "description": ""
+    },
+    {
+      "name": "rollback_to_version",
+      "description": "Откат файла к конкретной версии."
+    },
+    {
+      "name": "rollback_last",
+      "description": "Откат к самой последней сохранённой версии."
+    },
+    {
+      "name": "latest_version_id_for_path",
+      "description": "ID последней версии по пути (по created_at)."
+    },
+    {
+      "name": "latest_version_created_at",
+      "description": "created_at последней версии по пути (ISO), или None."
+    },
+    {
+      "name": "snapshot_all_paths_latest_version",
+      "description": "Для каждого пути в БД версий — id самой новой версии (снимок «текущего» состояния трека TCA)."
+    },
+    {
+      "name": "paths_first_version_strictly_after",
+      "description": "Пути, у которых первая запись в file_versions новее ts_iso (файл впервые отслежен после метки времени)."
+    }
+  ],
+  "dependencies": [
+    "Agent.runtime_paths",
+    "__future__",
+    "datetime",
+    "hashlib",
+    "pathlib",
+    "sqlite3",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/checkpoint/__init__.py",
+    "Agent/tools/versioning_tool.py",
+    "Interface/panels/diff_block.py",
+    "tests/test_checkpoint_rollback.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "Import-time side effects unknown"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/versioning/__init__.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

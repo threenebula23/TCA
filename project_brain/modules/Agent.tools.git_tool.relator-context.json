@@ -1,0 +1,47 @@
+{
+  "module_name": "Agent.tools.git_tool",
+  "module_purpose": "Git tools for the Lorne agent — log, diff, rollback via LangChain @tool.",
+  "responsibilities": [
+    "Git tools for the Lorne agent — log, diff, rollback via LangChain @tool."
+  ],
+  "public_api": [
+    {
+      "name": "git_log",
+      "description": "Показать историю Git-коммитов. path — фильтр по файлу (пусто = весь проект), limit — макс. число коммитов."
+    },
+    {
+      "name": "git_diff",
+      "description": "Показать diff. commit — хеш коммита (пусто = текущие изменения)."
+    },
+    {
+      "name": "git_rollback_file",
+      "description": "Откатить файл к указанному коммиту. path — путь к файлу, commit — хеш (пусто = последний коммит)."
+    },
+    {
+      "name": "git_status",
+      "description": "Показать текущий статус Git-репозитория: ветка, изменения, staged файлы."
+    }
+  ],
+  "dependencies": [
+    "Agent.git_integration",
+    "langchain_core.tools",
+    "typing"
+  ],
+  "used_by": [
+    "Agent/background_agent_runner.py",
+    "Agent/deep_solver/legacy_loop.py",
+    "Agent/tool_registry.py",
+    "Agent/tools/compact_tools.py",
+    "tests/test_file_ops.py",
+    "tests/test_ollama_provider.py"
+  ],
+  "side_effects": [
+    "May perform I/O when executed"
+  ],
+  "risks": [],
+  "files": [
+    "Agent/tools/git_tool.py"
+  ],
+  "entrypoints": [],
+  "api_hints": []
+}

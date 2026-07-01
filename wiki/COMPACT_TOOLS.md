@@ -21,6 +21,8 @@
 
 Атомарные тулы (`read_file`, `edit_file`, …) остаются отдельными импортами из `Agent/tools/*` — см. [TOOLS.md](TOOLS.md).
 
+Отдельный **опциональный** тир мега-тулов (`code_intel_tool`, `net_tool`, `viz_tool`, …) живёт в `Agent/tools/extended_tools.py`, а не здесь — см. таблицу «Расширенный тир» в [TOOLS.md](TOOLS.md#расширенный-тир-опционально-extended_tools_enabled). Разница: тулы в этом файле (`compact_tools.py`) всегда в базовом наборе, расширенный тир включается тумблером в настройках.
+
 ## Добавление ветки в compact tool
 
 1. Реализовать делегирование в `compact_tools.py`.
